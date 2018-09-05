@@ -7,9 +7,9 @@
  */
 
 namespace App\Controller;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class IndexController extends AbstractController
@@ -51,6 +51,7 @@ class IndexController extends AbstractController
     public function createFriend(Request $request)
     {
         return $this->json([
+            'id' => rand(100, 10000),
             'name' => $request->get('name'),
         ]);
     }
