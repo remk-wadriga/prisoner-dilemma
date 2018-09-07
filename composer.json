@@ -14,6 +14,8 @@
         "symfony/framework-bundle": "*",
         "symfony/maker-bundle": "^1.7",
         "symfony/orm-pack": "^1.0",
+        "symfony/security-bundle": "*",
+        "symfony/security-guard": "*",
         "symfony/templating": "*",
         "symfony/validator": "*",
         "symfony/yaml": "*"

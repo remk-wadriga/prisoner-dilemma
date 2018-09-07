@@ -2,14 +2,23 @@
 
 namespace App\Entity;
 
+use App\Helpers\AccessTokenHelper;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use App\Helpers\AccessTokenEntityInterface;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Faker\Factory;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\HasLifecycleCallbacks()
+ * @UniqueEntity("email", message="User with the same email already registered in system.")
  */
-class User
+class User implements AccessTokenEntityInterface
 {
+    use TimestampableEntity;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -57,24 +66,20 @@ class User
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="string", length=32)
      */
     private $salt;
 
     /**
      * @ORM\Column(type="datetime")
      */
-    private $created_at;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $updated_at;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
     private $access_token_expired_at;
+
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(max=4096)
+     */
+    private $plainPassword;
 
     public function getId(): ?int
     {
@@ -167,36 +172,15 @@ class User
 
     public function getSalt(): ?string
     {
+        if ($this->salt === null) {
+            $this->salt = Factory::create()->md5;
+        }
         return $this->salt;
     }
 
     public function setSalt(string $salt): self
     {
         $this->salt = $salt;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $created_at): self
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updated_at): self
-    {
-        $this->updated_at = $updated_at;
 
         return $this;
     }
@@ -212,4 +196,88 @@ class User
 
         return $this;
     }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(string $password): self
+    {
+        $this->plainPassword = $password;
+        return $this;
+    }
+
+    // Implementing UserInterface
+
+    public function getUsername()
+    {
+        return $this->email;
+    }
+
+    public function eraseCredentials()
+    {
+
+    }
+
+    // Implementing Serializable
+
+    public function serialize()
+    {
+        return serialize([
+            $this->getId(),
+            $this->getEmail(),
+            $this->getFirstName(),
+            $this->getLastName(),
+            $this->getPassword(),
+            $this->getSalt(),
+        ]);
+    }
+
+    public function unserialize($serialized)
+    {
+        list (
+            $this->id,
+            $this->email,
+            $this->first_name,
+            $this->last_name,
+            $this->password,
+            $this->salt
+            ) = unserialize($serialized, ['allowed_classes' => false]);
+    }
+
+
+    // Lifecycle Callbacks
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function beforeCreate()
+    {
+        if ($this->getAccessToken() === null) {
+            $this->setAccessToken(AccessTokenHelper::generateAccessToken($this));
+        }
+        if ($this->getRenewToken() === null) {
+            $this->setRenewToken(AccessTokenHelper::generateAccessToken($this));
+        }
+        if ($this->getAccessTokenExpiredAt() === null) {
+            $this->setAccessTokenExpiredAt(AccessTokenHelper::getAccessTokenExpiredAt());
+        }
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new \DateTime());
+        }
+        if ($this->getUpdatedAt() === null) {
+            $this->setUpdatedAt(new \DateTime());
+        }
+    }
+
+    /**
+     * @ORM\PreUpdate
+     */
+    public function beforeUpdate()
+    {
+        $this->setUpdatedAt(new \DateTime());
+    }
+
+
 }
