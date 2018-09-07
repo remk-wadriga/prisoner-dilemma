@@ -8,13 +8,16 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Form\UserForm;
 use App\Security\AccessTokenUserProvider;
+use Mcfedr\JsonFormBundle\Controller\JsonController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use App\Security\AccessTokenAuthenticator;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class SecurityController extends AbstractController
+class SecurityController extends JsonController
 {
     private $usrProvider;
 
@@ -37,5 +40,25 @@ class SecurityController extends AbstractController
     public function renewToken(AccessTokenAuthenticator $authenticator)
     {
         return $this->json($authenticator->getAccessToken()->toApi());
+    }
+
+    /**
+     * @Route("/registration", name="security_registration", methods={"POST"})
+     */
+    public function registration(Request $request, UserPasswordEncoderInterface $passwordEncoder, AccessTokenUserProvider $userProvider)
+    {
+        // Create form and handle data
+        $user = new User();
+        $form = $this->createJsonForm(UserForm::class, $user);
+        $this->handleJsonForm($form, $request);
+        $user->setPassword($passwordEncoder->encodePassword($user, $user->getPlainPassword()));
+
+        // Save user entity
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        // Return new user access token
+        return $this->json($userProvider->getAccessTokenForUser($user)->toApi());
     }
 }

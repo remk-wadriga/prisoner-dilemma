@@ -176,7 +176,7 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
         ];
         $code = $exception->getCode() !== AccessTokenAuthenticationException::CODE_SYSTEM_ERROR ?
             Response::HTTP_UNAUTHORIZED : Response::HTTP_INTERNAL_SERVER_ERROR;
-        return new JsonResponse($data, $code);
+        return new JsonResponse(['error' => $data], $code);
     }
 
     /**
@@ -188,12 +188,12 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
             'message' => $authException->getMessage(),
             'code' => $authException->getCode(),
         ];
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse(['error' => $data], Response::HTTP_UNAUTHORIZED);
     }
 
     public function supports(Request $request)
     {
-        return $request->getPathInfo() !== $this->router->generate('security_login');
+        return !in_array($request->getPathInfo(), $this->getUnsopportedUrls());
     }
 
     public function supportsRememberMe()
@@ -201,4 +201,11 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
         return false;
     }
 
+    private function getUnsopportedUrls(): array
+    {
+        return [
+            $this->router->generate('security_login'),
+            $this->router->generate('security_registration'),
+        ];
+    }
 }
