@@ -126,7 +126,7 @@ class AccessTokenUserProvider implements UserProviderInterface
 
     public function refreshUser(UserInterface $user)
     {
-        // TODO: Implement refreshUser() method.
+        return $user;
     }
 
     public function supportsClass($class)

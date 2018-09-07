@@ -63,8 +63,12 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
         $credentials = [
             'access_token' => base64_decode($token),
         ];
-        if ($request->get('renew_token') !== null) {
-            $credentials['renew_token'] = base64_decode($request->get('renew_token'));
+        if ($request->getPathInfo() === $this->router->generate('security_renew_token')) {
+            $renewToken = $request->get('renew_token');
+            if ($renewToken === null) {
+                throw new AuthenticationException('Param "renew_token" is required', AccessTokenAuthenticationException::CODE_REQUIRED_PARAM_MISSING);
+            }
+            $credentials['renew_token'] = base64_decode($renewToken);
         }
         return $credentials;
     }
@@ -129,21 +133,31 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
                 sprintf('User entity must instance of %s, %s given', AccessTokenEntityInterface::class, get_class($user)),
                 AccessTokenAuthenticationException::CODE_SYSTEM_ERROR);
         }
-        //print_r([$user->getAccessTokenExpiredAt()->getTimestamp(), (new \DateTime())->getTimestamp()]); echo "\n"; exit();
-        // If access token is not expired - just return the true, because it`s all right
-        if ($user->getAccessTokenExpiredAt()->getTimestamp() > (new \DateTime())->getTimestamp()) {
-            return true;
-        }
-        // Else - check is request has "renew_token" params and it`t equals current user renew_token
-        if (isset($credentials['renew_token']) && $credentials['renew_token'] === $user->getRenewToken()) {
-            // Create new access token for user and return true
+
+        // If this is "renew token" request
+        if (isset($credentials['renew_token'])) {
+            // First of all check the renew token from request
+            if ($credentials['renew_token'] !== $user->getRenewToken()) {
+                throw new AuthenticationException('Invalid renew token', AccessTokenAuthenticationException::CODE_INVALID_REQUEST_PARAMS);
+            }
+            // Second (if renew token from request is correct) -
+            // Check is user provider isset
             if ($this->provider === null) {
                 throw new AuthenticationException('User entity provider is missing', AccessTokenAuthenticationException::CODE_SYSTEM_ERROR);
             }
-            $this->provider->createAccessToken($user);
+            // And renew user access token
+            $this->accessToken = $this->provider->createAccessToken($user);
+
+            // So, this is all - user has a new access token and already authenticated, just return the true
+            return true;
+        }
+
+        // This is not "renew token" request, so...
+        // If access token is not expired - just return the true, because it`s all right
+        if ($user->getAccessTokenExpiredAt()->getTimestamp() > (new \DateTime())->getTimestamp()) {
             return true;
         } else {
-            // Else - throw "access token expired exception"
+            // Else - throw "access token expired" exception
             throw new AuthenticationException('Access token expired', AccessTokenAuthenticationException::CODE_ACCESS_TOKEN_EXPIRED);
         }
     }
@@ -160,8 +174,9 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
             'message' => $exception->getMessage(),
             'code' => $exception->getCode(),
         ];
-
-        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
+        $code = $exception->getCode() !== AccessTokenAuthenticationException::CODE_SYSTEM_ERROR ?
+            Response::HTTP_UNAUTHORIZED : Response::HTTP_INTERNAL_SERVER_ERROR;
+        return new JsonResponse($data, $code);
     }
 
     /**
@@ -170,10 +185,10 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
     public function start(Request $request, AuthenticationException $authException = null)
     {
         $data = [
-            // you might translate this message
             'message' => $authException->getMessage(),
+            'code' => $authException->getCode(),
         ];
-        return new JsonResponse($data, $authException->getCode());
+        return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
     public function supports(Request $request)

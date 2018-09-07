@@ -12,6 +12,7 @@ use App\Security\AccessTokenUserProvider;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use App\Security\AccessTokenAuthenticator;
 
 class SecurityController extends AbstractController
 {
@@ -33,8 +34,8 @@ class SecurityController extends AbstractController
     /**
      * @Route("/renew-token", name="security_renew_token", methods={"POST"})
      */
-    public function renewToken(Request $request)
+    public function renewToken(AccessTokenAuthenticator $authenticator)
     {
-        print_r($this->getUser()); echo "\n"; exit();
+        return $this->json($authenticator->getAccessToken()->toApi());
     }
 }
