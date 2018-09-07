@@ -22,6 +22,10 @@ use App\Helpers\AccessTokenEntityInterface;
 
 class AccessTokenAuthenticator extends AbstractGuardAuthenticator
 {
+    const ACCESS_TOKEN_HEADER_PARAM_NAME = 'X-AUTH-TOKEN';
+
+    const ACCESS_TOKEN_URI_PARAM_NAME = 'access_token';
+
     private $router;
     /**
      * @var AccessTokenUserProvider
@@ -51,9 +55,9 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         // 1. Try to get token from headers:
-        $token = $request->headers->get('X-AUTH-TOKEN');
+        $token = $request->headers->get(self::ACCESS_TOKEN_HEADER_PARAM_NAME);
         if (empty($token)) {
-            $token = $request->query->get('access_token');
+            $token = $request->query->get(self::ACCESS_TOKEN_URI_PARAM_NAME);
         }
         if (empty($token)) {
             // No token?
@@ -64,7 +68,15 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
             'access_token' => base64_decode($token),
         ];
         if ($request->getPathInfo() === $this->router->generate('security_renew_token')) {
-            $renewToken = $request->get('renew_token');
+            try {
+                $params = json_decode($request->getContent(), true);
+                if ($params === null) {
+                    throw new \Exception(sprintf('Request body has invalid json format: %s', $request->getContent()));
+                }
+            } catch (\Exception $e) {
+                throw new AuthenticationException(sprintf('Can`t parse request body: %s', $e->getMessage()), AccessTokenAuthenticationException::CODE_INVALID_REQUEST_PARAMS);
+            }
+            $renewToken = isset($params['renew_token']) ? $params['renew_token'] : null;
             if ($renewToken === null) {
                 throw new AuthenticationException('Param "renew_token" is required', AccessTokenAuthenticationException::CODE_REQUIRED_PARAM_MISSING);
             }
