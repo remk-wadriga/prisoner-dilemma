@@ -30,14 +30,6 @@ class FriendController extends AbstractController
     ];
 
     /**
-     * @Route("/", name="app_homepage")
-     */
-    public function index()
-    {
-        return $this->render('index/index.html.php');
-    }
-
-    /**
      * @Route("/friends", name="app_get_friends")
      */
     public function friends()

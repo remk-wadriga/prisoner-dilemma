@@ -120,9 +120,9 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
                 sprintf('User provider must instance of %s, %s given', AccessTokenUserProvider::class, get_class($userProvider)),
                 AccessTokenAuthenticationException::CODE_SYSTEM_ERROR);
         }
-        $accessToken = isset($credentials['access_token']) ? $credentials['access_token'] : null;
+        $accessToken = isset($credentials['access_token']) && !empty($credentials['access_token']) ? $credentials['access_token'] : null;
         if ($accessToken === null) {
-            return null;
+            throw new AuthenticationException('Access token missed', AccessTokenAuthenticationException::CODE_REQUIRED_PARAM_MISSING);
         }
         // if null, authentication will fail
         // if a User object, checkCredentials() is called

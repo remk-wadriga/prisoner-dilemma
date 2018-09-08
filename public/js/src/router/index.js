@@ -1,9 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
-import Friends from '@/components/Friends'
-import Account from '@/components/Account'
-import Contact from '@/components/Contact'
+import Login from '@/components/index/Login'
+import Home from '@/components/index/Home'
+import Register from '@/components/index/Register'
 
 Vue.use(Router)
 
@@ -11,23 +10,18 @@ export default new Router({
   routes: [
       {
           path: '/',
-          name: 'HelloWorld',
-          component: HelloWorld
+          name: 'app_homepage',
+          component: Home
       },
       {
-          path: '/friends',
-          name: 'Friends',
-          component: Friends
+          path: '/login',
+          name: 'app_login',
+          component: Login
       },
       {
-          path: '/account',
-          name: 'Account',
-          component: Account
-      },
-      {
-          path: '/contact',
-          name: 'Contact',
-          component: Contact
+          path: '/register',
+          name: 'app_register',
+          component: Register
       }
   ]
 })

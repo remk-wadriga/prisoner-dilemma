@@ -31,7 +31,12 @@ class SecurityController extends JsonController
      */
     public function login(Request $request)
     {
-        return $this->json($this->usrProvider->loginUser($request)->toApi());
+        return $this->json([
+            'access_token' => 'OWRhY2NiNDMwNGFmNzc5NDNjNmM0OGIwMzIzNTUxMjI2NmU2OThlYWVlOGRkZWZjZTY3ODIwNDczMWJlMGIyZg==',
+            'renew_token' => 'Njg3MTY0NTBlOTllZjNkMTYyN2VhMTUwZmUxYTRhZjhmOWFiZGVmNzI2OWQ1ZmU2NzE0NzMzMjEzYjRlY2Y2MA==',
+            'expired_at' => '2018-12-08 23:15:06',
+        ]);
+        //return $this->json($this->usrProvider->loginUser($request)->toApi());
     }
 
     /**
