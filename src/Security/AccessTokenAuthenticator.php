@@ -53,7 +53,10 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
      */
     public function getCurrentUser(): AccessTokenEntityInterface
     {
-        return $this->getAccessToken()->getUser();
+        if ($this->user !== null) {
+            return $this->user;
+        }
+        return $this->user = $this->getAccessToken()->getUser();
     }
 
     /**
