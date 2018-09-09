@@ -10,6 +10,7 @@ const Api = {
         routes: {
             'app_homepage': '/',
             'security_login': '/login',
+            'security_registration': '/registration',
             'security_renew_token': '/renew-token',
             'security_user_info': '/user-info'
         }

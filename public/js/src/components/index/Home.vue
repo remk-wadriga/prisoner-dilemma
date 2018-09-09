@@ -2,7 +2,6 @@
 
 <script>
     import Api from '@/helpers/Api'
-    import user from '@/entityes/User'
 
     export default {
         name: "Home",
@@ -10,9 +9,6 @@
             return {
                 strategies: []
             }
-        },
-        methods: {
-
         },
         mounted() {
             Api.methods.request('app_homepage', {}, 'GET', response => {

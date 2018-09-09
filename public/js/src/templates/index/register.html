@@ -1,3 +1,28 @@
 <div id="register_page">
-    <h1>Registration page</h1>
+    <h4>Registration page</h4>
+    <form action="#" method="post" v-on:submit.prevent="registerUser">
+        <div>
+            <label for="register_email_input">Username:</label>
+            <input type="email" name="email" id="register_email_input" v-model="email" placeholder="email..." required>
+        </div>
+        <div>
+            <label for="register_first_name_input">First name:</label>
+            <input type="text" id="register_first_name_input" name="firstName" v-model="firstName" placeholder="first name...">
+        </div>
+        <div>
+            <label for="register_last_name_input">Last name:</label>
+            <input type="text" id="register_last_name_input" name="firstName" v-model="lastName" placeholder="last name...">
+        </div>
+        <div>
+            <label for="register_password_input">Password:</label>
+            <input type="password" id="register_password_input" name="password" v-model="password" placeholder="password..." required>
+        </div>
+        <div>
+            <label for="register_repeat_password_input">Repeat password:</label>
+            <input type="password" id="register_repeat_password_input" name="repeatPassword" v-model="repeatPassword" placeholder="password one more time..." required>
+        </div>
+        <div>
+            <button class="btn btn-success" type="submit">Register</button>
+        </div>
+    </form>
 </div>

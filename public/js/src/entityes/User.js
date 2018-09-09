@@ -58,8 +58,6 @@ const User = {
             let name = localStorage.getItem('user.name')
             if (name) {
                 return User.data.name = name
-            } else {
-                name = null
             }
             Api.methods.request('security_user_info', {}, 'GET', data => {
                 var name = ''
