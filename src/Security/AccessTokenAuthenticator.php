@@ -9,6 +9,7 @@
 namespace App\Security;
 
 
+use App\Entity\User;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -45,6 +46,14 @@ class AccessTokenAuthenticator extends AbstractGuardAuthenticator
     public function __construct(UrlGeneratorInterface $router)
     {
         $this->router = $router;
+    }
+
+    /**
+     * @return User
+     */
+    public function getCurrentUser(): AccessTokenEntityInterface
+    {
+        return $this->getAccessToken()->getUser();
     }
 
     /**

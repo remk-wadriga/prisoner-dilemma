@@ -17,6 +17,7 @@
                 let data = {username: this.username, password: this.password};
                 Api.methods.request('security_login', data, 'POST', (response) => {
                     user.methods.login(response)
+                    this.$router.push({name: 'app_homepage'})
                 })
             }
         }

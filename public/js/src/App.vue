@@ -18,6 +18,12 @@ export default {
             user: user
         }
     },
+    methods: {
+        logoutUser() {
+            user.methods.logout()
+            this.$router.go(this.$router.currentRoute)
+        }
+    }
 }
 </script>
 

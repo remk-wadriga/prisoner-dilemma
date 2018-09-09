@@ -1,5 +1,6 @@
 import user from '@/entityes/User'
 import store from '@/store'
+import router from '@/router'
 
 var lastRequestParams = null;
 
@@ -9,7 +10,8 @@ const Api = {
         routes: {
             'app_homepage': '/',
             'security_login': '/login',
-            'security_renew_token': '/renew-token'
+            'security_renew_token': '/renew-token',
+            'security_user_info': '/user-info'
         }
     },
     methods: {
@@ -52,7 +54,6 @@ const Api = {
             if (urlName !== 'security_login' && urlName !== 'security_renew_token') {
                 lastRequestParams = {url, requestParams, successCallback, errorCallback}
             }
-
 
             // Send request
             fetch(url, requestParams)
@@ -110,6 +111,10 @@ const Api = {
                                 })
                         }
                     })
+                // Error code "1003" means that user is not logged, so go to login page!
+                } else if (error.code === 1003) {
+                    store.commit('addLogMessage', {type: 'info', text: error.message})
+                    router.push({name: 'app_login'})
                 } else {
                     store.commit('addLogMessage', {type: 'danger', text: error.message})
                 }
