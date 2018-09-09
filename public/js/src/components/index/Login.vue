@@ -2,23 +2,21 @@
 
 <script>
     import Api from '@/helpers/Api'
-    import user from '@/stores/User'
+    import user from '@/entityes/User'
 
     export default {
         name: "Login",
         data() {
             return {
                 username: 'user@gmail.com',
-                password: 'test',
-                user: user
+                password: 'test'
             }
         },
         methods: {
             loginUser() {
                 let data = {username: this.username, password: this.password};
-                Api.methods.request('security_login', data, 'POST', response => {
-                    user.methods.setAccessToken(response.access_token)
-                    user.methods.setRenewToken(response.renew_token)
+                Api.methods.request('security_login', data, 'POST', (response) => {
+                    user.methods.login(response)
                 })
             }
         }

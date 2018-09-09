@@ -2,7 +2,7 @@
 
 <script>
     import Api from '@/helpers/Api'
-    //import user from '@/stores/User'
+    import user from '@/entityes/User'
 
     export default {
         name: "Home",

@@ -1,11 +1,15 @@
-import user from '@/stores/User'
+import user from '@/entityes/User'
+import store from '@/store'
+
+var lastRequestParams = null;
 
 const Api = {
     data: {
         baseUrl: 'http://strategy.local',
         routes: {
             'app_homepage': '/',
-            'security_login': '/login'
+            'security_login': '/login',
+            'security_renew_token': '/renew-token'
         }
     },
     methods: {
@@ -16,12 +20,13 @@ const Api = {
             }
             return Api.data.baseUrl + path;
         },
-        request(urlName, data = {}, method = 'GET', callback = null, headers = {}, error = null) {
-            if (callback === null) {
-                callback = response => {}
+        request(urlName, data = {}, method = 'GET', successCallback = null, headers = {}, errorCallback = null) {
+            let url = Api.methods.getUrl(urlName);
+            if (successCallback === null) {
+                successCallback = response => {}
             }
-            if (error === null) {
-                error = response => { console.log(response) }
+            if (errorCallback === null) {
+                errorCallback = response => { return true }
             }
             // Add default content-type header
             if (headers['Content-Type'] === undefined) {
@@ -43,15 +48,72 @@ const Api = {
                 requestParams.body = data
             }
 
-            fetch(Api.methods.getUrl(urlName),requestParams)
+            // Remember last request params
+            if (urlName !== 'security_login' && urlName !== 'security_renew_token') {
+                lastRequestParams = {url, requestParams, successCallback, errorCallback}
+            }
+
+
+            // Send request
+            fetch(url, requestParams)
             .then(response => headers['Content-Type'] === 'application/json' ? response.json() : response)
             .then(response => {
-                if (response.error !== undefined) {
-                    error(response.error)
+                // Process response
+                if (response.error === undefined) {
+                    Api.methods.requestSuccess(response, successCallback)
                 } else {
-                    callback(response);
+                    Api.methods.requestFailed(response.error, errorCallback)
                 }
             })
+        },
+        requestSuccess(response, callback) {
+            callback(response)
+        },
+        requestFailed(error, callback) {
+            if (error.code !== undefined && error.message !== undefined) {
+                // Call client error-callback function and check what is it returns
+                // if it returns false - do not do anything else
+                if (callback(error) === false) {
+                    return;
+                }
+
+                // Error code "1002" means that access token is expired, so, let`s renew it!
+                if (error.code === 1002) {
+                    let renewToken = user.methods.getRenewToken();
+                    if (!renewToken) {
+                        store.commit('addLogMessage', {type: 'danger', text: 'Access token missing, try to login again'})
+                        return;
+                    }
+                    Api.methods.request('security_renew_token', {renew_token: renewToken}, 'POST', (response) => {
+                        // Login user with new tokens
+                        user.methods.login(response)
+                        // If las request prams is not null - remake last request
+                        if (lastRequestParams !== null) {
+                            // Check is response has "access_token" param
+                            if (response.access_token === undefined) {
+                                return;
+                            }
+                            // Set new request token for new request
+                            lastRequestParams.requestParams.headers['X-AUTH-TOKEN'] = response.access_token;
+                            // Remake request
+                            fetch(lastRequestParams.url, lastRequestParams.requestParams)
+                                .then(response => lastRequestParams.requestParams.headers['Content-Type'] === 'application/json' ? response.json() : response)
+                                .then(response => {
+                                    // Process response
+                                    if (response.error === undefined) {
+                                        Api.methods.requestSuccess(response, lastRequestParams.successCallback)
+                                    } else {
+                                        Api.methods.requestFailed(response.error, lastRequestParams.errorCallback)
+                                    }
+                                    // Clear last request params
+                                    lastRequestParams = null
+                                })
+                        }
+                    })
+                } else {
+                    store.commit('addLogMessage', {type: 'danger', text: error.message})
+                }
+            }
         }
     }
 };
