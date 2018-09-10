@@ -10,6 +10,7 @@ const Api = {
         routes: {
             'app_homepage': '/',
             'security_login': '/login',
+            'security_logout': '/logout',
             'security_registration': '/registration',
             'security_renew_token': '/renew-token',
             'security_user_info': '/user-info'
@@ -55,7 +56,6 @@ const Api = {
             if (urlName !== 'security_login' && urlName !== 'security_renew_token') {
                 lastRequestParams = {url, requestParams, successCallback, errorCallback}
             }
-
             // Send request
             fetch(url, requestParams)
             .then(response => headers['Content-Type'] === 'application/json' ? response.json() : response)

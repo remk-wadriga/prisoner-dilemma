@@ -14,7 +14,6 @@ security:
             security: false
         main:
             anonymous: ~
-            logout: ~
             guard:
                 authenticators:
                     - App\Security\AccessTokenAuthenticator

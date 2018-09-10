@@ -59,6 +59,12 @@ class AccessTokenUserProvider implements UserProviderInterface
         return $this->createAccessToken($user);
     }
 
+    public function logoutUser(AccessTokenEntityInterface $user)
+    {
+        // Just create new access tokens for user
+        $this->createAccessToken($user);
+    }
+
     /**
      * Search user in DB by it`s username
      *
