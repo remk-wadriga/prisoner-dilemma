@@ -20,11 +20,13 @@ export default {
     },
     methods: {
         logoutUser() {
-            // security_logout
-            Api.methods.request('security_logout', {}, 'POST', response => {
+            let callback = response => {
                 user.methods.logout()
                 this.$router.go(this.$router.currentRoute)
-            })
+                return false;
+            };
+            // security_logout
+            Api.methods.request('security_logout', {}, 'POST', callback, {}, callback)
         }
     },
     computed: {
