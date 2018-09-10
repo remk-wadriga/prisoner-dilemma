@@ -69,7 +69,7 @@ class AccessToken implements TokenInterface
     }
 
     /**
-     * @return AccessTokenEntityInterface|string
+     * @return AccessTokenEntityInterface|null
      */
     public function getUser()
     {
