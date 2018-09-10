@@ -1,24 +1,35 @@
-<div class="row" id="login_page">
-    <div class="col-lg-12">
-        <div>
-            <span>Don`t have an account?</span>
-        </div>
-        <div>
-            <router-link :to="{ name: 'app_register' }">Register</router-link>
-        </div>
-        <br>
-        <form action="#" method="post" v-on:submit.prevent="loginUser">
-            <div>
-                <label for="login_username_input">Username:</label>
-                <input type="email" name="username" id="login_username_input" v-model="username" placeholder="email..." required>
-            </div>
-            <div>
-                <label for="login_password_input">Password:</label>
-                <input type="password" id="login_password_input" name="password" v-model="password" placeholder="password..." required>
-            </div>
-            <div>
-                <button class="btn btn-success" type="submit">Login</button>
-            </div>
-        </form>
-    </div>
+<div id="login_page">
+    <h4>Login page</h4>
+    <br />
+    <strong>Don`t have an account?</strong>
+    <router-link :to="{ name: 'app_register' }">Let`s create it!</router-link>
+    <br />
+    <br />
+
+    <b-form @submit="loginUser">
+
+        <b-form-group
+                label="Email address:"
+                label-for="login_username_input">
+            <b-form-input id="login_username_input"
+                type="email"
+                v-model="username"
+                required
+                placeholder="Enter email">
+            </b-form-input>
+        </b-form-group>
+
+        <b-form-group
+                label="Password:"
+                label-for="login_password_input">
+            <b-form-input id="login_password_input"
+                type="password"
+                v-model="password"
+                required
+                placeholder="Enter password">
+            </b-form-input>
+        </b-form-group>
+
+        <b-button type="submit" variant="primary">Login</b-button>
+    </b-form>
 </div>
