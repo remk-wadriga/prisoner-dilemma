@@ -13,7 +13,7 @@ const Api = {
             'security_logout': '/logout',
             'security_registration': '/registration',
             'security_renew_token': '/renew-token',
-            'security_user_info': '/user-info'
+            'user_info': '/user'
         }
     },
     methods: {

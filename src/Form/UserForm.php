@@ -23,12 +23,12 @@ class UserForm extends AbstractType
     {
         $builder
             ->add('email', EmailType::class)
-            ->add('plainPassword', RepeatedType::class, array(
+            ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'first_options'  => ['label' => 'Password'],
                 'second_options' => ['label' => 'Repeat Password'],
                 'invalid_message' => 'The password fields are not match.',
-            ))
+            ])
             ->add('firstName', TextType::class)
             ->add('lastName', TextType::class)
         ;

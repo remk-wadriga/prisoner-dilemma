@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Helpers\AccessTokenHelper;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\Helpers\AccessTokenEntityInterface;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -76,7 +77,7 @@ class User implements AccessTokenEntityInterface
     private $access_token_expired_at;
 
     /**
-     * @Assert\NotBlank()
+     * @Validator\NotEmpty(message="Password can not be blank.", skipEmptyOn="isNotNew")
      * @Assert\Length(max=4096)
      */
     private $plainPassword;
@@ -207,6 +208,13 @@ class User implements AccessTokenEntityInterface
         $this->plainPassword = $password;
         return $this;
     }
+
+
+    public function getIsNew()
+    {
+        return $this->id === null;
+    }
+
 
     // Implementing UserInterface
 

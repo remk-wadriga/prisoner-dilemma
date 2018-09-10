@@ -33,7 +33,7 @@
                     <template slot="button-content">
                         <em>{{ user.methods.getName() }}</em>
                     </template>
-                    <b-dropdown-item href="#">Profile</b-dropdown-item>
+                    <b-dropdown-item :to="{ name: 'user_account' }">Profile</b-dropdown-item>
                     <b-dropdown-item href="#" @click="logoutUser">Logout</b-dropdown-item>
                 </b-nav-item-dropdown>
             </b-navbar-nav>

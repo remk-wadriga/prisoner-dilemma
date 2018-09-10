@@ -1,10 +1,17 @@
-import Api from "../helpers/Api";
+import Api from '@/helpers/Api'
+import router from '@/router'
 
 const User = {
     data: {
         accessToken: null,
         renewToken: null,
-        name: null
+        info: null,
+        name: null,
+        email: null,
+        firstName: null,
+        lastName: null,
+        password: null,
+        repeatPassword: null
     },
     methods: {
         getAccessToken() {
@@ -49,31 +56,33 @@ const User = {
         logout() {
             User.methods.setAccessToken(null)
             User.methods.setRenewToken(null)
+            User.methods.setInfo(null)
             User.methods.setName(null)
         },
-        getName() {
-            if (User.data.name !== null) {
-                return User.data.name
+        setInfo(info) {
+            User.data.info = info
+            if (info === null) {
+                localStorage.removeItem('user.info')
+            } else {
+                localStorage.setItem('user.info', JSON.stringify(info))
+                // Refresh name
+                User.methods.setName(null)
             }
-            let name = localStorage.getItem('user.name')
-            if (name) {
-                return User.data.name = name
+        },
+        getInfo() {
+            if (User.data.info !== null) {
+                return User.data.info
             }
-            Api.methods.request('security_user_info', {}, 'GET', data => {
-                var name = ''
-                if (data.firstName !== undefined) {
-                    name += data.firstName
+            let info = localStorage.getItem('user.info')
+            if (info) {
+                return User.data.info = JSON.parse(info)
+            }
+            Api.methods.request('user_info', {}, 'GET', data => {
+                if (!data.email) {
+                    store.commit('addLogMessage', {type: 'danger', text: 'Can`t get user info. Try lo login again'})
+                    router.push({name: 'app_homepage'})
                 }
-                if (data.lastName !== undefined) {
-                    if (name !== '') {
-                        name += ' '
-                    }
-                    name += data.lastName
-                }
-                if (name === '' && data.email !== null) {
-                    name = data.email
-                }
-                User.methods.setName(name)
+                User.methods.setInfo(data)
             })
         },
         setName(name) {
@@ -83,6 +92,30 @@ const User = {
             } else {
                 localStorage.setItem('user.name', name)
             }
+        },
+        getName() {
+            if (User.data.name !== null) {
+                return User.data.name
+            }
+            let info = User.methods.getInfo()
+            if (!info) {
+                return null
+            }
+            let name = ''
+            if (info.firstName) {
+                name += info.firstName
+            }
+            if (info.lastName) {
+                if (name !== '') {
+                    name += ' '
+                }
+                name += info.lastName
+            }
+            if (name === '' && info.email) {
+                name = info.email
+            }
+            User.methods.setName(name)
+            return name
         }
     }
 };

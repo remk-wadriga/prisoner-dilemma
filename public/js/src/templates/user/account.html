@@ -1,0 +1,60 @@
+<div id="account_page">
+
+    <b-form @submit="updateAccount">
+
+        <b-form-group
+                label="Username:"
+                label-for="account_email_input"
+                description="We'll never share your username with anyone else.">
+            <b-form-input id="account_email_input"
+                type="email"
+                v-model="email"
+                required
+                placeholder="Enter username">
+            </b-form-input>
+        </b-form-group>
+
+        <b-form-group
+                label="First name:"
+                label-for="account_first_name_input">
+            <b-form-input id="account_first_name_input"
+                type="text"
+                v-model="firstName"
+                placeholder="Enter your first name">
+            </b-form-input>
+        </b-form-group>
+
+        <b-form-group
+                label="Last name:"
+                label-for="account_last_name_input">
+            <b-form-input id="account_last_name_input"
+                type="text"
+                v-model="lastName"
+                placeholder="Enter your last name">
+            </b-form-input>
+        </b-form-group>
+
+        <b-form-group
+                label="New password:"
+                label-for="account_password_input">
+            <b-form-input id="account_password_input"
+                type="password"
+                v-model="password"
+                placeholder="Enter password">
+            </b-form-input>
+        </b-form-group>
+
+        <b-form-group
+                label="Repeat new password:"
+                label-for="account_repeat_password_input">
+            <b-form-input id="account_repeat_password_input"
+                type="password"
+                v-model="repeatPassword"
+                placeholder="Enter password one more time">
+            </b-form-input>
+        </b-form-group>
+
+        <b-button type="submit" variant="primary">Update</b-button>
+    </b-form>
+
+</div>

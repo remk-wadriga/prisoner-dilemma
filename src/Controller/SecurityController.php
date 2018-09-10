@@ -74,17 +74,4 @@ class SecurityController extends JsonController
         // Return new user access token
         return $this->json($userProvider->getAccessTokenForUser($user)->toApi());
     }
-
-    /**
-     * @Route("/user-info", name="security_user_info")
-     */
-    public function userInfo(AccessTokenAuthenticator $authenticator)
-    {
-        $user = $authenticator->getCurrentUser();
-        return $this->json([
-            'firstName' => $user->getFirstName(),
-            'lastName' => $user->getLastName(),
-            'email' => $user->getEmail(),
-        ]);
-    }
 }
