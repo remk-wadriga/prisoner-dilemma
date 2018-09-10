@@ -7,11 +7,21 @@ var index = 0;
 
 export default new Vuex.Store({
     state: {
+        app: {
+            pageTitle: ''
+        },
         logger: {
-            messages: []
+            messages: [
+                /*{id: 'msg_1', type: 'danger', text: 'Danger text'},
+                {id: 'msg_2', type: 'info', text: 'Info text'},
+                {id: 'msg_3', type: 'success', text: 'Success text'}*/
+            ]
         }
     },
     mutations: {
+        setPageTitle(state, title) {
+            state.app.pageTitle = title
+        },
         addLogMessage(state, msg, liveTime = 7000) {
             if (msg.id === undefined) {
                 index++;

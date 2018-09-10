@@ -12,7 +12,8 @@
         },
         mounted() {
             Api.methods.request('app_homepage', {}, 'GET', response => {
-                this.strategies = response;
+                this.strategies = response
+                this.$store.commit('setPageTitle', 'Strategies')
             })
         }
     }

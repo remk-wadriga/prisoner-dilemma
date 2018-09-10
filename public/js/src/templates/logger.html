@@ -1,0 +1,11 @@
+<div>
+    <b-alert v-for="msg in messages"
+        :key="msg.id"
+        :variant="msg.type"
+        dismissible
+        :show="true"
+        @dismissed="closeMessage(msg.id)"
+    >
+        {{ msg.text }}
+    </b-alert>
+</div>

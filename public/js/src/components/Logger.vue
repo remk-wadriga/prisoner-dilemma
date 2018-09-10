@@ -1,11 +1,11 @@
-<template src="@/templates/index/logger.html" />
+<template src="@/templates/logger.html" />
 
 <script>
     export default {
         name: "Logger",
         methods: {
-            closeMessage (event) {
-                this.$store.commit('deleteLogMessage', event.target.getAttribute('data-id'))
+            closeMessage (id) {
+                this.$store.commit('deleteLogMessage', id)
             }
         },
         computed: {
