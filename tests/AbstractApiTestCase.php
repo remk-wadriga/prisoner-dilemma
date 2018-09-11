@@ -8,6 +8,7 @@
 
 namespace App\Tests;
 
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Security\AccessTokenAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,6 +18,7 @@ class AbstractApiTestCase extends WebTestCase
     const STANDARD_USER = 'user@gmail.com';
     const STANDARD_OWNER = 'owner@gmail.com';
     const STANDARD_ADMIN = 'remkwadriga2013@gmail.com';
+    const DEFAULT_PASSWORD = 'test';
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\Client
@@ -56,6 +58,29 @@ class AbstractApiTestCase extends WebTestCase
         $this->client = static::createClient();
         $this->router = $this->client->getContainer()->get('router');
         $this->entityManager = $this->client->getContainer()->get('doctrine')->getManager();
+    }
+
+    protected function findUser($conditions): User
+    {
+        $email = $conditions;
+        if (!is_array($conditions)) {
+            $conditions = ['email' => $conditions];
+        }
+        $errorMessage = 'User not found in DB';
+        /** @var \App\Repository\UserRepository $userRepository */
+        $userRepository = $this->entityManager->getRepository(User::class);
+        /** @var \App\Entity\User $lastUser */
+        try {
+            // Find user by conditions
+            $user = $userRepository->findOneBy($conditions);
+            // Remove doctrine cache
+            $this->entityManager->clear(User::class);
+        } catch (\Exception $e) {
+            $errorMessage .= ': ' . $e->getMessage();
+            $user = null;
+        }
+        $this->assertNotNull($user, $errorMessage);
+        return $user;
     }
 
     protected function request(string $routeName, array $data = [], string $method = 'GET', array $headers = [], array $files = []): ?ApiResponse
@@ -110,7 +135,7 @@ class AbstractApiTestCase extends WebTestCase
             $username = self::STANDARD_USER;
         }
         if ($password === null) {
-            $password = 'test';
+            $password = self::DEFAULT_PASSWORD;
         }
         return $this->logIn($username, $password, $loginID);
     }
@@ -121,7 +146,7 @@ class AbstractApiTestCase extends WebTestCase
             $username = self::STANDARD_OWNER;
         }
         if ($password === null) {
-            $password = 'test';
+            $password = self::DEFAULT_PASSWORD;
         }
         return $this->logIn($username, $password, $loginID);
     }
@@ -132,7 +157,7 @@ class AbstractApiTestCase extends WebTestCase
             $username = self::STANDARD_ADMIN;
         }
         if ($password === null) {
-            $password = 'test';
+            $password = self::DEFAULT_PASSWORD;
         }
         return $this->logIn($username, $password, $loginID);
     }

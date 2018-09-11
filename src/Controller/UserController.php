@@ -44,12 +44,11 @@ class UserController extends JsonController
     {
         // Get current user and set new params
         $user = $this->authenticator->getCurrentUser();
-        $form = $this->createJsonForm(UserForm::class, $user);
+        $form = $this->createJsonForm(UserForm::class, $user, ['action' => UserForm::ACTION_UPDATE]);
         $this->handleJsonForm($form, $request);
         if (!empty($user->getPlainPassword())) {
             $user->setPassword($passwordEncoder->encodePassword($user, $user->getPlainPassword()));
         }
-
         // Save user entity
         $em = $this->getDoctrine()->getManager();
         $em->persist($user);
