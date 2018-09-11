@@ -60,9 +60,8 @@ class AbstractApiTestCase extends WebTestCase
         $this->entityManager = $this->client->getContainer()->get('doctrine')->getManager();
     }
 
-    protected function findUser($conditions): User
+    protected function findUser($conditions, bool $forgetUser = true): User
     {
-        $email = $conditions;
         if (!is_array($conditions)) {
             $conditions = ['email' => $conditions];
         }
@@ -74,7 +73,9 @@ class AbstractApiTestCase extends WebTestCase
             // Find user by conditions
             $user = $userRepository->findOneBy($conditions);
             // Remove doctrine cache
-            $this->entityManager->clear(User::class);
+            if ($forgetUser) {
+                $this->entityManager->clear(User::class);
+            }
         } catch (\Exception $e) {
             $errorMessage .= ': ' . $e->getMessage();
             $user = null;
