@@ -220,10 +220,47 @@ class User implements AccessTokenEntityInterface
         return $this;
     }
 
+    /**
+     * @return Collection|Strategy[]
+     */
+    public function getStrategies(): Collection
+    {
+        return $this->strategies;
+    }
 
-    public function getIsNew()
+    public function addStrategy(Strategy $strategy): self
+    {
+        if (!$this->strategies->contains($strategy)) {
+            $this->strategies[] = $strategy;
+            $strategy->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStrategy(Strategy $strategy): self
+    {
+        if ($this->strategies->contains($strategy)) {
+            $this->strategies->removeElement($strategy);
+            // set the owning side to null (unless already changed)
+            if ($strategy->getUser() === $this) {
+                $strategy->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+    public function getIsNew(): bool
     {
         return $this->id === null;
+    }
+
+    public function getIsAdmin(): bool
+    {
+        return in_array('ROLE_ADMIN', $this->getRoles());
     }
 
 
@@ -296,37 +333,6 @@ class User implements AccessTokenEntityInterface
     public function beforeUpdate()
     {
         $this->setUpdatedAt(new \DateTime());
-    }
-
-    /**
-     * @return Collection|Strategy[]
-     */
-    public function getStrategies(): Collection
-    {
-        return $this->strategies;
-    }
-
-    public function addStrategy(Strategy $strategy): self
-    {
-        if (!$this->strategies->contains($strategy)) {
-            $this->strategies[] = $strategy;
-            $strategy->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeStrategy(Strategy $strategy): self
-    {
-        if ($this->strategies->contains($strategy)) {
-            $this->strategies->removeElement($strategy);
-            // set the owning side to null (unless already changed)
-            if ($strategy->getUser() === $this) {
-                $strategy->setUser(null);
-            }
-        }
-
-        return $this;
     }
 
 

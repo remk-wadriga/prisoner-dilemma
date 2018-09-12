@@ -8,12 +8,10 @@
 
 namespace App\Tests\User;
 
-use App\Entity\User;
 use App\Tests\AbstractApiTestCase;
 use App\Tests\ApiResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Faker\Factory;
-use App\Security\AccessTokenAuthenticationException;
 
 class AccountTest extends AbstractApiTestCase
 {
@@ -39,9 +37,8 @@ class AccountTest extends AbstractApiTestCase
     public function testUpdateAccountAction()
     {
         // Get user
-        $user = $this->findUser(self::STANDARD_USER);
-        // Login user
-        $this->logInAsUser($user->getUsername());
+        $this->logInAsUser();
+        $user = $this->user;
 
         $faker = Factory::create();
         // Remember old params
@@ -80,7 +77,7 @@ class AccountTest extends AbstractApiTestCase
             sprintf('Testing "update user password" request failed, code must be equals %s, but it is not. It is: %s. The content is: %s',
                 Response::HTTP_OK, $response->getStatus(), $response->getContent()));
         // Get this user again
-        $user = $this->findUser(self::STANDARD_USER);
+        $user = $this->findUser(self::STANDARD_USER, true);
         // Check first and last names
         $this->assertNotEquals($oldPassword, $user->getPassword(),
             sprintf('Testing "update user password" request failed, old password (%s) is equals to user current password (%s)', $oldPassword, $user->getPassword()));
@@ -94,7 +91,7 @@ class AccountTest extends AbstractApiTestCase
             sprintf('Testing "update user email" request failed, code must be equals %s, but it is not. It is: %s. The content is: %s',
                 Response::HTTP_OK, $response->getStatus(), $response->getContent()));
         // Get this user again
-        $user = $this->findUser($newEmail);
+        $user = $this->findUser($newEmail, true);
         // Check email
         $this->assertNotEquals($oldEmail, $user->getEmail(),
             sprintf('Testing "update user email" request failed, old email (%s) is equals to user current email (%s)', $oldEmail, $user->getEmail()));
@@ -108,7 +105,7 @@ class AccountTest extends AbstractApiTestCase
             sprintf('Testing "set user old values back" request failed, code must be equals %s, but it is not. It is: %s. The content is: %s',
                 Response::HTTP_OK, $response->getStatus(), $response->getContent()));
         // Get this user again
-        $user = $this->findUser($oldEmail);
+        $user = $this->findUser($oldEmail, true);
         // Check email
         $this->assertEquals($oldEmail, $user->getEmail(),
             sprintf('Testing "set user old values back" request failed, old email (%s) is not equals to user current email (%s)', $oldEmail, $user->getEmail()));
@@ -116,12 +113,12 @@ class AccountTest extends AbstractApiTestCase
         // 5. Check updating with invalid email
         $params = $this->createUserDataArray('some_incorrect_email');
         $response = $this->request('user_update', $params, 'PUT');
-        $this->checkIncorrectUserParamsIpdatingRequestResponse($response, 'Updating user with invalid email', 'not a valid email');
+        $this->checkIsCorrectUserParamsInUpdatingRequestResponse($response, 'Updating user with invalid email', 'not a valid email');
 
         // 7. Check updating with not much passwords
         $params = $this->createUserDataArray(null, null, null, ['098_password1', '098_password2']);
         $response = $this->request('user_update', $params, 'PUT');
-        $this->checkIncorrectUserParamsIpdatingRequestResponse($response, 'Updating user with not much passwords', 'are not match');
+        $this->checkIsCorrectUserParamsInUpdatingRequestResponse($response, 'Updating user with not much passwords', 'are not match');
     }
 
     private function createUserDataArray(string $email = null, string $firstName = null, string $lastName = null, array $passwords = []): array
@@ -144,7 +141,7 @@ class AccountTest extends AbstractApiTestCase
         return ['user_form' => $params];
     }
 
-    private function checkIncorrectUserParamsIpdatingRequestResponse(ApiResponse $response, string $testKeysID, string $errorMessagePart)
+    private function checkIsCorrectUserParamsInUpdatingRequestResponse(ApiResponse $response, string $testKeysID, string $errorMessagePart)
     {
         // Check response status - mus be equals to 400
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatus(),

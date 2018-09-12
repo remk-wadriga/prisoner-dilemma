@@ -9,10 +9,10 @@
 namespace App\Controller;
 
 use App\Entity\Strategy;
-use App\Entity\User;
 use App\Form\StrategyForm;
 use App\Security\AccessTokenAuthenticator;
 use Mcfedr\JsonFormBundle\Controller\JsonController;
+use App\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -21,19 +21,25 @@ class StrategyController extends JsonController
     /**
      * @Route("/", name="app_homepage")
      */
-    public function list()
+    public function list(AccessTokenAuthenticator $authenticator)
     {
-        return $this->json([
-            ['name' => 'Strategy 1'],
-            ['name' => 'Strategy 2'],
-            ['name' => 'Strategy 3'],
-            ['name' => 'Strategy 4'],
-            ['name' => 'Strategy 5'],
-        ]);
+        // 1. Get current user
+        $user = $authenticator->getCurrentUser();
+
+        if ($user->getIsAdmin()) {
+            $strategies = $this->getDoctrine()->getRepository(Strategy::class)->findAll();
+        } else {
+            $strategies = $user->getStrategies();
+        }
+        $list = [];
+        foreach ($strategies as $strategy) {
+            $list[] = $this->strategyInfo($strategy);
+        }
+        return $this->json($list);
     }
 
     /**
-     * @Route("/strategy/create", name="strategy_create", methods={"GET"})
+     * @Route("/strategy/create", name="strategy_create", methods={"PUT"})
      */
     public function create(Request $request, AccessTokenAuthenticator $authenticator)
     {
@@ -53,10 +59,25 @@ class StrategyController extends JsonController
         return $this->json($this->strategyInfo($strategy));
     }
 
+    /**
+     * @Route("/strategy/{id}", name="strategy_show")
+     */
+    public function show(Strategy $strategy, AccessTokenAuthenticator $authenticator)
+    {
+        // Get current user
+        $user = $authenticator->getCurrentUser();
+        // Check is current user has permissions for this strategy
+        if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
+            throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
+        }
+        return $this->json($this->strategyInfo($strategy));
+    }
+
 
     protected function strategyInfo(Strategy $strategy)
     {
         return [
+            'id' => $strategy->getId(),
             'name' => $strategy->getName(),
             'description' => $strategy->getDescription(),
             'status' => $strategy->getStatusName(),

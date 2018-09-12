@@ -14,30 +14,48 @@ class Oauth2Test extends AbstractApiTestCase
 {
     public function testLoginAction()
     {
-        // Check is login action works well with correct users
-        // Try to login as user
-        $this->logInAsUser();
-        // Try to login as owner
-        $this->logInAsOwner();
-        // Try to login as admin
-        $this->logInAsAdmin();
-
         // Enable test mode
         $this->isTestMode = true;
 
+        // Check is login action works well with correct users
+        // Try to login as user
+        $response = $this->logInAsUser();
+        // Check status
+        $this->assertEquals(200, $response->getStatus(),
+            sprintf('Can`t login as user, status code is not 200, it is %s, and content is: %s', $response->getStatus(), $response->getContent()));
+        // Check token in response
+        $this->checkIsResponseHasCorrectToken($response, 'login as user');
+
+        // Try to login as owner
+        $response = $this->logInAsOwner();
+        // Check status
+        $this->assertEquals(200, $response->getStatus(),
+            sprintf('Can`t login as owner, status code is not 200, it is %s, and content is: %s', $response->getStatus(), $response->getContent()));
+        // Check token in response
+        $this->checkIsResponseHasCorrectToken($response, 'login as owner');
+
+        // Try to login as admin
+        $response = $this->logInAsAdmin();
+        // Check status
+        $this->assertEquals(200, $response->getStatus(),
+            sprintf('Can`t login as admin, status code is not 200, it is %s, and content is: %s', $response->getStatus(), $response->getContent()));
+        // Check token in response
+        $this->checkIsResponseHasCorrectToken($response, 'login as admin');
+
         // Check is login action works well with incorrect username
-        $response = $this->logInAsUser('some invalid usetname');
+        $response = $this->logInAsUser('some invalid usetname', null, 'Login with incorrect username');
         $this->checkIncorrectUserParamsLoginRequestResponse($response, 'Login with incorrect username');
 
         // Check is login action works well with correct but not existing username
-        $response = $this->logInAsUser('some_not_existing_user@gmail.com');
+        $response = $this->logInAsUser('some_not_existing_user@gmail.com', null, 'Login with not existing username');
         $this->checkIncorrectUserParamsLoginRequestResponse($response, 'Login with not existing username');
 
         // Check is login action works well with incorrect password
-        $response = $this->logInAsUser(null, 'incorrect_password');
+        $response = $this->logInAsUser(null, 'some_incorrect_password', 'Login with incorrect password');
         $this->checkIncorrectUserParamsLoginRequestResponse($response, 'Login with incorrect password');
 
         // Everything works well, disable test mode
+        $this->clearUserInfo();
         $this->isTestMode = false;
     }
 
@@ -45,12 +63,11 @@ class Oauth2Test extends AbstractApiTestCase
     {
         // 1. Logout user
         // Get user
-        $user = $this->findUser(self::STANDARD_USER);
+        $this->logInAsUser();
+        $user = $this->user;
         // Get old tokens
         $oldToken = $user->getAccessToken();
         $oldRenewToken = $user->getRenewToken();
-        // Login this user
-        $this->logInAsUser($user->getEmail());
         // Send logout request
         $response = $this->request('security_logout', [], 'POST');
         // Check is response code equals 200
@@ -156,7 +173,7 @@ class Oauth2Test extends AbstractApiTestCase
     public function testRenewTokenAction()
     {
         // 1. Get user
-        $user = $this->findUser(self::STANDARD_USER, false);
+        $user = $this->findUser(self::STANDARD_USER);
         $this->assertNotNull($user, sprintf('Where is my standard user (%s)?!', self::STANDARD_USER));
         // 2. Remember this user actual access token
         $this->accessToken = base64_encode($user->getAccessToken());

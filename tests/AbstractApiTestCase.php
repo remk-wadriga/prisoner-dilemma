@@ -24,10 +24,14 @@ class AbstractApiTestCase extends WebTestCase
      * @var \Symfony\Bundle\FrameworkBundle\Client
      */
     protected $client;
+
     /**
      * @var \Symfony\Component\Routing\Generator\UrlGeneratorInterface
      */
     protected $router;
+
+    /** @var \App\Entity\User|nul */
+    protected $user;
 
     /**
      * @var EntityManagerInterface
@@ -60,7 +64,7 @@ class AbstractApiTestCase extends WebTestCase
         $this->entityManager = $this->client->getContainer()->get('doctrine')->getManager();
     }
 
-    protected function findUser($conditions, bool $forgetUser = true): User
+    protected function findUser($conditions, bool $forgetUser = false): User
     {
         if (!is_array($conditions)) {
             $conditions = ['email' => $conditions];
@@ -84,7 +88,7 @@ class AbstractApiTestCase extends WebTestCase
         return $user;
     }
 
-    protected function request(string $routeName, array $data = [], string $method = 'GET', array $headers = [], array $files = []): ?ApiResponse
+    protected function request($routeName, array $data = [], string $method = 'GET', array $headers = [], array $files = []): ?ApiResponse
     {
         // Set default content type header
         if (!isset($headers['CONTENT_TYPE'])) {
@@ -101,7 +105,7 @@ class AbstractApiTestCase extends WebTestCase
                 unset($headers[$name]);
             }
         }
-        // If this is json request - convert data to json
+        // If thit is json request - convert data to json
         if ($headers['CONTENT_TYPE'] === 'application/json') {
             $body = is_array($data) ? json_encode($data) : $data;
             $data = [];
@@ -114,7 +118,13 @@ class AbstractApiTestCase extends WebTestCase
         }
 
         // Create url by route name
-        $url = $this->router->generate($routeName);
+        if (is_array($routeName)) {
+            $prams = $routeName[1];
+            $routeName = $routeName[0];
+        } else {
+            $prams = [];
+        }
+        $url = $this->router->generate($routeName, $prams);
 
         // Make request
         $crawler = $this->client->request($method, $url, $data, $files, $headers, $body);
@@ -165,6 +175,19 @@ class AbstractApiTestCase extends WebTestCase
 
     protected function logIn($username, $password, $loginID = 'user'): ?ApiResponse
     {
+        if (!$this->isTestMode) {
+            if ($this->user === null) {
+                $this->user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $username]);
+                // If user token is steel alive, then save this user token and return null
+                if ($this->user !== null && $this->user->getAccessTokenExpiredAt()->getTimestamp() > (new \DateTime())->getTimestamp()) {
+                    $this->accessToken = base64_encode($this->user->getAccessToken());
+                    $this->renewToken = base64_encode($this->user->getRenewToken());
+                    $this->tokenExpiredAt = $this->user->getAccessTokenExpiredAt()->format('Y-m-d H:i:s');
+                    return null;
+                }
+            }
+        }
+
         // Create body params for login request
         $params = [
             'username' => $username,
@@ -173,16 +196,17 @@ class AbstractApiTestCase extends WebTestCase
         // Send response
         $response = $this->request('security_login', $params, 'POST');
 
-        // It this is not test mode request - check response
+        // It thit is not test mode request - check response
         if (!$this->isTestMode) {
             // Check status
             $this->assertEquals(200, $response->getStatus(),
-                sprintf('Can`t login %s, status code is not 200, is is %s, and content is: %s', $loginID, $response->getStatus(), $response->getContent()));
+                sprintf('Can`t login %s, status code is not 200, it is %s, and content is: %s', $loginID, $response->getStatus(), $response->getContent()));
             // Check token in response
             list($this->accessToken, $this->renewToken, $this->tokenExpiredAt) = $this->checkIsResponseHasCorrectToken($response);
+            $this->user = $this->entityManager->getRepository(User::class)->findOneBy(['accessToken' => base64_decode($this->accessToken)]);
         }
 
-        // If everything is all right or this is test mode request, just return the API response
+        // If everything is all right or thit is test mode request, just return the API response
         return $response;
     }
 
@@ -198,5 +222,13 @@ class AbstractApiTestCase extends WebTestCase
         $this->assertNotNull($tokenExpiredAt, sprintf('Testing "%" failed. The response does not contains "expired_at" param, it is: %', $testID, $response->getContent()));
 
         return [$accessToken, $renewToken, $tokenExpiredAt];
+    }
+
+    protected function clearUserInfo()
+    {
+        $this->accessToken = null;
+        $this->renewToken = null;
+        $this->tokenExpiredAt = null;
+        $this->user = null;
     }
 }
