@@ -39,7 +39,7 @@ class StrategyController extends JsonController
     }
 
     /**
-     * @Route("/strategy/create", name="strategy_create", methods={"PUT"})
+     * @Route("/strategy/create", name="strategy_create", methods={"POST"})
      */
     public function create(Request $request, AccessTokenAuthenticator $authenticator)
     {
@@ -49,6 +49,28 @@ class StrategyController extends JsonController
         $strategy->setUser($authenticator->getCurrentUser());
         // Process request
         $form = $this->createJsonForm(StrategyForm::class, $strategy);
+        $this->handleJsonForm($form, $request);
+
+        // Save user entity
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($strategy);
+        $em->flush();
+
+        return $this->json($this->strategyInfo($strategy));
+    }
+
+    /**
+     * @Route("/strategy/{id}", name="strategy_update", methods={"PUT"})
+     */
+    public function update(Strategy $strategy, Request $request, AccessTokenAuthenticator $authenticator)
+    {
+        // Check is current user has permissions for updating the strategy
+        $user = $authenticator->getCurrentUser();
+        if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
+            throw new HttpException('Strategy is not found', HttpException::CODE_NOT_FOUND);
+        }
+        // Process request
+        $form = $this->createJsonForm(StrategyForm::class, $strategy, ['action' => StrategyForm::ACTION_UPDATE]);
         $this->handleJsonForm($form, $request);
 
         // Save user entity
