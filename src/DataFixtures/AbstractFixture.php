@@ -20,12 +20,18 @@ abstract class AbstractFixture extends Fixture
     /** @var \Faker\Generator */
     protected $faker;
 
+    protected $isEnabled = true;
+
     private $referencesIndex = [];
 
     abstract protected function loadData(ObjectManager $em);
 
     public function load(ObjectManager $manager)
     {
+        if (!$this->isEnabled) {
+            return;
+        }
+
         $this->manager = $manager;
         $this->faker = Factory::create();
 

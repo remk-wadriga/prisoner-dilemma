@@ -9,7 +9,6 @@
 namespace App\Form;
 
 use App\Entity\User;
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -19,37 +18,21 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 class UserForm extends AbstractType
 {
-    const ACTION_CREATE = 'mode_create';
-    const ACTION_UPDATE = 'mode_update';
-
-    private static $actions = [self::ACTION_CREATE, self::ACTION_UPDATE];
-    private $action = self::ACTION_CREATE;
-
-    public function setAction($action)
-    {
-        if (in_array($action, self::$actions)) {
-            $this->action = $action;
-        }
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        if (!empty($options['action'])) {
-            $this->setAction($options['action']);
-        }
+        parent::buildForm($builder, $options);
 
-        $emailOptions = [];
         /** @var \App\Entity\User $user */
         $user = null;
         if ($builder->getData() instanceof User) {
             $user = $builder->getData();
         }
 
+        $emailOptions = [];
         if ($this->action === self::ACTION_UPDATE && $user !== null) {
-            $emailOptions = [
-                'required' => false,
-                'empty_data' => $user->getEmail(),
-            ];
+            // Email is not required for "update" action - we can use current email
+            $emailOptions['required'] = false;
+            $emailOptions['empty_data'] = $user->getEmail();
         }
 
         $builder

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Helpers\AccessTokenHelper;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Validator;
@@ -80,6 +82,16 @@ class User implements AccessTokenEntityInterface
      * @Assert\Length(max=4096)
      */
     private $plainPassword;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Strategy", mappedBy="user")
+     */
+    private $strategies;
+
+    public function __construct()
+    {
+        $this->strategies = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -284,6 +296,37 @@ class User implements AccessTokenEntityInterface
     public function beforeUpdate()
     {
         $this->setUpdatedAt(new \DateTime());
+    }
+
+    /**
+     * @return Collection|Strategy[]
+     */
+    public function getStrategies(): Collection
+    {
+        return $this->strategies;
+    }
+
+    public function addStrategy(Strategy $strategy): self
+    {
+        if (!$this->strategies->contains($strategy)) {
+            $this->strategies[] = $strategy;
+            $strategy->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStrategy(Strategy $strategy): self
+    {
+        if ($this->strategies->contains($strategy)) {
+            $this->strategies->removeElement($strategy);
+            // set the owning side to null (unless already changed)
+            if ($strategy->getUser() === $this) {
+                $strategy->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
 
