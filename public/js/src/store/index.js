@@ -8,7 +8,21 @@ var index = 0;
 export default new Vuex.Store({
     state: {
         app: {
-            pageTitle: ''
+            pageTitle: '',
+            leftMenuItems: [
+                {
+                    name: 'Item 1',
+                    url: '/url-somewhere-1',
+                },
+                {
+                    name: 'Item 2',
+                    url: '/url-somewhere-2',
+                },
+                {
+                    name: 'Item 3',
+                    url: '/url-somewhere-3',
+                }
+            ]
         },
         logger: {
             messages: [

@@ -2,7 +2,12 @@
 
 <script>
     export default {
-        name: "LeftMenu"
+        name: "LeftMenu",
+        computed: {
+            leftMenuItems() {
+                return this.$store.state.app.leftMenuItems
+            }
+        }
     }
 </script>
 
