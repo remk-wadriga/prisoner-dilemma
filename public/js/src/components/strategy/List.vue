@@ -7,7 +7,13 @@
         name: "List",
         data() {
             return {
-                strategies: []
+                strategies: [],
+                fields: ['name', 'description', 'status']
+            }
+        },
+        methods: {
+            selectStrategy(id) {
+                this.$router.push({name: 'strategy_view', params: {id: id}})
             }
         },
         mounted() {

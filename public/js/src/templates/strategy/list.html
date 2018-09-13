@@ -1,3 +1,14 @@
 <div id="strategies_list_page">
-    <b-table striped hover :items="strategies"></b-table>
+    <b-table
+        striped hover
+        :items="strategies"
+        :fields="fields"
+    >
+        <template slot="name" slot-scope="row">
+            <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
+            <b-button size="sm" @click.stop="selectStrategy(row.item.id)" class="mr-1">
+                {{row.item.name}}
+            </b-button>
+        </template>
+    </b-table>
 </div>

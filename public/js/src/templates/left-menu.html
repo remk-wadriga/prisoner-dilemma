@@ -1,5 +1,5 @@
 <div id="left-menu">
     <b-nav vertical class="w-25">
-        <b-nav-item v-for="item in leftMenuItems" :to="item.url">{{ item.name }}</b-nav-item>
+        <b-nav-item v-for="item in leftMenuItems" :to="item.url"  :key="item.id">{{ item.name }}</b-nav-item>
     </b-nav>
 </div>

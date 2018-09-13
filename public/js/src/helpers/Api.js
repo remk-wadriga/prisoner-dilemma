@@ -13,14 +13,26 @@ const Api = {
             'security_logout': '/logout',
             'security_registration': '/registration',
             'security_renew_token': '/renew-token',
-            'user_info': '/user'
+            'user_info': '/user',
+            'strategy_view': '/strategy/:id',
         }
     },
     methods: {
         getUrl(name) {
+            let params = null;
+            if (typeof name !== 'string') {
+                params = name[1]
+                name = name[0]
+            }
+            console.log(name, params)
             let path = Api.data.routes[name]
             if (path === undefined) {
                 throw 'Url with name "' + name + '" is not found!';
+            }
+            if (params !== null) {
+                Object.keys(params).forEach(key => {
+                    path = path.replace(':' + key, params[key])
+                })
             }
             return Api.data.baseUrl + path;
         },
