@@ -4,7 +4,7 @@
     import Api from '@/helpers/Api'
 
     export default {
-        name: "Delete",
+        name: "StrategyDelete",
         methods: {
             deleteStrategy() {
                 let id = this.$route.params.id

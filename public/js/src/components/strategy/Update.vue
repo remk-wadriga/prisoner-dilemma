@@ -5,7 +5,7 @@
     import Form from '@/components/strategy/Form'
 
     export default {
-        name: "Update",
+        name: "StrategyUpdate",
         components: { Form },
         template: '<Form/>',
         data() {

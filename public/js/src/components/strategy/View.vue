@@ -4,7 +4,7 @@
     import Api from '@/helpers/Api'
 
     export default {
-        name: "View",
+        name: "StrategyView",
         data() {
             return {
                 strategy: null

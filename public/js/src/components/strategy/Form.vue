@@ -4,9 +4,10 @@
     import Api from '@/helpers/Api'
 
     export default {
-        name: "Form",
+        name: "StrategyForm",
         data() {
             return {
+                id: null,
                 name: null,
                 description: null,
                 status: 'enabled',
@@ -22,13 +23,22 @@
                         status: this.status
                     }
                 }
-                const method = this.isNewRecord ? 'POST' : 'PUT'
-                Api.methods.request('strategy_create_url', data, method, response => {
+                let method = '';
+                let url = '';
+                if (this.isNewRecord) {
+                    method = 'POST'
+                    url = 'strategy_create_url'
+                } else {
+                    method = 'PUT'
+                    url = ['strategy_url', {id: this.id}]
+                }
+                Api.methods.request(url, data, method, response => {
                     this.$router.push({name: 'strategy_view', params: {id: response.id}})
                 })
             },
             setParams(strategy) {
                 this.isNewRecord = false
+                this.id = strategy.id
                 this.name = strategy.name
                 this.description = strategy.description
                 this.status = strategy.status

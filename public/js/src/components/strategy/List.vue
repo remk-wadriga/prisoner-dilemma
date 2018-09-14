@@ -5,7 +5,7 @@
     import DeleteStrategy from '@/components/strategy/Delete.vue'
 
     export default {
-        name: "List",
+        name: "StrategyList",
         components: { DeleteStrategy },
         data() {
             return {
