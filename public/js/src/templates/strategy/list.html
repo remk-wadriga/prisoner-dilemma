@@ -1,21 +1,74 @@
 <b-col id="strategies_list_page">
-    <b-table
-        striped hover
-        :items="strategies"
-        :fields="fields"
-    >
-        <template slot="actions" slot-scope="row">
-            <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
-            <b-button :variant="viewBtnVar" size="sm" @click.stop="selectedStrategy(row.item.id)" class="mr-1">
-                View
-            </b-button>
-            <b-button :variant="updateBtnVar" size="sm" @click.stop="updateStrategy(row.item)" class="mr-1">
-                Update
-            </b-button>
-            <b-button :variant="deleteBtnVar" size="sm" @click.stop="openDeleteStrategyModal(row.item)" class="mr-1">
-                Delete
-            </b-button>
-        </template>
-    </b-table>
+    <b-row>
+        <b-col md="4" class="my-2">
+            <b-form-group horizontal label="Filter" class="mb-0">
+                <b-input-group>
+                    <b-form-input v-model="filter" placeholder="Type to Search" />
+                    <b-input-group-append>
+                        <b-btn :disabled="!filter" @click="filter = ''">Clear</b-btn>
+                    </b-input-group-append>
+                </b-input-group>
+            </b-form-group>
+        </b-col>
+    </b-row>
+
+    <b-row>
+        <b-col md="4" class="my-2">
+            <b-form-group horizontal label="Filter by status" class="mb-0">
+                <b-input-group>
+                    <b-form-select v-model="filter">
+                        <option value="">All</option>
+                        <option value="enabled">Enabled</option>
+                        <option value="disabled">Disabled</option>
+                    </b-form-select>
+                </b-input-group>
+            </b-form-group>
+        </b-col>
+    </b-row>
+
+    <b-row>
+        <b-col md="4" class="my-2">
+            <b-form-group horizontal label="Per page" class="mb-0">
+                <b-form-select :options="[5, 10, 15]" v-model="perPage" />
+            </b-form-group>
+        </b-col>
+    </b-row>
+
+    <b-row>
+        <b-col md="12" class="my-2">
+            <b-table
+                    striped hover
+                    stacked="md"
+                    :items="strategies"
+                    :fields="fields"
+                    :filter="filter"
+                    :current-page="currentPage"
+                    :per-page="perPage"
+                    @filtered="onFiltered"
+            >
+                <template slot="actions" slot-scope="row">
+                    <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
+                    <b-button :variant="viewBtnVar" size="sm" @click.stop="selectedStrategy(row.item.id)" class="mr-1">
+                        View
+                    </b-button>
+                    <b-button :variant="updateBtnVar" size="sm" @click.stop="updateStrategy(row.item)" class="mr-1">
+                        Update
+                    </b-button>
+                    <b-button :variant="deleteBtnVar" size="sm" @click.stop="openDeleteStrategyModal(row.item)" class="mr-1">
+                        Delete
+                    </b-button>
+                </template>
+            </b-table>
+        </b-col>
+
+    </b-row>
+
+    <b-row>
+        <b-col md="8" class="my-1">
+            <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
+        </b-col>
+    </b-row>
+
     <DeleteStrategy v-if="deleteStrategyVisible" />
+
 </b-col>
