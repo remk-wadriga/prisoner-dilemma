@@ -1,5 +1,7 @@
-<b-col id="strategies_view_page">
-    <p>Name: {strategy.name}</p>
-    <p>Description: {strategy.description}</p>
-    <p>Status: {strategy.status}</p>
-</b-col>
+<b-card id="strategies_view_page" sub-title="Description:">
+    <h5 slot="header" class="mb-0">Name: {{strategy.name}}</h5>
+    <p class="card-text">
+        {{strategy.description}}
+    </p>
+    <em slot="footer">Status: {{strategy.status}}</em>
+</b-card>
