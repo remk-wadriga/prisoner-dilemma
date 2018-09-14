@@ -33,6 +33,9 @@ export default new Vuex.Store({
                 {id: 'msg_2', type: 'info', text: 'Info text'},
                 {id: 'msg_3', type: 'success', text: 'Success text'}*/
             ]
+        },
+        strategy: {
+            selectedId: null
         }
     },
     mutations: {
@@ -40,6 +43,9 @@ export default new Vuex.Store({
             state.app.pageTitle = title
         },
         setPageTopButtons(state, buttons) {
+            buttons.forEach(btn => {
+                btn.click = JSON.stringify(btn.click)
+            })
             state.app.pageTopButtons = buttons
         },
         setBreadcrumbs(state, breadcrumbs) {
@@ -64,6 +70,9 @@ export default new Vuex.Store({
         },
         setContentTitle(state, title) {
             state.app.contentTitle = title
+        },
+        selectStrategy(state, id) {
+            state.strategy.selectedId = id
         }
     }
 })

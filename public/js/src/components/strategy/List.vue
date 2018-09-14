@@ -2,13 +2,19 @@
 
 <script>
     import Api from '@/helpers/Api'
+    import DeleteStrategy from '@/components/strategy/Delete.vue'
 
     export default {
         name: "List",
+        components: { DeleteStrategy },
         data() {
             return {
                 strategies: [],
-                fields: ['name', 'description', 'status', 'actions']
+                fields: ['name', 'description', 'status', 'actions'],
+                deleteStrategyVisible: false,
+                viewBtnVar: 'primary',
+                updateBtnVar: 'success',
+                deleteBtnVar: 'danger',
             }
         },
         methods: {
@@ -18,8 +24,9 @@
             updateStrategy(id) {
                 this.$router.push({name: 'strategy_update', params: {id: id}})
             },
-            deleteStrategy(id) {
-
+            openDeleteStrategyModal(id) {
+                this.$store.commit('selectStrategy', id)
+                this.deleteStrategyVisible = true
             }
         },
         mounted() {
@@ -27,7 +34,7 @@
                 this.strategies = response
                 this.$store.commit('setContentTitle', 'Strategies')
                 this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}])
-                this.$store.commit('setPageTopButtons', [{title: 'Create new strategy', url: 'strategy_create_url', type: 'success'}])
+                this.$store.commit('setPageTopButtons', [{title: 'Create new strategy', type: 'success', click: {url: {name: 'strategy_create'}}}])
             })
         }
     }

@@ -1,17 +1,33 @@
 <template<template src="@/templates/top-buttons.html" />
 
 <script>
+    import DeleteStrategy from '@/components/strategy/Delete.vue'
+
     export default {
         name: "TopButtons",
+        components: { DeleteStrategy },
         data() {
             return {
-                btnSize: 'lg'
+                btnSize: 'lg',
+                deleteStrategyVisible: false,
             }
         },
         computed: {
             buttons() {
-                //  { variant: 'primary', caption: 'Toggle 1', state: true }
                 return this.$store.state.app.pageTopButtons
+            }
+        },
+        methods: {
+            btnClick(element) {
+                element = JSON.parse(element)
+                if (element.url !== undefined) {
+                    this.$router.push(element.url)
+                } else {
+                    eval('this.' + element + '()')
+                }
+            },
+            openDeleteStrategyModal() {
+                this.deleteStrategyVisible = true
             }
         }
     }

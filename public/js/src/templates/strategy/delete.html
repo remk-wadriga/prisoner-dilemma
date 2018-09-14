@@ -1,0 +1,16 @@
+<div id="delete_strategy_modal">
+    <b-modal
+            title="Deleting strategy"
+            ref="deleteStrategyModalRef"
+            @ok="deleteStrategy"
+            @cancel="close"
+            ok-title="Yes"
+            cancel-title="No"
+            ok-variant="danger"
+            cancel-variant="primary"
+    >
+        <div class="d-block text-center">
+            <h3>Are yuo sure you want to delete this strategy?</h3>
+        </div>
+    </b-modal>
+</div>

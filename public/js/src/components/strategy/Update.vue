@@ -20,9 +20,10 @@
                 this.$store.commit('setContentTitle', 'Update strategy "' + this.strategy.name + '"')
                 this.$store.commit('setBreadcrumbs', [
                     {title: 'Strategies', url: 'app_homepage'},
-                    {title: 'View', url: {name: 'strategy_view', params: {id}}},
+                    {title: this.strategy.name, url: {name: 'strategy_view', params: {id}}},
                     {title: 'Update', url: {name: 'strategy_update', params: {id}}},
                 ])
+                this.$store.commit('setPageTopButtons', [])
             })
         }
     }

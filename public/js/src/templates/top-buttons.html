@@ -6,8 +6,10 @@
             :variant="btn.type"
             :size="btnSize"
             class="ml-2"
+            @click="btnClick(btn.click)"
         >
-            {{ btn.title }} {{ btn.url }} {{ btn.click }}
+            {{ btn.title }}
         </b-button>
     </div>
+    <DeleteStrategy v-if="deleteStrategyVisible" />
 </div>
