@@ -5,7 +5,10 @@
 
     export default {
         name: "Home",
-        components: { StrategiesList }
+        components: { StrategiesList },
+        mounted() {
+            //this.$store.commit('setPageTitle', 'Login page')
+        }
     }
 </script>
 

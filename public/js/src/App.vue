@@ -23,7 +23,7 @@ export default {
         logoutUser() {
             let callback = response => {
                 user.methods.logout()
-                this.$router.go(this.$router.currentRoute)
+                this.$router.push({name: 'app_homepage'})
                 return false;
             };
             // security_logout

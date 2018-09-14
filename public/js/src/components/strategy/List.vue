@@ -32,6 +32,7 @@
         mounted() {
             Api.methods.request('app_homepage', {}, 'GET', response => {
                 this.strategies = response
+                this.$store.commit('setPageTitle', '')
                 this.$store.commit('setContentTitle', 'Strategies')
                 this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}])
                 this.$store.commit('setPageTopButtons', [{title: 'Create new strategy', type: 'success', click: {url: {name: 'strategy_create'}}}])

@@ -91,8 +91,13 @@ const Api = {
                     return;
                 }
 
+                // Error code "1001" means that access token is invalid, so, let`s logout user and go to the login page!
+                if (error.code === 1001) {
+                    user.methods.logout();
+                    store.commit('addLogMessage', {type: 'info', text: error.message})
+                    router.push({name: 'app_login'})
                 // Error code "1002" means that access token is expired, so, let`s renew it!
-                if (error.code === 1002) {
+                } else if (error.code === 1002) {
                     let renewToken = user.methods.getRenewToken();
                     if (!renewToken) {
                         store.commit('addLogMessage', {type: 'danger', text: 'Access token missing, try to login again'})
