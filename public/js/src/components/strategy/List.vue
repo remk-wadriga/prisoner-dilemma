@@ -18,11 +18,12 @@
             }
         },
         methods: {
-            selectStrategy(id) {
+            selectedStrategy(id) {
                 this.$router.push({name: 'strategy_view', params: {id: id}})
             },
-            updateStrategy(id) {
-                this.$router.push({name: 'strategy_update', params: {id: id}})
+            updateStrategy(strategy) {
+                this.$store.commit('selectedStrategy', strategy)
+                this.$router.push({name: 'strategy_update', params: {id: strategy.id}})
             },
             openDeleteStrategyModal(strategy) {
                 this.$store.commit('setCloseModalCallback', () => {
@@ -31,7 +32,7 @@
                         this.$store.commit('setCloseModalCallback', null)
                     })
                 })
-                this.$store.commit('selectStrategy', strategy)
+                this.$store.commit('selectedStrategy', strategy)
                 this.deleteStrategyVisible = true
             }
         },
@@ -42,6 +43,7 @@
                 this.$store.commit('setContentTitle', 'Strategies')
                 this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}])
                 this.$store.commit('setPageTopButtons', [{title: 'Create new strategy', type: 'success', click: {url: {name: 'strategy_create'}}}])
+                this.$store.commit('selectedStrategy', null)
             })
         }
     }

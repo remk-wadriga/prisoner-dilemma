@@ -1,11 +1,12 @@
-<template src="@/templates/strategy/create.html" />
+<!--<template src="@/templates/strategy/create.html" />-->
 
 <script>
-    import Form from '@/components/strategy/Form.vue'
+    import Form from '@/components/strategy/Form'
 
     export default {
         name: "Create",
         components: { Form },
+        template: '<Form/>',
         data() {
             return {
 

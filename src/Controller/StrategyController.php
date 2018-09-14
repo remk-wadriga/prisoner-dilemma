@@ -53,7 +53,7 @@ class StrategyController extends JsonController
     }
 
     /**
-     * @Route("/strategy/create", name="strategy_create", methods={"POST"})
+     * @Route("/strategy", name="strategy_create", methods={"POST"})
      */
     public function create(Request $request, AccessTokenAuthenticator $authenticator)
     {
@@ -119,7 +119,7 @@ class StrategyController extends JsonController
             'id' => $strategy->getId(),
             'name' => $strategy->getName(),
             'description' => $strategy->getDescription(),
-            'status' => $strategy->getStatusName(),
+            'status' => $strategy->getStatus(),
         ];
     }
 }

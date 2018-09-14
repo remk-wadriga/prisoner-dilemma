@@ -8,7 +8,7 @@
         components: { DeleteStrategy },
         data() {
             return {
-                btnSize: 'lg',
+                btnSize: '',
                 deleteStrategyVisible: false,
             }
         },

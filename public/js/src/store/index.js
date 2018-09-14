@@ -75,7 +75,7 @@ export default new Vuex.Store({
         setCloseModalCallback(state, callback) {
             state.app.closeModalCallback = callback
         },
-        selectStrategy(state, strategy) {
+        selectedStrategy(state, strategy) {
             state.strategy.selected = strategy
         }
     }

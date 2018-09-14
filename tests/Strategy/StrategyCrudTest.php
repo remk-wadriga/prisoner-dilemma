@@ -140,8 +140,13 @@ class StrategyCrudTest extends AbstractApiTestCase
         $user = $this->user;
         $userStrategiesCount = $user->getStrategies()->count();
 
-        // 2. Get some user strategy and try to delete it
+        // 2. Get some user strategy, remember it prams and try to delete it
         $strategy = $this->getUserStrategy();
+        $strategyParams = [
+            'name' => $strategy->getName(),
+            'description' => $strategy->getDescription(),
+            'status' => $strategy->getStatus(),
+        ];
         $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
         // Check request
         $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
@@ -160,6 +165,17 @@ class StrategyCrudTest extends AbstractApiTestCase
         $strategy = $this->getNotUserStrategy();
         $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
         $this->checkNotOwnStrategyResponse($response, 'delete not own strategy');
+
+        // 4. Create the same strategy again
+        $strategy = new Strategy();
+        $user = $this->entityManager->getRepository(User::class)->find($user->getId());
+        $strategy
+            ->setUser($user)
+            ->setName($strategyParams['name'])
+            ->setDescription($strategyParams['description'])
+            ->setStatus($strategyParams['status']);
+        $this->entityManager->persist($strategy);
+        $this->entityManager->flush();
     }
 
 
@@ -207,7 +223,6 @@ class StrategyCrudTest extends AbstractApiTestCase
                     $testKeysID, $description, $data['description'], $response->getContent()));
         }
         if ($status !== null) {
-            $status = IsEnabledEnum::getTypeName($status);
             $this->assertEquals($data['status'], $status,
                 sprintf('Wrong test "%s" response format, the response must have an "status" param equals to "%s", but it is not, it is "%s". The response content is: %s',
                     $testKeysID, $status, $data['status'], $response->getContent()));

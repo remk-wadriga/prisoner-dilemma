@@ -10,25 +10,41 @@
                 name: null,
                 description: null,
                 status: 'enabled',
+                isNewRecord: true,
             }
         },
         methods: {
             submitStrategyFrom() {
-                // strategy_form
-                let data = {
+                const data = {
                     strategy_form: {
                         name: this.name,
                         description: this.description,
                         status: this.status
                     }
                 }
-                Api.request('strategy_create_url', data, 'POST', response => {
-                    console.log(response)
+                const method = this.isNewRecord ? 'POST' : 'PUT'
+                Api.methods.request('strategy_create_url', data, method, response => {
+                    this.$router.push({name: 'strategy_view', params: {id: response.id}})
                 })
+            },
+            setParams(strategy) {
+                this.isNewRecord = false
+                this.name = strategy.name
+                this.description = strategy.description
+                this.status = strategy.status
+                this.$store.commit('selectedStrategy', null)
             }
         },
         mounted() {
-            console.log(this.$store.state.strategy.selected)
+            let strategy = this.$store.state.strategy.selected
+            const id = this.$route.params.id
+            if (strategy === null && id !== undefined) {
+                Api.methods.request(['strategy_url', {id}], {}, 'GET', response => {
+                    this.setParams(response)
+                })
+            } else if (strategy !== null) {
+                this.setParams(strategy)
+            }
         }
     }
 </script>

@@ -13,7 +13,7 @@
                 }
                 Api.methods.request(['strategy_url', {id}], {}, 'DELETE', () => {
                     this.$parent.deleteStrategyVisible = false
-                    this.$store.commit('selectStrategy', null)
+                    this.$store.commit('selectedStrategy', null)
                     let callback = this.$store.state.app.closeModalCallback
                     if (callback !== undefined) {
                         callback();
