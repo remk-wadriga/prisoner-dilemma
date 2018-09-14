@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 class StrategyController extends JsonController
 {
     /**
-     * @Route("/", name="app_homepage")
+     * @Route("/", name="app_homepage", methods={"GET"})
      */
     public function list(AccessTokenAuthenticator $authenticator)
     {
@@ -36,6 +36,20 @@ class StrategyController extends JsonController
             $list[] = $this->strategyInfo($strategy);
         }
         return $this->json($list);
+    }
+
+    /**
+     * @Route("/strategy/{id}", name="strategy_show", methods={"GET"})
+     */
+    public function show(Strategy $strategy, AccessTokenAuthenticator $authenticator)
+    {
+        // Get current user
+        $user = $authenticator->getCurrentUser();
+        // Check is current user has permissions for this strategy
+        if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
+            throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
+        }
+        return $this->json($this->strategyInfo($strategy));
     }
 
     /**
@@ -82,17 +96,20 @@ class StrategyController extends JsonController
     }
 
     /**
-     * @Route("/strategy/{id}", name="strategy_show")
+     * @Route("/strategy/{id}", name="strategy_delete", methods={"DELETE"})
      */
-    public function show(Strategy $strategy, AccessTokenAuthenticator $authenticator)
+    public function delete(Strategy $strategy, AccessTokenAuthenticator $authenticator)
     {
-        // Get current user
+        // Check is current user has permissions for updating the strategy
         $user = $authenticator->getCurrentUser();
-        // Check is current user has permissions for this strategy
         if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
-            throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
+            throw new HttpException('Strategy is not found', HttpException::CODE_NOT_FOUND);
         }
-        return $this->json($this->strategyInfo($strategy));
+        // Try to delete strategy
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($strategy);
+        $manager->flush();
+        return $this->json('OK');
     }
 
 

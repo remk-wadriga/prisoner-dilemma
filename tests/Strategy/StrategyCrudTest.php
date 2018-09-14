@@ -43,8 +43,7 @@ class StrategyCrudTest extends AbstractApiTestCase
         $user = $this->user;
 
         // 2. Get strategy and create new params for it
-        /** @var Strategy $strategy */
-        $strategy = $this->entityManager->getRepository(Strategy::class)->findOneBy(['user' => $user->getId()]);
+        $strategy = $this->getUserStrategy();
         $this->assertNotNull($strategy, sprintf('Test "update strategy" action failed: user #%s doesn`t have strategies', $user->getId()));
         // Remember old and new params
         $oldName = $strategy->getName();
@@ -88,13 +87,7 @@ class StrategyCrudTest extends AbstractApiTestCase
                 Response::HTTP_OK, $response->getStatus(), $response->getContent()));
 
         // 8. Get some different users strategy and try to update it
-        /** @var Strategy $strategy */
-        $strategy = $this->entityManager->getRepository(Strategy::class)->createQueryBuilder('s')
-            ->andWhere('s.user != :user')
-            ->setParameter('user', $user->getId())
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $strategy = $this->getNotUserStrategy();
         $response = $this->request(['strategy_update', ['id' => $strategy->getId()]], $data, 'PUT');
         $this->checkNotOwnStrategyResponse($response, 'update another user strategy');
     }
@@ -127,24 +120,46 @@ class StrategyCrudTest extends AbstractApiTestCase
         $user = $this->user;
 
         // 2. Get current users strategy and send request
-        /** @var Strategy $strategy */
-        $strategy = $this->entityManager->getRepository(Strategy::class)->findOneBy(['user' => $user->getId()]);
+        $strategy = $this->getUserStrategy();
         $this->assertNotNull($strategy, sprintf('Test "show strategy" failed: user #%s doesn`t have strategies', $user->getId()));
         $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
         // 3. Check response
         $this->checkIsCorrectStrategyParamsInResponse($response, 'show strategy');
 
         // 3. Get some different users strategy and send request
-        /** @var Strategy $strategy */
-        $strategy = $this->entityManager->getRepository(Strategy::class)->createQueryBuilder('s')
-            ->andWhere('s.user != :user')
-            ->setParameter('user', $user->getId())
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult();
+        $strategy = $this->getNotUserStrategy();
         $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
         $this->checkNotOwnStrategyResponse($response, 'show another user strategy');
 
+    }
+
+    public function testDeleteAction()
+    {
+        // 1. Get User and login him and remember user strategies count
+        $this->logInAsUser();
+        $user = $this->user;
+        $userStrategiesCount = $user->getStrategies()->count();
+
+        // 2. Get some user strategy and try to delete it
+        $strategy = $this->getUserStrategy();
+        $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
+        // Check request
+        $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
+            sprintf('Wrong test "delete strategy" response format, status code must be equal to %s, but it is not. It is: %s. The content is: %s',
+                Response::HTTP_OK,  $response->getStatus(), $response->getContent()));
+        $this->assertContains('OK', $response->getContent(),
+            'Wrong test "delete strategy" response format, response must contains "OK" string, but it is not. It is: %s.', $response->getContent());
+        // Check data - user mustn`t have this strategy and user`s strategies count mus be equals to "oldCount - 1"
+        $this->assertFalse($user->getStrategies()->contains($strategy), sprintf('Test "delete strategy" is failed: user #%s steel has the strategy #%s',
+            $user->getId(), $strategy->getId()));
+        $this->assertEquals($user->getStrategies()->count(), $userStrategiesCount - 1,
+            sprintf('Test "delete strategy" is failed: user #%s steel has a %s strategies, but he should have %s after deleting the one',
+                $user->getId(), $userStrategiesCount, $userStrategiesCount - 1));
+
+        // 3. Try do delete strategy of some different user
+        $strategy = $this->getNotUserStrategy();
+        $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
+        $this->checkNotOwnStrategyResponse($response, 'delete not own strategy');
     }
 
 
@@ -232,5 +247,32 @@ class StrategyCrudTest extends AbstractApiTestCase
         $this->assertContains('not found', $data['error']['message'],
             sprintf('Wrong test "%s" response format, response must have a "message" param equals to "%s" but it`s not, It is: "%s". The response is: %s',
                 $testKeysID,'not found', $data['error']['message'], json_encode($data['error'])));
+    }
+
+    private function getUserStrategy(int $userID = null): ?Strategy
+    {
+        if ($userID === null && $this->user !== null) {
+            $userID = $this->user->getId();
+        }
+        if ($userID === null) {
+            return null;
+        }
+        return $this->entityManager->getRepository(Strategy::class)->findOneBy(['user' => $userID]);
+    }
+
+    private function getNotUserStrategy(int $userID = null): ?Strategy
+    {
+        if ($userID === null && $this->user !== null) {
+            $userID = $this->user->getId();
+        }
+        if ($userID === null) {
+            return null;
+        }
+        return $strategy = $this->entityManager->getRepository(Strategy::class)->createQueryBuilder('s')
+            ->andWhere('s.user != :user')
+            ->setParameter('user', $userID)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }
