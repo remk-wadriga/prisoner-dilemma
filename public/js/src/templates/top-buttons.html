@@ -1,0 +1,13 @@
+<div id="top_buttons_block">
+    <div>
+        <b-button
+            v-for="btn in buttons"
+            :key="btn.title"
+            :variant="btn.type"
+            :size="btnSize"
+            class="ml-2"
+        >
+            {{ btn.title }} {{ btn.url }} {{ btn.click }}
+        </b-button>
+    </div>
+</div>

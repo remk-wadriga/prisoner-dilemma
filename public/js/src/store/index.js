@@ -9,6 +9,9 @@ export default new Vuex.Store({
     state: {
         app: {
             pageTitle: '',
+            pageTopButtons: [],
+            breadcrumbs: [],
+            contentTitle: '',
             leftMenuItems: [
                 {
                     name: 'Item 1',
@@ -36,6 +39,12 @@ export default new Vuex.Store({
         setPageTitle(state, title) {
             state.app.pageTitle = title
         },
+        setPageTopButtons(state, buttons) {
+            state.app.pageTopButtons = buttons
+        },
+        setBreadcrumbs(state, breadcrumbs) {
+            state.app.breadcrumbs = breadcrumbs
+        },
         addLogMessage(state, msg, liveTime = 7000) {
             if (msg.id === undefined) {
                 index++;
@@ -52,6 +61,9 @@ export default new Vuex.Store({
                     state.logger.messages.splice(i, 1)
                 }
             })
+        },
+        setContentTitle(state, title) {
+            state.app.contentTitle = title
         }
     }
 })

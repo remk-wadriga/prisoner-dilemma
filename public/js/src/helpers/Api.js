@@ -14,7 +14,8 @@ const Api = {
             'security_registration': '/registration',
             'security_renew_token': '/renew-token',
             'user_info': '/user',
-            'strategy_view': '/strategy/:id',
+            'strategy_url': '/strategy/:id',
+            'strategy_create_url': '/strategy',
         }
     },
     methods: {
@@ -24,7 +25,6 @@ const Api = {
                 params = name[1]
                 name = name[0]
             }
-            console.log(name, params)
             let path = Api.data.routes[name]
             if (path === undefined) {
                 throw 'Url with name "' + name + '" is not found!';

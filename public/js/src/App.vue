@@ -2,9 +2,10 @@
 
 <script>
 
-import Logger from '@/components/Logger'
-import user from '@/entityes/User'
 import Api from '@/helpers/Api'
+import user from '@/entityes/User'
+import Breadcrumbs from '@/components/Breadcrumbs'
+import Logger from '@/components/Logger'
 import LetMenu from '@/components/LeftMenu'
 import Content from '@/components/Content'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -12,7 +13,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 export default {
     name: 'App',
-    components: { Logger, LetMenu, Content },
+    components: { Logger, Breadcrumbs, LetMenu, Content },
     data() {
         return {
             user: user

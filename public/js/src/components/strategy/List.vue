@@ -8,18 +8,26 @@
         data() {
             return {
                 strategies: [],
-                fields: ['name', 'description', 'status']
+                fields: ['name', 'description', 'status', 'actions']
             }
         },
         methods: {
             selectStrategy(id) {
                 this.$router.push({name: 'strategy_view', params: {id: id}})
+            },
+            updateStrategy(id) {
+                this.$router.push({name: 'strategy_update', params: {id: id}})
+            },
+            deleteStrategy(id) {
+
             }
         },
         mounted() {
             Api.methods.request('app_homepage', {}, 'GET', response => {
                 this.strategies = response
-                this.$store.commit('setPageTitle', 'Strategies')
+                this.$store.commit('setContentTitle', 'Strategies')
+                this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}])
+                this.$store.commit('setPageTopButtons', [{title: 'Create new strategy', url: 'strategy_create_url', type: 'success'}])
             })
         }
     }

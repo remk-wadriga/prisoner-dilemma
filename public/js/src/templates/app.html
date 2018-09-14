@@ -42,8 +42,10 @@
     </b-navbar>
 
     <b-container fluid v-if="user.methods.isLogged()">
-        <h4>{{pageTitle}}</h4>
-        <hr>
+        <h4>{{ pageTitle }}</h4>
+        <b-row>
+            <Breadcrumbs/>
+        </b-row>
         <b-row>
             <logger/>
         </b-row>

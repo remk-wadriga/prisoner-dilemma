@@ -1,3 +1,14 @@
 <div id="content_page">
-    <router-view/>
+    <b-row>
+        <b-col class="text-left">
+            <h3>{{ pageTitle }}</h3>
+        </b-col>
+        <b-col class="text-right">
+            <TopButtons/>
+        </b-col>
+    </b-row>
+    <hr/>
+    <b-row>
+        <router-view/>
+    </b-row>
 </div>

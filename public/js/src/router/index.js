@@ -4,7 +4,9 @@ import Login from '@/components/index/Login'
 import Home from '@/components/index/Home'
 import Register from '@/components/index/Register'
 import Account from '@/components/user/Account'
+import StrategyCreate from '@/components/strategy/Create'
 import StrategyView from '@/components/strategy/View'
+import StrategyUpdate from '@/components/strategy/Update'
 
 Vue.use(Router)
 
@@ -31,9 +33,19 @@ export default new Router({
             component: Account
         },
         {
+            path: '/strategy',
+            name: 'strategy_create',
+            component: StrategyCreate
+        },
+        {
             path: '/strategy/:id',
             name: 'strategy_view',
             component: StrategyView
+        },
+        {
+            path: '/strategy/:id/update',
+            name: 'strategy_update',
+            component: StrategyUpdate
         },
     ]
 })
