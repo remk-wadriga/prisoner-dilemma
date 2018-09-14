@@ -9,11 +9,17 @@
             deleteStrategy() {
                 let id = this.$route.params.id
                 if (id === undefined) {
-                    id = this.$store.state.strategy.selectedId
+                    id = this.$store.state.strategy.selected.id
                 }
                 Api.methods.request(['strategy_url', {id}], {}, 'DELETE', () => {
                     this.$parent.deleteStrategyVisible = false
-                    this.$router.push({name: 'app_homepage'})
+                    this.$store.commit('selectStrategy', null)
+                    let callback = this.$store.state.app.closeModalCallback
+                    if (callback !== undefined) {
+                        callback();
+                    } else {
+                        this.$router.push({name: 'app_homepage'})
+                    }
                 })
             },
             close() {

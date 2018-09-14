@@ -1,10 +1,16 @@
 <template src="@/templates/strategy/create.html" />
 
 <script>
-    import Api from '@/helpers/Api'
+    import Form from '@/components/strategy/Form.vue'
 
     export default {
         name: "Create",
+        components: { Form },
+        data() {
+            return {
+
+            }
+        },
         methods: {
 
         },

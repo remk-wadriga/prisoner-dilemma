@@ -24,8 +24,14 @@
             updateStrategy(id) {
                 this.$router.push({name: 'strategy_update', params: {id: id}})
             },
-            openDeleteStrategyModal(id) {
-                this.$store.commit('selectStrategy', id)
+            openDeleteStrategyModal(strategy) {
+                this.$store.commit('setCloseModalCallback', () => {
+                    Api.methods.request('app_homepage', {}, 'GET', response => {
+                        this.strategies = response
+                        this.$store.commit('setCloseModalCallback', null)
+                    })
+                })
+                this.$store.commit('selectStrategy', strategy)
                 this.deleteStrategyVisible = true
             }
         },

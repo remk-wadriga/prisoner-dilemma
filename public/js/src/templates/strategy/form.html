@@ -1,0 +1,37 @@
+<div id="strategy_form">
+    <b-form @submit="submitStrategyFrom">
+        <b-form-group
+                label="Name:"
+                label-for="strategy_name_input"
+                description="We'll never share your username with anyone else.">
+            <b-form-input id="strategy_name_input"
+                          type="text"
+                          v-model="name"
+                          required
+                          placeholder="Enter a strategy name">
+            </b-form-input>
+        </b-form-group>
+
+        <b-form-group
+                label="Description:"
+                label-for="strategy_description_input">
+            <b-form-input id="strategy_description_input"
+                          type="text"
+                          v-model="description"
+                          placeholder="Enter a strategy description">
+            </b-form-input>
+        </b-form-group>
+
+        <b-form-group
+                label="Status:"
+                label-for="strategy_status_input">
+            <b-form-select id="strategy_status_input"
+                           :options="['enabled', 'disabled']"
+                           required
+                           v-model="status">
+            </b-form-select>
+        </b-form-group>
+
+        <b-button type="submit" variant="primary">Create</b-button>
+    </b-form>
+</div>
