@@ -38,7 +38,10 @@
             if (user.methods.isLogged()) {
                 this.$router.go(-1)
             } else {
-                this.$store.commit('setPageTitle', 'Register page')
+                this.$store.commit('setContentTitle', 'Register page')
+                this.$store.commit('setBreadcrumbs', [
+                    {title: 'Register', url: 'app_register'},
+                ])
             }
         }
     }

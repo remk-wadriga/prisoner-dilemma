@@ -38,7 +38,10 @@
             }
         },
         mounted() {
-            this.$store.commit('setPageTitle', 'My profile')
+            this.$store.commit('setContentTitle', 'My profile')
+            this.$store.commit('setBreadcrumbs', [
+                {title: 'Profile', url: 'user_account'},
+            ])
             let userInfo = user.methods.getInfo()
             if (userInfo === null) {
                 this.$store.commit('addLogMessage', {type: 'danger', text: 'Can`t get user info. Try lo login again'})

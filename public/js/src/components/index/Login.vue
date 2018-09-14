@@ -25,7 +25,10 @@
             if (user.methods.isLogged()) {
                 this.$router.go(-1)
             } else {
-                this.$store.commit('setPageTitle', 'Login page')
+                this.$store.commit('setContentTitle', 'Login page')
+                this.$store.commit('setBreadcrumbs', [
+                    {title: 'Login', url: 'app_login'},
+                ])
             }
         }
     }
