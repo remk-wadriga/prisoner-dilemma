@@ -1,4 +1,4 @@
-<b-card id="strategies_view_page" sub-title="Description:">
+<b-card v-if="strategy !== null" id="strategies_view_page" sub-title="Description:">
     <h5 slot="header" class="mb-0">Name: <strong>{{strategy.name}}</strong></h5>
     <p class="card-text">
         {{strategy.description}}
