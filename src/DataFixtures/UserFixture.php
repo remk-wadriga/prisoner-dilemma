@@ -17,7 +17,7 @@ class UserFixture extends AbstractFixture
 
     protected function loadData(ObjectManager $manager)
     {
-        $this->createMany(User::class, 10, function (User $user, int $i) {
+        $this->createMany(User::class, 5, function (User $user, int $i) {
             switch ($i) {
                 case 0:
                     // 1. Create default admin
