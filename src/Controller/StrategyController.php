@@ -49,7 +49,7 @@ class StrategyController extends JsonController
         if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
             throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
         }
-        return $this->json($this->strategyInfo($strategy));
+        return $this->json($this->strategyInfo($strategy, [['decisions' => 'decisionsAsArray']]));
     }
 
     /**
@@ -113,13 +113,27 @@ class StrategyController extends JsonController
     }
 
 
-    protected function strategyInfo(Strategy $strategy)
+    protected function strategyInfo(Strategy $strategy, array $additionalFields = []): array
     {
-        return [
+        $params = [
             'id' => $strategy->getId(),
             'name' => $strategy->getName(),
             'description' => $strategy->getDescription(),
             'status' => $strategy->getStatus(),
         ];
+
+        foreach ($additionalFields as $field) {
+            if (is_array($field)) {
+                $getter = 'get' . ucfirst(current($field));
+                $field = key($field);
+            } else {
+                $getter = 'get' . ucfirst($field);
+            }
+            if (method_exists($strategy, $getter)) {
+                $params[$field] = $strategy->$getter();
+            }
+        }
+
+        return $params;
     }
 }

@@ -42,6 +42,7 @@ class Strategy
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="strategy", orphanRemoval=true)
+     * @ORM\OrderBy({"step" = "ASC"})
      */
     private $decisions;
 
@@ -146,5 +147,22 @@ class Strategy
     public function beforeUpdate()
     {
         $this->setUpdatedAt(new \DateTime());
+    }
+
+    // Public functions
+    public function getDecisionsAsArray(): array
+    {
+        $result = [];
+        foreach ($this->getDecisions() as $decision) {
+            $parent = $decision->getParent();
+            $result[] = [
+                'id' => $decision->getId(),
+                'type' => $decision->getType(),
+                'parent' => $parent !== null ? $parent->getId() : null,
+                'step' => $decision->getStep(),
+                'returnStep' => $decision->getReturnStep(),
+            ];
+        }
+        return $result;
     }
 }
