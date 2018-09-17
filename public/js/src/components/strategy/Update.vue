@@ -27,7 +27,7 @@
                     {title: 'Update', url: {name: 'strategy_update', params: {id}}},
                 ])
                 this.$store.commit('setPageTopButtons', [])
-                this.$store.commit('selectedStrategy', this.strategy)
+                this.$store.commit('selectedStrategyId', this.strategy.id)
             })
         }
     }

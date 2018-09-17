@@ -1,7 +1,7 @@
 <template<template src="@/templates/top-buttons.html" />
 
 <script>
-    import DeleteStrategy from '@/components/strategy/Delete.vue'
+    import DeleteStrategy from '@/components/strategy/Delete'
 
     export default {
         name: "TopButtons",
@@ -27,8 +27,12 @@
                 }
             },
             openDeleteStrategyModal() {
+                this.$store.commit('setCloseModalCallback', () => {
+                    this.$store.commit('setCloseModalCallback', null)
+                    this.$router.push({name: 'app_homepage'})
+                })
                 this.deleteStrategyVisible = true
-            }
+            },
         }
     }
 </script>

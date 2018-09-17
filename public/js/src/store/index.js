@@ -36,7 +36,8 @@ export default new Vuex.Store({
             ]
         },
         strategy: {
-            selected: null
+            selectedId: null,
+            decisions: []
         }
     },
     mutations: {
@@ -75,8 +76,11 @@ export default new Vuex.Store({
         setCloseModalCallback(state, callback) {
             state.app.closeModalCallback = callback
         },
-        selectedStrategy(state, strategy) {
-            state.strategy.selected = strategy
+        selectedStrategyId(state, strategyId) {
+            state.strategy.selectedId = strategyId
+        },
+        setStrategyDecisions(state, decisions) {
+            state.strategy.decisions = decisions
         }
     }
 })

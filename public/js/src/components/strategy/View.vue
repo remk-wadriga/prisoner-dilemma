@@ -11,9 +11,7 @@
             }
         },
         methods: {
-            deleteStrategy() {
-                console.log('Delete')
-            }
+
         },
         mounted() {
             const id = this.$route.params.id
@@ -28,7 +26,7 @@
                     {title: 'Update', type: 'primary', click: {url: {name: 'strategy_update', params: {id}}}},
                     {title: 'Delete', type: 'danger', click: 'openDeleteStrategyModal'}
                 ])
-                this.$store.commit('selectedStrategy', this.strategy)
+                this.$store.commit('selectedStrategyId', this.strategy.id)
             })
         }
     }
