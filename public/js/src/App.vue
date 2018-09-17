@@ -10,6 +10,7 @@ import LetMenu from '@/components/LeftMenu'
 import Content from '@/components/Content'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'vue-orgchart/dist/style.min.css'
 
 export default {
     name: 'App',

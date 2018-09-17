@@ -1,3 +1,29 @@
 <div id="decision_form">
-    {{decisions}}
+    <div>
+        <vo-edit :data="decisionsData" :draggable="true" :toggleCollapse="false"></vo-edit>
+        <div id="edit-panel" class="view-state edit-container">
+            <div class="item item-half">
+                <div class="input-node-container">
+                    <label class="selected-node-group">Selected Node</label>
+                    <input type="text" id="selected-node" class="selected-node-group new-node">
+                </div>
+                <div>
+                    <label>New Node</label>
+                    <ul id="new-nodelist">
+                        <li><input type="text" class="new-node"></li>
+                    </ul>
+                </div>
+            </div>
+            <div id="node-type-panel" class="radio-panel item">
+                <input type="radio" name="node-type" id="rd-parent" value="parent" class=""><label for="rd-parent">Root</label>
+                <input type="radio" name="node-type" id="rd-child" value="children"><label for="rd-child">Child</label>
+                <input type="radio" name="node-type" id="rd-sibling" value="siblings"><label for="rd-sibling">Sibling</label>
+            </div>
+            <div class="item">
+                <button @click="addNodes">Add</button>
+                <button @click="deleteNodes">Delete</button>
+                <button @click="exportJSON">Export JSON</button>
+            </div>
+        </div>
+    </div>
 </div>

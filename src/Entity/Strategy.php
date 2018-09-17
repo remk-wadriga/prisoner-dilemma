@@ -150,18 +150,40 @@ class Strategy
     }
 
     // Public functions
-    public function getDecisionsAsArray(): array
+
+    /**
+     * @param Decision[] $decisions
+     * @param int $parentID
+     * @param int $step
+     * @return array
+     */
+    public function getDecisionsAsArray(&$decisions = null, $parentID = null, $step = 1): array
     {
         $result = [];
-        foreach ($this->getDecisions() as $decision) {
-            $parent = $decision->getParent();
+        if ($decisions === null) {
+            $decisions = $this->getDecisions();
+        }
+        foreach ($decisions as $index => $decision) {
+            if ($decision->getStep() !== $step) {
+                continue;
+            }
+            unset($decisions[$index]);
+            $result[] = [
+                'id' => $decision->getId(),
+                'name' => $decision->getType(),
+                'parent' => $parentID,
+                'step' => $step,
+                'returnStep' => $decision->getReturnStep(),
+                'children' => $this->getDecisionsAsArray($decisions, $decision->getId(), $step + 1)
+            ];
+            /*$parent = $decision->getParent();
             $result[] = [
                 'id' => $decision->getId(),
                 'type' => $decision->getType(),
                 'parent' => $parent !== null ? $parent->getId() : null,
                 'step' => $decision->getStep(),
                 'returnStep' => $decision->getReturnStep(),
-            ];
+            ];*/
         }
         return $result;
     }

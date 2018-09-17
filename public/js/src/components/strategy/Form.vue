@@ -15,6 +15,7 @@
                 status: 'enabled',
                 decisions: [],
                 isNewRecord: true,
+                isMounted: false,
             }
         },
         methods: {
@@ -58,6 +59,7 @@
             if (id !== null && id !== undefined) {
                 Api.methods.request(['strategy_url', {id}], {}, 'GET', response => {
                     this.setParams(response)
+                    this.isMounted = true
                 })
             }
         }
