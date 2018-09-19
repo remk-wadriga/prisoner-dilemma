@@ -49,7 +49,7 @@ class StrategyController extends JsonController
         if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
             throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
         }
-        return $this->json($this->strategyInfo($strategy, [['decisions' => 'decisionsAsArray']]));
+        return $this->json($this->strategyInfo($strategy, [['decisions' => 'decisionsJsonAsString']]));
     }
 
     /**
@@ -70,7 +70,7 @@ class StrategyController extends JsonController
         $em->persist($strategy);
         $em->flush();
 
-        return $this->json($this->strategyInfo($strategy));
+        return $this->json($this->strategyInfo($strategy, [['decisions' => 'decisionsJsonAsString']]));
     }
 
     /**
@@ -83,6 +83,7 @@ class StrategyController extends JsonController
         if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
             throw new HttpException('Strategy is not found', HttpException::CODE_NOT_FOUND);
         }
+
         // Process request
         $form = $this->createJsonForm(StrategyForm::class, $strategy, ['action' => StrategyForm::ACTION_UPDATE]);
         $this->handleJsonForm($form, $request);
@@ -92,7 +93,7 @@ class StrategyController extends JsonController
         $em->persist($strategy);
         $em->flush();
 
-        return $this->json($this->strategyInfo($strategy));
+        return $this->json($this->strategyInfo($strategy, [['decisions' => 'decisionsJsonAsString']]));
     }
 
     /**

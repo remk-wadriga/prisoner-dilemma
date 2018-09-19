@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use App\Entity\Traits\IsEnabledEntity;
+use App\Validator;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StrategyRepository")
@@ -45,6 +46,12 @@ class Strategy
      * @ORM\OrderBy({"step" = "ASC"})
      */
     private $decisions;
+
+    /**
+     * @Validator\Json(message="decisionsJson field has an incorrect json")
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $decisionsJson;
 
     public function __construct()
     {
@@ -123,6 +130,20 @@ class Strategy
         return $this;
     }
 
+    public function getDecisionsJson(): ?array
+    {
+        if (empty($this->decisionsJson)) {
+            return null;
+        }
+        return is_array($this->decisionsJson) ? $this->decisionsJson : json_decode($this->decisionsJson, true);
+    }
+
+    public function setDecisionsJson(?string $decisionsJson): self
+    {
+        $this->decisionsJson = json_decode($decisionsJson, true);
+        return $this;
+    }
+
     // Lifecycle Callbacks
 
     /**
@@ -186,5 +207,13 @@ class Strategy
             ];*/
         }
         return $result;
+    }
+
+    public function getDecisionsJsonAsString(): string
+    {
+        if (empty($this->decisionsJson)) {
+            return null;
+        }
+        return is_array($this->decisionsJson) ? json_encode($this->decisionsJson) : $this->decisionsJson;
     }
 }

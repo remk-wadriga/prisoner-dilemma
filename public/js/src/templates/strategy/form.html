@@ -1,16 +1,19 @@
-<b-col id="strategy_form">
+<b-col id="strategy_form" v-if="isMounted">
     <b-tabs>
+        <b-tab title="Decisions" active>
+            <DecisionForm />
+        </b-tab>
 
-        <b-tab title="Params">
+        <b-tab title="Params" @click="clickParamsTab">
             <b-form id="strategy_form" @submit="submitStrategyFrom">
                 <b-form-group
                         label="Name:"
                         label-for="strategy_name_input">
                     <b-form-input id="strategy_name_input"
-                                  type="text"
-                                  v-model="name"
-                                  required
-                                  placeholder="Enter a strategy name">
+                        type="text"
+                        v-model="name"
+                        required
+                        placeholder="Enter a strategy name">
                     </b-form-input>
                 </b-form-group>
 
@@ -18,10 +21,10 @@
                         label="Description:"
                         label-for="strategy_description_input">
                     <b-form-textarea id="strategy_description_input"
-                                     v-model="description"
-                                     :rows="3"
-                                     :max-rows="6"
-                                     placeholder="Enter a strategy description">
+                        v-model="description"
+                        :rows="3"
+                        :max-rows="6"
+                        placeholder="Enter a strategy description">
                     </b-form-textarea>
                 </b-form-group>
 
@@ -29,18 +32,14 @@
                         label="Status:"
                         label-for="strategy_status_input">
                     <b-form-select id="strategy_status_input"
-                                   :options="['enabled', 'disabled']"
-                                   required
-                                   v-model="status">
+                        :options="['enabled', 'disabled']"
+                        required
+                        v-model="status">
                     </b-form-select>
                 </b-form-group>
 
                 <b-button type="submit" variant="primary">{{ isNewRecord ? 'Create' : 'Update' }}</b-button>
             </b-form>
-        </b-tab>
-
-        <b-tab title="Decisions" active>
-            <DecisionForm v-if="isMounted" />
         </b-tab>
 
     </b-tabs>

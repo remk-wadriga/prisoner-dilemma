@@ -3,6 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Strategy;
+use App\Form\Type\JsonType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -38,6 +39,10 @@ class StrategyForm extends AbstractType
                 'empty_data' => $strategy !== null ? $strategy->getDescription() : '',
             ])
             ->add('status', ChoiceType::class, $statusOptions)
+            ->add('decisionsJson', JsonType::class, [
+                'required' => false,
+                'empty_data' => $strategy !== null ? $strategy->getDecisionsJson() : [],
+            ])
         ;
     }
 

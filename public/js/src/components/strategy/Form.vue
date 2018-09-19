@@ -13,7 +13,8 @@
                 name: null,
                 description: null,
                 status: 'enabled',
-                decisions: [],
+                decisions: null,
+                decisionsJson: '',
                 isNewRecord: true,
                 isMounted: false,
             }
@@ -24,7 +25,8 @@
                     strategy_form: {
                         name: this.name,
                         description: this.description,
-                        status: this.status
+                        status: this.status,
+                        decisionsJson: this.decisionsJson !== '' ? this.decisionsJson : null,
                     }
                 }
                 let method = '';
@@ -49,9 +51,15 @@
                 this.decisions = strategy.decisions
                 this.$store.commit('selectedStrategyId', null)
                 this.$store.commit('setStrategyDecisions', this.decisions)
+            },
+            clickParamsTab() {
+                let decisionsModel = this.$store.state.strategy.decisionsFromModel
+                if (decisionsModel !== null && decisionsModel !== undefined) {
+                    this.decisionsJson = decisionsModel.serialize()
+                }
             }
         },
-        mounted() {
+        created() {
             let id = this.$route.params.id
             if (!id) {
                 id = this.$store.state.strategy.selectedId

@@ -7,10 +7,8 @@
         name: "Form",
         components: { Diagram },
         data() {
-            const diagramModel = new Diagram.Model()
-
             return {
-                model: diagramModel,
+                model: null,
                 level: 0,
                 nodes: {},
                 nodeWidth: 80,
@@ -19,6 +17,12 @@
                 posY: 385,
                 lastLevelYPos: null,
             }
+        },
+        computed: {
+
+        },
+        watch: {
+
         },
         methods: {
             addDecision(type) {
@@ -78,16 +82,22 @@
                     this.lastLevelYPos -= (this.nodeHeight + 30)
                     this.posY = this.lastLevelYPos
                 }
-
-                console.log(this.model.serialize())
             }
         },
         created() {
-            //this.decisionsData.children = this.$store.state.strategy.decisions
+            this.model = new Diagram.Model()
+            let decisionsJsonData = this.$store.state.strategy.decisions
+            if (decisionsJsonData !== null && decisionsJsonData !== undefined && decisionsJsonData !== '') {
+                if (typeof decisionsJsonData !== 'string') {
+                    decisionsJsonData = JSON.stringify(decisionsJsonData)
+                }
+                this.model.deserialize(decisionsJsonData)
+            }
+            this.$store.commit('setStrategyDecisionsFormModel', this.model)
         },
         mounted() {
 
-        }
+        },
     }
 </script>
 

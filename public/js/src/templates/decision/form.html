@@ -1,10 +1,8 @@
-<b-row id="decision_form">
+<b-row id="decision_form" v-if="model !== null">
     <b-col lg="1">
         <b-button type="submit" variant="success" @click="addDecision('accept')">Add accept decision</b-button>
         <b-button type="submit" variant="danger" @click="addDecision('refuse')">Add refuse decision</b-button>
         <b-button type="submit" variant="primary" @click="addDecision('random')">Add random decision</b-button>
-        <!--<hr>
-        <b-button type="submit" variant="primary" @click="level++">Add level</b-button>-->
     </b-col>
     <b-col lg="11">
         <diagram :model="model" width="1800" height="800"></diagram>
