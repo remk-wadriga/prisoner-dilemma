@@ -85,6 +85,7 @@ class User implements AccessTokenEntityInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Strategy", mappedBy="user")
+     * @ORM\OrderBy({"createdAt" = "DESC"})
      */
     private $strategies;
 

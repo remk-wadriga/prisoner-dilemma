@@ -7,7 +7,7 @@ import store from './store'
 import BootstrapVue from 'bootstrap-vue'
 
 Vue.config.productionTip = true;
-Vue.use(BootstrapVue);
+Vue.use(BootstrapVue)
 
 new Vue({
     el: '#app',

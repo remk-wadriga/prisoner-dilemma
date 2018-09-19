@@ -56,11 +56,13 @@
             if (!id) {
                 id = this.$store.state.strategy.selectedId
             }
-            if (id !== null && id !== undefined) {
+            if (id !== null && id !== undefined && this.isMounted === false) {
                 Api.methods.request(['strategy_url', {id}], {}, 'GET', response => {
                     this.setParams(response)
                     this.isMounted = true
                 })
+            } else if (this.isNewRecord) {
+                this.isMounted = true
             }
         }
     }

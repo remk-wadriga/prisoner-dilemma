@@ -1,133 +1,92 @@
 <template src="@/templates/decision/form.html" />
 
 <script>
-    import { VoEdit } from 'vue-orgchart'
+    import { Diagram } from 'vue-diagrams'
 
     export default {
         name: "Form",
-        components: { VoEdit },
+        components: { Diagram },
         data() {
+            const diagramModel = new Diagram.Model()
+
             return {
-                decisionsData: {
-                    name: 'Start',
-                    children: []
-                }
+                model: diagramModel,
+                level: 0,
+                nodes: {},
+                nodeWidth: 80,
+                nodeHeight: 100,
+                posX: -5,
+                posY: 385,
+                lastLevelYPos: null,
             }
         },
         methods: {
-            mountOrgchart() {
-                this.$children.forEach((item) => {
-                    item.orgchart !== undefined ? this.orgchart = item.orgchart : null
-                })
-            },
-            addNodes() {
-                let chartContainer = document.getElementById('chart-container')
-                let nodeVals = []
+            addDecision(type) {
+                let levelIndex = 'level_' + this.level
 
-                Array.from(document.getElementById('new-nodelist').querySelectorAll('.new-node'))
-                    .forEach(item => {
-                        let validVal = item.value.trim()
-
-                        if (validVal) {
-                            nodeVals.push(validVal)
-                        }
-                    })
-                let selectedNode = document.getElementById(document.getElementById('selected-node').dataset.node)
-
-                if (!nodeVals.length) {
-                    alert('Please input value for new node')
-                    return
-                }
-                let nodeType = document.querySelector('input[name="node-type"]:checked')
-
-                if (!nodeType) {
-                    alert('Please select a node type')
-                    return
-                }
-                if (nodeType.value !== 'parent' && !document.querySelector('.orgchart')) {
-                    alert('Please creat the root node firstly when you want to build up the orgchart from the scratch')
-                    return
-                }
-                if (nodeType.value !== 'parent' && !selectedNode) {
-                    alert('Please select one node in orgchart')
-                    return
-                }
-                if (nodeType.value === 'parent') {
-                    if (!chartContainer.children.length) {// if the original chart has been deleted
-                        this.orgchart = new OrgChart({
-                            'chartContainer': '#chart-container',
-                            'data': { 'name': nodeVals[0] },
-                            'parentNodeSymbol': 'fa-th-large',
-                            'createNode': function (node, data) {
-                                node.id = this.getId()
-                            }
-                        })
-                        this.orgchart.chart.classList.add('view-state')
-                    } else {
-                        this.orgchart.addParent(chartContainer.querySelector('.node'), { 'name': nodeVals[0], 'Id': this.getId() })
-                    }
-                } else if (nodeType.value === 'siblings') {
-                    this.orgchart.addSiblings(selectedNode, {
-                        'siblings': nodeVals.map(item => {
-                            return { 'name': item, 'relationship': '110', 'Id': this.getId() }
-                        })
-                    })
+                if (this.nodes[levelIndex] === undefined) {
+                    this.nodes[levelIndex] = []
+                } else if (this.level === 0) {
+                    this.level++
+                    levelIndex = 'level_' + this.level
+                    this.nodes[levelIndex] = []
+                    this.posX += this.nodeWidth + 70
+                    this.posY -= (this.nodeHeight / 2 + 10)
                 } else {
-                    let hasChild = selectedNode.parentNode.colSpan > 1
-
-                    if (!hasChild) {
-                        let rel = nodeVals.length > 1 ? '110' : '100'
-
-                        this.orgchart.addChildren(selectedNode, {
-                            'children': nodeVals.map(item => {
-                                return { 'name': item, 'relationship': rel, 'Id': this.getId() }
-                            })
-                        })
-                    } else {
-                        this.orgchart.addSiblings(closest(selectedNode, el => el.nodeName === 'TABLE').querySelector('.nodes').querySelector('.node'),
-                            { 'siblings': nodeVals.map(function (item) { return { 'name': item, 'relationship': '110', 'Id': this.getId() } })
-                            })
-                    }
+                    this.posY += (this.nodeHeight + 20)
                 }
-            },
-            deleteNodes() {
-                let sNodeInput = document.getElementById('selected-node')
-                let sNode = document.getElementById(sNodeInput.dataset.node)
 
-                if (!sNode) {
-                    alert('Please select one node in orgchart')
-                    return
-                } else if (sNode === document.querySelector('.orgchart').querySelector('.node')) {
-                    if (!window.confirm('Are you sure you want to delete the whole chart?')) {
+                if (this.lastLevelYPos === null) {
+                    this.lastLevelYPos = this.posY
+                }
+
+                let name = ''
+                let node = null
+                switch (type) {
+                    case 'accept':
+                        name = 'Accept'
+                        node = this.model.addNode('Accept', this.posX, this.posY, this.nodeWidth, this.nodeHeight)
+                        node.color = 'green'
+                        break
+                    case 'refuse':
+                        name = 'Refuse'
+                        node = this.model.addNode('Refuse', this.posX, this.posY, this.nodeWidth, this.nodeHeight)
+                        node.color = 'red'
+                        break
+                    case 'random':
+                        name = 'Random'
+                        node = this.model.addNode('Random', this.posX, this.posY, this.nodeWidth, this.nodeHeight)
+                        node.color = 'blue'
+                        break
+                    default:
+                        console.log('Invalid decision type: "' + type + '"')
                         return
-                    }
                 }
-                this.orgchart.removeNodes(sNode)
-                sNodeInput.value = ''
-                sNodeInput.dataset.node = ''
-            },
-            exportJSON() {
-                let datasourceJSON = {}
-                let ChartJSON = this.orgchart.getChartJSON()
-                datasourceJSON = JSON.stringify(ChartJSON, null, 2)
-                if(document.getElementsByTagName('code')[1]) {
-                    let code = document.getElementsByTagName('code')[1]
-                    code.innerHTML = datasourceJSON
+
+                if (this.level > 0) {
+                    node.addInPort('')
                 }
-                console.log(datasourceJSON)
-                return datasourceJSON
-            },
-            getId() {
-                return (new Date().getTime()) * 1000 + Math.floor(Math.random() * 1001)
+
+                node.addOutPort("accept")
+                node.addOutPort("refuse")
+
+                this.nodes[levelIndex].push(node)
+
+                if (this.nodes[levelIndex].length === this.level * 2) {
+                    this.level++
+                    this.posX += this.nodeWidth + 70
+                    this.lastLevelYPos -= (this.nodeHeight + 30)
+                    this.posY = this.lastLevelYPos
+                }
+
+                console.log(this.model.serialize())
             }
         },
         created() {
-            this.decisionsData.children = this.$store.state.strategy.decisions
+            //this.decisionsData.children = this.$store.state.strategy.decisions
         },
         mounted() {
-            this.$nextTick(
-                this.mountOrgchart()
-            )
+
         }
     }
 </script>
