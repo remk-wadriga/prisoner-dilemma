@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use App\Entity\Traits\IsEnabledEntity;
-use App\Validator;
+use App\Service\Entity\Decision;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StrategyRepository")
@@ -42,20 +42,11 @@ class Strategy
     private $description;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="strategy", orphanRemoval=true)
-     * @ORM\OrderBy({"step" = "ASC"})
-     */
-    private $decisions;
-
-    /**
      * @ORM\Column(type="json", nullable=true)
      */
     private $decisionsData = [];
 
-    public function __construct()
-    {
-        $this->decisions = new ArrayCollection();
-    }
+    private $decisions = [];
 
     public function getId(): ?int
     {
@@ -94,38 +85,29 @@ class Strategy
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
 
     /**
-     * @return Collection|Decision[]
+     * @return Decision[]
      */
-    public function getDecisions(): Collection
+    public function getDecisions(): array
     {
-        return $this->decisions;
+        return array_values($this->decisions);
     }
 
     public function addDecision(Decision $decision): self
     {
-        if (!$this->decisions->contains($decision)) {
-            $this->decisions[] = $decision;
-            $decision->setStrategy($this);
-        }
-
+        $this->decisions[$decision->getId()] = $decision;
+        $decision->setStrategy($this);
         return $this;
     }
 
     public function removeDecision(Decision $decision): self
     {
-        if ($this->decisions->contains($decision)) {
-            $this->decisions->removeElement($decision);
-            // set the owning side to null (unless already changed)
-            if ($decision->getStrategy() === $this) {
-                $decision->setStrategy(null);
-            }
+        if (isset($this->decisions[$decision->getId()])) {
+            unset($this->decisions[$decision->getId()]);
         }
-
         return $this;
     }
 
@@ -164,36 +146,5 @@ class Strategy
     public function beforeUpdate()
     {
         $this->setUpdatedAt(new \DateTime());
-    }
-
-    // Public functions
-
-    /**
-     * @param Decision[] $decisions
-     * @param int $parentID
-     * @param int $step
-     * @return array
-     */
-    public function getDecisionsAsArray(&$decisions = null, $parentID = null, $step = 1): array
-    {
-        $result = [];
-        if ($decisions === null) {
-            $decisions = $this->getDecisions();
-        }
-        foreach ($decisions as $index => $decision) {
-            if ($decision->getStep() !== $step) {
-                continue;
-            }
-            unset($decisions[$index]);
-            $result[] = [
-                'id' => $decision->getId(),
-                'name' => $decision->getType(),
-                'parent' => $parentID,
-                'step' => $step,
-                'returnStep' => $decision->getReturnStep(),
-                'children' => $this->getDecisionsAsArray($decisions, $decision->getId(), $step + 1)
-            ];
-        }
-        return $result;
     }
 }

@@ -1,86 +1,66 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Dmitry
+ * Date: 21.09.2018
+ * Time: 00:27
+ */
 
-namespace App\Entity;
+namespace App\Service\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Strategy;
+use Faker\Factory;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\DecisionRepository")
- */
-class Decision
+class Decision extends EntityAbstract
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Strategy", inversedBy="decisions")
-     * @ORM\JoinColumn(nullable=false)
+     * @var Strategy
      */
     private $strategy;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Decision") inversedBy="children"
-     */
     private $parent;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="parent")
-     */
     private $children;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
     private $step;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=true)
-     */
     private $return_step;
 
-    /**
-     * @ORM\Column(type="string", length=6)
-     */
     private $type;
 
     public function __construct()
     {
+        $this->id = Factory::create()->numberBetween(1, 1000000000);
         $this->children = new ArrayCollection();
     }
 
-
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getStrategy(): ?Strategy
+    public function setStrategy(Strategy $strategy): self
+    {
+        $this->strategy = $strategy;
+        return $this;
+    }
+    public function getStrategy(): Strategy
     {
         return $this->strategy;
     }
 
-    public function setStrategy(?Strategy $strategy): self
-    {
-        $this->strategy = $strategy;
-
-        return $this;
-    }
-
-    public function getParent(): ?self
-    {
-        return $this->parent;
-    }
-
-    public function setParent(?self $parent): self
+    public function setParent(?Decision $parent): self
     {
         $this->parent = $parent;
         return $this;
+    }
+    public function getParent(): ?Decision
+    {
+        return $this->parent;
     }
 
     /**
@@ -114,39 +94,33 @@ class Decision
         return $this;
     }
 
+    public function setStep(?int $step): self
+    {
+        $this->step = $step;
+        return $this;
+    }
     public function getStep(): ?int
     {
         return $this->step;
     }
 
-    public function setStep(int $step): self
+    public function setType(string $type): self
     {
-        $this->step = $step;
-
+        $this->type = $type;
         return $this;
     }
-
-    public function getReturnStep(): ?int
-    {
-        return $this->return_step;
-    }
-
-    public function setReturnStep(?int $return_step): self
-    {
-        $this->return_step = $return_step;
-
-        return $this;
-    }
-
-    public function getType(): ?string
+    public function getType(): string
     {
         return $this->type;
     }
 
-    public function setType(string $type): self
+    public function setReturnStep(?int $returnStep): self
     {
-        $this->type = $type;
-
+        $this->return_step = $returnStep;
         return $this;
+    }
+    public function getReturnStep(): ?int
+    {
+        return $this->return_step;
     }
 }
