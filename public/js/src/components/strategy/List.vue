@@ -73,7 +73,7 @@
                 this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}])
                 this.$store.commit('setPageTopButtons', [{title: 'Create new strategy', type: 'success', click: {url: {name: 'strategy_create'}}}])
                 this.$store.commit('selectedStrategyId', null)
-                this.$store.commit('setStrategyDecisions', [])
+                this.$store.commit('setStrategyDecisionsData', [])
             })
         }
     }

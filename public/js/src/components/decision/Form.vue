@@ -86,12 +86,9 @@
         },
         created() {
             this.model = new Diagram.Model()
-            let decisionsJsonData = this.$store.state.strategy.decisions
-            if (decisionsJsonData !== null && decisionsJsonData !== undefined && decisionsJsonData !== '') {
-                if (typeof decisionsJsonData !== 'string') {
-                    decisionsJsonData = JSON.stringify(decisionsJsonData)
-                }
-                this.model.deserialize(decisionsJsonData)
+            let decisionsData = this.$store.state.strategy.decisionsData
+            if (decisionsData !== null && decisionsData !== undefined && decisionsData !== '') {
+                this.model._model = decisionsData
             }
             this.$store.commit('setStrategyDecisionsFormModel', this.model)
         },

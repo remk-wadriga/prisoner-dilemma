@@ -27,7 +27,9 @@ class StrategyController extends JsonController
         $user = $authenticator->getCurrentUser();
 
         if ($user->getIsAdmin()) {
-            $strategies = $this->getDoctrine()->getRepository(Strategy::class)->findAll();
+            /** @var \App\Repository\StrategyRepository $repository */
+            $repository = $this->getDoctrine()->getRepository(Strategy::class);
+            $strategies = $repository->findAllOrderedByCreatedUdDesc();
         } else {
             $strategies = $user->getStrategies();
         }
@@ -49,7 +51,7 @@ class StrategyController extends JsonController
         if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
             throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
         }
-        return $this->json($this->strategyInfo($strategy, [['decisions' => 'decisionsJsonAsString']]));
+        return $this->json($this->strategyInfo($strategy, ['decisionsData']));
     }
 
     /**
@@ -70,7 +72,7 @@ class StrategyController extends JsonController
         $em->persist($strategy);
         $em->flush();
 
-        return $this->json($this->strategyInfo($strategy, [['decisions' => 'decisionsJsonAsString']]));
+        return $this->json($this->strategyInfo($strategy, ['decisionsData']));
     }
 
     /**
@@ -93,7 +95,7 @@ class StrategyController extends JsonController
         $em->persist($strategy);
         $em->flush();
 
-        return $this->json($this->strategyInfo($strategy, [['decisions' => 'decisionsJsonAsString']]));
+        return $this->json($this->strategyInfo($strategy, ['decisionsData']));
     }
 
     /**

@@ -48,10 +48,9 @@ class Strategy
     private $decisions;
 
     /**
-     * @Validator\Json(message="decisionsJson field has an incorrect json")
      * @ORM\Column(type="json", nullable=true)
      */
-    private $decisionsJson;
+    private $decisionsData = [];
 
     public function __construct()
     {
@@ -130,17 +129,14 @@ class Strategy
         return $this;
     }
 
-    public function getDecisionsJson(): ?array
+    public function getDecisionsData(): ?array
     {
-        if (empty($this->decisionsJson)) {
-            return null;
-        }
-        return is_array($this->decisionsJson) ? $this->decisionsJson : json_decode($this->decisionsJson, true);
+        return $this->decisionsData;
     }
 
-    public function setDecisionsJson(?string $decisionsJson): self
+    public function setDecisionsData(?array $decisionsData): self
     {
-        $this->decisionsJson = json_decode($decisionsJson, true);
+        $this->decisionsData = $decisionsData;
         return $this;
     }
 
@@ -197,23 +193,7 @@ class Strategy
                 'returnStep' => $decision->getReturnStep(),
                 'children' => $this->getDecisionsAsArray($decisions, $decision->getId(), $step + 1)
             ];
-            /*$parent = $decision->getParent();
-            $result[] = [
-                'id' => $decision->getId(),
-                'type' => $decision->getType(),
-                'parent' => $parent !== null ? $parent->getId() : null,
-                'step' => $decision->getStep(),
-                'returnStep' => $decision->getReturnStep(),
-            ];*/
         }
         return $result;
-    }
-
-    public function getDecisionsJsonAsString(): string
-    {
-        if (empty($this->decisionsJson)) {
-            return null;
-        }
-        return is_array($this->decisionsJson) ? json_encode($this->decisionsJson) : $this->decisionsJson;
     }
 }

@@ -19,6 +19,18 @@ class StrategyRepository extends ServiceEntityRepository
         parent::__construct($registry, Strategy::class);
     }
 
+    /**
+     * @return Strategy[]
+     */
+    public function findAllOrderedByCreatedUdDesc()
+    {
+        return $this->createQueryBuilder('s')
+            ->orderBy('s.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
 //    /**
 //     * @return Strategy[] Returns an array of Strategy objects
 //     */

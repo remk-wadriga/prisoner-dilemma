@@ -37,7 +37,7 @@ export default new Vuex.Store({
         },
         strategy: {
             selectedId: null,
-            decisions: null,
+            decisionsData: null,
             decisionsFromModel: null
         }
     },
@@ -80,8 +80,8 @@ export default new Vuex.Store({
         selectedStrategyId(state, strategyId) {
             state.strategy.selectedId = strategyId
         },
-        setStrategyDecisions(state, decisions) {
-            state.strategy.decisions = decisions
+        setStrategyDecisionsData(state, data) {
+            state.strategy.decisionsData = data
         },
         setStrategyDecisionsFormModel(state, model) {
             state.strategy.decisionsFromModel = model

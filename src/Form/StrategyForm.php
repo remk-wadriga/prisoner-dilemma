@@ -39,10 +39,7 @@ class StrategyForm extends AbstractType
                 'empty_data' => $strategy !== null ? $strategy->getDescription() : '',
             ])
             ->add('status', ChoiceType::class, $statusOptions)
-            ->add('decisionsJson', JsonType::class, [
-                'required' => false,
-                'empty_data' => $strategy !== null ? $strategy->getDecisionsJson() : [],
-            ])
+            ->add('decisionsData')
         ;
     }
 
