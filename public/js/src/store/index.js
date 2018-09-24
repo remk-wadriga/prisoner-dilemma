@@ -12,7 +12,6 @@ export default new Vuex.Store({
             pageTopButtons: [],
             breadcrumbs: [],
             contentTitle: '',
-            closeModalCallback: null,
             leftMenuItems: [
                 {
                     name: 'Item 1',
@@ -73,9 +72,6 @@ export default new Vuex.Store({
         },
         setContentTitle(state, title) {
             state.app.contentTitle = title
-        },
-        setCloseModalCallback(state, callback) {
-            state.app.closeModalCallback = callback
         },
         selectedStrategyId(state, strategyId) {
             state.strategy.selectedId = strategyId

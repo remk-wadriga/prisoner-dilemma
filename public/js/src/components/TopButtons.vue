@@ -27,10 +27,14 @@
                 }
             },
             openDeleteStrategyModal() {
-                this.$store.commit('setCloseModalCallback', () => {
-                    this.$store.commit('setCloseModalCallback', null)
+                // Set delete popup "onClose" callback function
+                DeleteStrategy.computed.onCloseCallback = () => {
+                    // Now delete popup is not visible
+                    this.deleteStrategyVisible = false
+                    // Go to homepage (strategies list)
                     this.$router.push({name: 'app_homepage'})
-                })
+                }
+                // Now delete popup is visible
                 this.deleteStrategyVisible = true
             },
         }

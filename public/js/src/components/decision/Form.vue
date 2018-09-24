@@ -9,13 +9,10 @@
         data() {
             return {
                 model: null,
-                level: 0,
-                nodes: {},
                 nodeWidth: 80,
                 nodeHeight: 100,
                 posX: -5,
                 posY: 385,
-                lastLevelYPos: null,
             }
         },
         computed: {
@@ -25,25 +22,32 @@
 
         },
         methods: {
+            calculateCurrentXAndY() {
+                let nodes = this.model._model.nodes
+                if (nodes !== undefined && nodes && nodes.length > 0) {
+                    let isXChanged = false
+                    let isYChanged = false
+
+                    nodes.forEach(node => {
+                        if (node.x > this.posX) {
+                            this.posX = node.x
+                            isXChanged = true
+                        }
+                        if (node.y < this.posY) {
+                            this.posY = node.y
+                            isYChanged = true
+                        }
+                    })
+
+                    if (isXChanged) {
+                        this.posX += this.nodeWidth + 70
+                    }
+                    if (isYChanged) {
+                        this.posY -= (this.nodeHeight / 2 + 10)
+                    }
+                }
+            },
             addDecision(type) {
-                let levelIndex = 'level_' + this.level
-
-                if (this.nodes[levelIndex] === undefined) {
-                    this.nodes[levelIndex] = []
-                } else if (this.level === 0) {
-                    this.level++
-                    levelIndex = 'level_' + this.level
-                    this.nodes[levelIndex] = []
-                    this.posX += this.nodeWidth + 70
-                    this.posY -= (this.nodeHeight / 2 + 10)
-                } else {
-                    this.posY += (this.nodeHeight + 20)
-                }
-
-                if (this.lastLevelYPos === null) {
-                    this.lastLevelYPos = this.posY
-                }
-
                 let name = ''
                 let node = null
                 switch (type) {
@@ -67,21 +71,11 @@
                         return
                 }
 
-                if (this.level > 0) {
-                    node.addInPort('')
-                }
+                node.addInPort('');
+                node.addOutPort('Accept')
+                node.addOutPort('Refuse')
 
-                node.addOutPort("accept")
-                node.addOutPort("refuse")
-
-                this.nodes[levelIndex].push(node)
-
-                if (this.nodes[levelIndex].length === this.level * 2) {
-                    this.level++
-                    this.posX += this.nodeWidth + 70
-                    this.lastLevelYPos -= (this.nodeHeight + 30)
-                    this.posY = this.lastLevelYPos
-                }
+                this.posY += (this.nodeHeight + 20)
             }
         },
         created() {
@@ -89,6 +83,7 @@
             let decisionsData = this.$store.state.strategy.decisionsData
             if (decisionsData !== null && decisionsData !== undefined && decisionsData !== '') {
                 this.model._model = decisionsData
+                this.calculateCurrentXAndY()
             }
             this.$store.commit('setStrategyDecisionsFormModel', this.model)
         },

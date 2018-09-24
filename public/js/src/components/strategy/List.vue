@@ -1,6 +1,7 @@
 <template src="@/templates/strategy/list.html" />
 
 <script>
+    import Vue from 'vue'
     import Api from '@/helpers/Api'
     import DeleteStrategy from '@/components/strategy/Delete.vue'
 
@@ -46,13 +47,18 @@
                 this.$router.push({name: 'strategy_update', params: {id: strategy.id}})
             },
             openDeleteStrategyModal(strategy) {
-                this.$store.commit('setCloseModalCallback', () => {
-                    Api.methods.request('app_homepage', {}, 'GET', response => {
-                        this.strategies = response
-                        this.$store.commit('setCloseModalCallback', null)
-                    })
-                })
+                // Set current strategy ID
                 this.$store.commit('selectedStrategyId', strategy.id)
+                // Set popup "onClose" callback function
+                DeleteStrategy.computed.onCloseCallback = () => {
+                    Api.methods.request('app_homepage', {}, 'GET', response => {
+                        // View new strategies list
+                        this.strategies = response
+                        // Now delete popup is not visible
+                        this.deleteStrategyVisible = false
+                    })
+                }
+                // Now delete popup is visible
                 this.deleteStrategyVisible = true
             },
             onFiltered(filteredItems) {

@@ -5,6 +5,21 @@
 
     export default {
         name: "StrategyDelete",
+        data() {
+            return {
+                onCloseCallbackFunction: () => {  },
+            }
+        },
+        computed: {
+            onCloseCallback: {
+                get() {
+                    return this.onCloseCallbackFunction
+                },
+                set(callback) {
+                    this.onCloseCallbackFunction = callback
+                }
+            }
+        },
         methods: {
             deleteStrategy() {
                 let id = this.$route.params.id
@@ -12,14 +27,10 @@
                     id = this.$store.state.strategy.selectedId
                 }
                 Api.methods.request(['strategy_url', {id}], {}, 'DELETE', () => {
-                    this.$parent.deleteStrategyVisible = false
+                    // Unset selected strategy ID
                     this.$store.commit('selectedStrategyId', null)
-                    let callback = this.$store.state.app.closeModalCallback
-                    if (callback !== undefined) {
-                        callback();
-                    } else {
-                        this.$router.push({name: 'app_homepage'})
-                    }
+                    // Call "onClose delete popup" callback function
+                    this.onCloseCallback
                 })
             },
             close() {
