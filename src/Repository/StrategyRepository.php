@@ -22,7 +22,7 @@ class StrategyRepository extends ServiceEntityRepository
     /**
      * @return Strategy[]
      */
-    public function findAllOrderedByCreatedUdDesc()
+    public function findAllOrderedByCreatedAtDesc()
     {
         return $this->createQueryBuilder('s')
             ->orderBy('s.createdAt', 'DESC')

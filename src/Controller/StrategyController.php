@@ -27,7 +27,7 @@ class StrategyController extends JsonController
         $user = $authenticator->getCurrentUser();
 
         if ($user->getIsAdmin()) {
-            $strategies = $this->getDoctrine()->getRepository(Strategy::class)->findAllOrderedByCreatedUdDesc();
+            $strategies = $this->getDoctrine()->getRepository(Strategy::class)->findAllOrderedByCreatedAtDesc();
         } else {
             $strategies = $user->getStrategies();
         }
