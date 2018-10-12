@@ -42,11 +42,14 @@ class Strategy
     private $description;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="strategy")
      */
-    private $decisionsData = [];
+    private $decisions;
 
-    private $decisions = [];
+    public function __construct()
+    {
+        $this->decisions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -88,40 +91,6 @@ class Strategy
         return $this;
     }
 
-    /**
-     * @return Decision[]
-     */
-    public function getDecisions(): array
-    {
-        return array_values($this->decisions);
-    }
-
-    public function addDecision(Decision $decision): self
-    {
-        $this->decisions[$decision->getId()] = $decision;
-        $decision->setStrategy($this);
-        return $this;
-    }
-
-    public function removeDecision(Decision $decision): self
-    {
-        if (isset($this->decisions[$decision->getId()])) {
-            unset($this->decisions[$decision->getId()]);
-        }
-        return $this;
-    }
-
-    public function getDecisionsData(): ?array
-    {
-        return $this->decisionsData;
-    }
-
-    public function setDecisionsData(?array $decisionsData): self
-    {
-        $this->decisionsData = $decisionsData;
-        return $this;
-    }
-
     // Lifecycle Callbacks
 
     /**
@@ -146,5 +115,36 @@ class Strategy
     public function beforeUpdate()
     {
         $this->setUpdatedAt(new \DateTime());
+    }
+
+    /**
+     * @return Collection|Decision[]
+     */
+    public function getDecisions(): Collection
+    {
+        return $this->decisions;
+    }
+
+    public function addDecision(Decision $decision): self
+    {
+        if (!$this->decisions->contains($decision)) {
+            $this->decisions[] = $decision;
+            $decision->setStrategy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDecision(Decision $decision): self
+    {
+        if ($this->decisions->contains($decision)) {
+            $this->decisions->removeElement($decision);
+            // set the owning side to null (unless already changed)
+            if ($decision->getStrategy() === $this) {
+                $decision->setStrategy(null);
+            }
+        }
+
+        return $this;
     }
 }
