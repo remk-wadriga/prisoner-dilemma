@@ -3,6 +3,9 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Types\Enum\DecisionTypeEnum;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\DecisionRepository")
@@ -31,6 +34,16 @@ class Decision
      * @ORM\Column(type="string", length=6)
      */
     private $type;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="parent")
+     */
+    private $children;
+
+    public function __construct()
+    {
+        $this->children = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -68,8 +81,20 @@ class Decision
 
     public function setType(string $type): self
     {
+        if (!in_array($type, DecisionTypeEnum::getAvailableTypes())) {
+            throw new \InvalidArgumentException('Invalid type');
+        }
+
         $this->type = $type;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Decision[]
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
     }
 }

@@ -9,10 +9,10 @@
 namespace App\Service;
 
 use App\Entity\Strategy;
-use App\Service\Entity\Decision;
-use App\Exception\ServiceException;
-use App\Entity\Types\Enum\DecisionTypeEnum;
+use App\Entity\Decision;
+use App\Repository\DecisionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Collections\Collection;
 
 class StrategyDecisionsService extends AbstractService
 {
@@ -30,10 +30,39 @@ class StrategyDecisionsService extends AbstractService
 
     /**
      * @param Strategy $strategy
-     * @throws ServiceException
+     * @return array|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
     public function parseDecisionsData(Strategy $strategy)
     {
+        /** @var DecisionRepository $repository */
+        $repository = $this->entityManager->getRepository(Decision::class);
+        $rootDecision = $repository->findRootByStrategyId($strategy->getId());
 
+        return [
+            'type' => $rootDecision->getType(),
+            'children' => $this->getDecisionChildrenRecursively($rootDecision->getChildren()),
+        ];
+    }
+
+    /**
+     * @param Collection $children
+     * @return array
+     */
+    private function getDecisionChildrenRecursively(Collection $children)
+    {
+        $result = [];
+        if ($children->count() === 0) {
+            return $result;
+        }
+
+        foreach ($children as $decision) {
+            $result[] = [
+                'type' => $decision->getType(),
+                'children' => $this->getDecisionChildrenRecursively($decision->getChildren()),
+            ];
+        }
+
+        return $result;
     }
 }

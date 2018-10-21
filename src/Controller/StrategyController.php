@@ -11,6 +11,7 @@ namespace App\Controller;
 use App\Entity\Strategy;
 use App\Form\StrategyForm;
 use App\Security\AccessTokenAuthenticator;
+use App\Service\StrategyDecisionsService;
 use Mcfedr\JsonFormBundle\Controller\JsonController;
 use App\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
@@ -41,7 +42,7 @@ class StrategyController extends JsonController
     /**
      * @Route("/strategy/{id}", name="strategy_show", methods={"GET"})
      */
-    public function show(Strategy $strategy, AccessTokenAuthenticator $authenticator)
+    public function show(Strategy $strategy, AccessTokenAuthenticator $authenticator, StrategyDecisionsService $decisionsService)
     {
         // Get current user
         $user = $authenticator->getCurrentUser();
@@ -50,7 +51,9 @@ class StrategyController extends JsonController
             throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
         }
 
-        return $this->json($this->strategyInfo($strategy, ['decisionsData']));
+        return $this->json($this->strategyInfo($strategy, [
+            'decisionsData' => $decisionsService->parseDecisionsData($strategy),
+        ]));
     }
 
     /**
@@ -124,15 +127,14 @@ class StrategyController extends JsonController
             'status' => $strategy->getStatus(),
         ];
 
-        foreach ($additionalFields as $field) {
+        foreach ($additionalFields as $index => $field) {
             if (is_array($field)) {
-                $getter = 'get' . ucfirst(current($field));
-                $field = key($field);
+                $params[$index] = $field;
             } else {
                 $getter = 'get' . ucfirst($field);
-            }
-            if (method_exists($strategy, $getter)) {
-                $params[$field] = $strategy->$getter();
+                if (method_exists($strategy, $getter)) {
+                    $params[$field] = $strategy->$getter();
+                }
             }
         }
 

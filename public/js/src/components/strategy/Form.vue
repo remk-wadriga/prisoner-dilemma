@@ -51,12 +51,6 @@
                 this.decisionsData = strategy.decisionsData
                 this.$store.commit('selectedStrategyId', null)
                 this.$store.commit('setStrategyDecisionsData', this.decisionsData)
-            },
-            clickParamsTab() {
-                let decisionsModel = this.$store.state.strategy.decisionsFromModel
-                if (decisionsModel !== null && decisionsModel !== undefined) {
-                    this.decisionsData = decisionsModel._model
-                }
             }
         },
         created() {

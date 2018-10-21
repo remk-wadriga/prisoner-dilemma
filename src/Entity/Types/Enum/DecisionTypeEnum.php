@@ -11,12 +11,12 @@ namespace App\Entity\Types\Enum;
 
 class DecisionTypeEnum
 {
-    const TYPE_AGREE = 'agree';
+    const TYPE_ACCEPT = 'accept';
     const TYPE_REFUSE = 'refuse';
     const TYPE_RANDOM = 'random';
 
     protected static $typeName = [
-        self::TYPE_AGREE => 'Accept',
+        self::TYPE_ACCEPT => 'Accept',
         self::TYPE_REFUSE => 'Refuse',
         self::TYPE_RANDOM => 'Random',
     ];
@@ -42,7 +42,7 @@ class DecisionTypeEnum
     public static function getAvailableTypes(): array
     {
         return [
-            self::TYPE_AGREE, self::TYPE_REFUSE, self::TYPE_RANDOM
+            self::TYPE_ACCEPT, self::TYPE_REFUSE, self::TYPE_RANDOM
         ];
     }
 }

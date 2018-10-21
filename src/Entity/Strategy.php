@@ -7,7 +7,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use App\Entity\Traits\IsEnabledEntity;
-use App\Service\Entity\Decision;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StrategyRepository")

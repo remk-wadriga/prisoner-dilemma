@@ -36,8 +36,7 @@ export default new Vuex.Store({
         },
         strategy: {
             selectedId: null,
-            decisionsData: null,
-            decisionsFromModel: null
+            decisionsData: null
         }
     },
     mutations: {
@@ -78,9 +77,6 @@ export default new Vuex.Store({
         },
         setStrategyDecisionsData(state, data) {
             state.strategy.decisionsData = data
-        },
-        setStrategyDecisionsFormModel(state, model) {
-            state.strategy.decisionsFromModel = model
         }
     }
 })

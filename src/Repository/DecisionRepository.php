@@ -19,6 +19,23 @@ class DecisionRepository extends ServiceEntityRepository
         parent::__construct($registry, Decision::class);
     }
 
+    /**
+     * @param $strategyID
+     * @return Decision|null
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findRootByStrategyId($strategyID)
+    {
+        return $this->createQueryBuilder('d')
+            ->andWhere('d.strategy = :strategy_id')
+            ->andWhere('d.parent is NULL')
+            ->setParameter('strategy_id', $strategyID)
+            ->orderBy('d.id', 'ASC')
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
 //    /**
 //     * @return Decision[] Returns an array of Decision objects
 //     */
