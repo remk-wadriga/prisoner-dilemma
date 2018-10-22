@@ -41,7 +41,7 @@ class Strategy
     private $description;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="strategy", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="strategy", cascade={"persist", "remove"})
      */
     private $decisions;
 

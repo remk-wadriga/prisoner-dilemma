@@ -36,7 +36,7 @@ class Decision
     private $type;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="parent", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="parent", cascade={"persist", "remove"})
      */
     private $children;
 
