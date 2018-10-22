@@ -27,16 +27,19 @@ class StrategyService extends AbstractService
     }
 
 
-    public function generateRandomStrategy(User $user, $steps = 0): Strategy
+    public function generateRandomStrategy(User $user, $steps = 0, $name = null): Strategy
     {
         if ($steps === 0) {
             $steps = $this->faker->numberBetween(2, 9);
+        }
+        if ($name === null) {
+            $name = $this->faker->name . ' ' . $steps . ' steps';
         }
 
         // Create strategy
         $strategy = (new Strategy())
             ->setUser($user)
-            ->setName($this->faker->name . ' ' . $steps . ' steps')
+            ->setName($name)
             ->setDescription($this->faker->text)
         ;
 

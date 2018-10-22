@@ -3,10 +3,11 @@
 <script>
     import Api from '@/helpers/Api'
     import DecisionForm from '@/components/decision/Form'
+    import GenerateRandomStrategy from '@/components/strategy/GenerateRandom'
 
     export default {
         name: "StrategyForm",
-        components: { DecisionForm },
+        components: { DecisionForm, GenerateRandomStrategy },
         data() {
             return {
                 id: null,
@@ -16,6 +17,7 @@
                 decisionsData: null,
                 isNewRecord: true,
                 isMounted: false,
+                generateStrategyVisible: false
             }
         },
         methods: {
@@ -31,10 +33,18 @@
             changeDecisionsData(data) {
                 this.decisionsData = data
             },
-            generateRandomStrategy() {
-                Api.methods.request('create_random_strategy_url', {}, 'POST', response => {
-                    console.log(response)
-                })
+            openGenerateRandomStrategyModal() {
+                // Set popup "onClose" callback function
+                GenerateRandomStrategy.computed.onCloseCallback = () => {
+                    this.generateStrategyVisible = false
+                    const id = this.$store.state.strategy.selectedId
+                    if (id) {
+                        this.$router.replace({name: 'strategy_update', params: {id}})
+                        this.$router.go(0);
+                    }
+                }
+                // Now delete popup is visible
+                this.generateStrategyVisible = true
             },
             submitStrategyFrom() {
                 const data = {

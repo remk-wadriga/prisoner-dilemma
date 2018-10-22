@@ -21,6 +21,12 @@
                             color: 'red',
                             label: 'Refuse',
                             shortLabel: 'R'
+                        },
+                        {
+                            type: 'random',
+                            color: 'blue',
+                            label: 'Random',
+                            shortLabel: 'R'
                         }
                     ],
                     children: [

@@ -1,0 +1,34 @@
+<div id="generate_random_strategy_modal">
+    <b-modal
+            title="Generate strategy"
+            ref="generateStrategyModalRef"
+            @ok="generateStrategy"
+            @cancel="close"
+            ok-title="Yes"
+            cancel-title="No"
+            ok-variant="danger"
+            cancel-variant="primary"
+    >
+        <div class="d-block text-center">
+            <h4>Set strategy params</h4>
+            <b-form-group
+                    label="Name:"
+                    label-for="generate_strategy_name_input">
+                <b-form-input id="generate_strategy_name_input"
+                              type="text"
+                              v-model="name"
+                              placeholder="Enter a strategy name">
+                </b-form-input>
+            </b-form-group>
+            <b-form-group
+                    label="Steps:"
+                    label-for="generate_strategy_steps_input">
+                <b-form-input id="generate_strategy_steps_input"
+                              type="number"
+                              v-model="steps"
+                              placeholder="Enter strategy steps count">
+                </b-form-input>
+            </b-form-group>
+        </div>
+    </b-modal>
+</div>
