@@ -1,4 +1,4 @@
-<!--<template src="@/templates/strategy/update.html" />-->
+<template src="@/templates/strategy/update.html" />
 
 <script>
     import Api from '@/helpers/Api'
@@ -7,7 +7,6 @@
     export default {
         name: "StrategyUpdate",
         components: { Form },
-        template: '<Form/>',
         data() {
             return {
                 strategy: null
@@ -27,7 +26,7 @@
                     {title: 'Update', url: {name: 'strategy_update', params: {id}}},
                 ])
                 this.$store.commit('setPageTopButtons', [])
-                this.$store.commit('selectedStrategyId', this.strategy.id)
+                this.$store.commit('selectedStrategyId', id)
             })
         }
     }

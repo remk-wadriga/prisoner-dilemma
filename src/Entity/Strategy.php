@@ -45,6 +45,8 @@ class Strategy
      */
     private $decisions;
 
+    private $decisionsData;
+
     public function __construct()
     {
         $this->decisions = new ArrayCollection();
@@ -138,12 +140,21 @@ class Strategy
     {
         if ($this->decisions->contains($decision)) {
             $this->decisions->removeElement($decision);
-            // set the owning side to null (unless already changed)
-            if ($decision->getStrategy() === $this) {
-                $decision->setStrategy(null);
-            }
         }
 
         return $this;
     }
+
+    public function getDecisionsData(): ?array
+    {
+        return $this->decisionsData;
+    }
+
+    public function setDecisionsData(array $decisionsData): self
+    {
+        $this->decisionsData = $decisionsData;
+        return $this;
+    }
+
+
 }

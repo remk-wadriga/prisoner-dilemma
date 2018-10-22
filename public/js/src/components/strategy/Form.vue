@@ -20,16 +20,10 @@
                 generateStrategyVisible: false
             }
         },
+        props: {
+            strategy: Object
+        },
         methods: {
-            setParams(strategy) {
-                this.isNewRecord = false
-                this.id = strategy.id
-                this.name = strategy.name
-                this.description = strategy.description
-                this.status = strategy.status
-                this.decisionsData = strategy.decisionsData
-                this.$store.commit('selectedStrategyId', null)
-            },
             changeDecisionsData(data) {
                 this.decisionsData = data
             },
@@ -65,24 +59,28 @@
                     url = ['strategy_url', {id: this.id}]
                 }
 
-                console.log(this.decisionsData)
-
-                /*Api.methods.request(url, data, method, response => {
-                    this.$router.push({name: 'strategy_view', params: {id: response.id}})
-                })*/
+                Api.methods.request(url, data, method, response => {
+                    if (this.isNewRecord) {
+                        this.$router.push({name: 'strategy_update', params: {id: response.id}})
+                    } else {
+                        this.$router.go(0);
+                    }
+                })
+                return false
             }
         },
-        created() {
-            let id = this.$route.params.id
-            if (!id) {
-                id = this.$store.state.strategy.selectedId
-            }
-            if (id !== null && id !== undefined && this.isMounted === false) {
-                Api.methods.request(['strategy_url', {id}], {}, 'GET', response => {
-                    this.setParams(response)
-                    this.isMounted = true
-                })
-            } else if (this.isNewRecord) {
+        mounted() {
+            if (this.strategy) {
+                this.isNewRecord = false
+
+                this.id = this.strategy.id
+                this.name = this.strategy.name
+                this.description = this.strategy.description
+                this.status = this.strategy.status
+                this.decisionsData = this.strategy.decisionsData ? this.strategy.decisionsData : {}
+
+                this.isMounted = true
+            } else {
                 this.decisionsData = {}
                 this.isMounted = true
             }

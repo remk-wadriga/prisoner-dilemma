@@ -36,6 +36,21 @@ class DecisionRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @param $strategyID
+     * @return Decision[]
+     */
+    public function findDecisionsByStrategyIdOrderedByIdDesc($strategyID)
+    {
+        return $this->createQueryBuilder('d')
+            ->andWhere('d.strategy = :strategy_id')
+            ->setParameter('strategy_id', $strategyID)
+            ->orderBy('d.id', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
 //    /**
 //     * @return Decision[] Returns an array of Decision objects
 //     */

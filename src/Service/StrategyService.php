@@ -8,6 +8,8 @@
 
 namespace App\Service;
 
+use App\Repository\DecisionRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Strategy;
@@ -17,13 +19,15 @@ class StrategyService extends AbstractService
 {
     /** @var \Faker\Generator */
     private $faker;
+    private $entityManager;
     private $decisionsService;
     private $maxRandomDecisionsCount = 10;
     private $chanceOfExtendingBranch = 70;
 
-    public function __construct(StrategyDecisionsService $decisionsService)
+    public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService)
     {
         $this->faker = Factory::create();
+        $this->entityManager = $entityManager;
         $this->decisionsService = $decisionsService;
     }
 
@@ -61,6 +65,30 @@ class StrategyService extends AbstractService
         $strategy->addDecision($rootDecision);
 
         return $strategy;
+    }
+
+    /**
+     * @param Strategy $strategy
+     * @throws \App\Exception\StrategyException
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function parseDecisionsData(Strategy $strategy)
+    {
+        // Remove old decisions
+        /** @var DecisionRepository $repository */
+        $repository = $this->entityManager->getRepository(Decision::class);
+        $decisions = $repository->findDecisionsByStrategyIdOrderedByIdDesc($strategy->getId());
+        foreach ($decisions as $decision) {
+            $strategy->removeDecision($decision);
+            $this->entityManager->remove($decision);
+        }
+
+        if (empty($strategy->getDecisionsData())) {
+            return;
+        }
+        $rootDecision = $this->decisionsService->generateDecisionTreeByParamsRecursively($strategy);
+
+        $strategy->addDecision($rootDecision);
     }
 
     /**

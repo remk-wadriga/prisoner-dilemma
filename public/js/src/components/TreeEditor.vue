@@ -1,5 +1,5 @@
 <template>
-    <div id="tree_editor_container"></div>
+    <div id="tree_editor_container"><button @click="saveData">SaveData</button></div>
 </template>
 
 <script>
@@ -17,6 +17,11 @@
         props: {
             options: Object,
             data: Object
+        },
+        methods: {
+            saveData() {
+                this.decisionsData = this.editor.getData()
+            }
         },
         watch: {
             decisionsData: {

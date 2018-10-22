@@ -8,6 +8,7 @@
 
 namespace App\Service;
 
+use App\Exception\StrategyException;
 use Faker\Factory;
 use App\Entity\Strategy;
 use App\Entity\Decision;
@@ -79,6 +80,56 @@ class StrategyDecisionsService extends AbstractService
             ->setStrategy($strategy)
             ->setParent($parent)
             ->setType($type);
+    }
+
+    /**
+     * @param Strategy $strategy
+     * @param array $params
+     * @return Decision
+     * @throws StrategyException
+     */
+    public function generateDecisionTreeByParamsRecursively(Strategy $strategy, array $params = []): Decision
+    {
+        // Get decisions data array
+        if (empty($params)) {
+            $params = $strategy->getDecisionsData();
+        }
+
+        // Check decisions data
+        if (!isset($params['type'])) {
+            throw new StrategyException('Param "type" is missed', StrategyException::CODE_INVALID_PARAMS);
+        }
+        if (!in_array($params['type'], DecisionTypeEnum::getAvailableTypes())) {
+            throw new StrategyException(sprintf('Invalid value for param "type": "%s"', $params['type']), StrategyException::CODE_INVALID_PARAMS);
+        }
+
+        // Create new decision
+        $decision = (new Decision())
+            ->setStrategy($strategy)
+            ->setType($params['type']);
+
+        // Return condition - when decision has no children
+        if (empty($params['children'])) {
+            return $decision;
+        }
+
+        // Check children param
+        if (!is_array($params['children'])) {
+            throw new StrategyException('Param "children mus be an array"', StrategyException::CODE_INVALID_PARAMS);
+        }
+
+        // Create objects for all children recursively
+        foreach ($params['children'] as $childParams) {
+            if (empty($childParams)) {
+                continue;
+            }
+            if (!is_array($childParams)) {
+                throw new StrategyException('Child is not an array', StrategyException::CODE_INVALID_PARAMS);
+            }
+            $decision->addChild($this->generateDecisionTreeByParamsRecursively($strategy, $childParams));
+        }
+
+        return $decision;
     }
 
     /**

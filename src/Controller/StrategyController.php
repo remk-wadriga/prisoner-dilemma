@@ -59,7 +59,7 @@ class StrategyController extends ControllerAbstract
     /**
      * @Route("/strategy", name="strategy_create", methods={"POST"})
      */
-    public function create(Request $request)
+    public function create(Request $request, StrategyService $strategyService, StrategyDecisionsService $decisionsService)
     {
         // Create new strategy
         $strategy = new Strategy();
@@ -69,18 +69,23 @@ class StrategyController extends ControllerAbstract
         $form = $this->createJsonForm(StrategyForm::class, $strategy);
         $this->handleJsonForm($form, $request);
 
+        // Parse decisions data - it means create new decisions tree and add it to strategy
+        $strategyService->parseDecisionsData($strategy);
+
         // Save user entity
         $em = $this->getDoctrine()->getManager();
         $em->persist($strategy);
         $em->flush();
 
-        return $this->json($this->strategyInfo($strategy, ['decisionsData']));
+        return $this->json($this->strategyInfo($strategy, [
+            'decisionsData' => $decisionsService->parseDecisionsData($strategy),
+        ]));
     }
 
     /**
      * @Route("/strategy/{id}", name="strategy_update", methods={"PUT"})
      */
-    public function update(Strategy $strategy, Request $request)
+    public function update(Strategy $strategy, Request $request, StrategyService $strategyService, StrategyDecisionsService $decisionsService)
     {
         // Check is current user has permissions for updating the strategy
         $user = $this->getUser();
@@ -92,20 +97,22 @@ class StrategyController extends ControllerAbstract
         $form = $this->createJsonForm(StrategyForm::class, $strategy, ['action' => StrategyForm::ACTION_UPDATE]);
         $this->handleJsonForm($form, $request);
 
-        dd($_POST);
+        // Parse decisions data - it means delete old strategy decisions tree,
+        //  create new decisions tree and add it to strategy
+        $strategyService->parseDecisionsData($strategy);
 
         // Save user entity
         $em = $this->getDoctrine()->getManager();
         $em->persist($strategy);
         $em->flush();
 
-        return $this->json($this->strategyInfo($strategy, ['decisionsData']));
+        return $this->json($this->strategyInfo($strategy));
     }
 
     /**
      * @Route("/strategy/random", name="strategy_generate_random", methods={"POST"})
      */
-    public function generateRandom(Request $request, StrategyService $strategyService, StrategyDecisionsService $decisionsService)
+    public function generateRandom(Request $request, StrategyService $strategyService)
     {
         // Generate random strategy
         $strategy = $strategyService->generateRandomStrategy($this->getUser(),
