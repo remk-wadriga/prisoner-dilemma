@@ -12,7 +12,6 @@ use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Strategy;
 use App\Entity\Decision;
-use App\Entity\Types\Enum\DecisionTypeEnum;
 
 class StrategyService extends AbstractService
 {
@@ -26,13 +25,19 @@ class StrategyService extends AbstractService
         $this->decisionsService = $decisionsService;
     }
 
-
-    public function generateRandomStrategy(User $user, $steps = 0, $name = null): Strategy
+    /**
+     * @param User $user
+     * @param int $steps
+     * @param string|null $name
+     * @param int $chanceOfExtendingBranch
+     * @return Strategy
+     */
+    public function generateRandomStrategy(User $user, $steps = 0, $name = null, $chanceOfExtendingBranch = null): Strategy
     {
-        if ($steps === 0) {
+        if (!$steps) {
             $steps = $this->faker->numberBetween(1, 10);
         }
-        if ($name === null) {
+        if (!$name) {
             $name = $this->faker->name . ' ' . $steps . ' steps';
         }
 
@@ -45,7 +50,7 @@ class StrategyService extends AbstractService
 
         // Create decisions tree
         $rootDecision = $this->decisionsService->generateRandomDecision($strategy);
-        $this->addDecisionsChildrenRecursively($rootDecision, $steps);
+        $this->addDecisionsChildrenRecursively($rootDecision, $steps, $chanceOfExtendingBranch);
 
         // Add decisions tree to strategy
         $strategy->addDecision($rootDecision);
@@ -56,11 +61,15 @@ class StrategyService extends AbstractService
     /**
      * @param Decision $decision
      * @param int $stepsCount
+     * @param int $chanceOfExtendingBranch
      */
-    private function addDecisionsChildrenRecursively(Decision $decision, $stepsCount = 0)
+    private function addDecisionsChildrenRecursively(Decision $decision, $stepsCount = 0, $chanceOfExtendingBranch = null)
     {
         if ($stepsCount <= 0) {
             return;
+        }
+        if (!$chanceOfExtendingBranch) {
+            $chanceOfExtendingBranch = 70;
         }
 
         // Create 2 decisions: for both partner decisions
@@ -72,11 +81,11 @@ class StrategyService extends AbstractService
 
         // Extends some branches
         $stepsCount--;
-        if ($this->faker->boolean(80)) {
-            $this->addDecisionsChildrenRecursively($partnerAcceptDecision, $stepsCount);
+        if ($this->faker->boolean($chanceOfExtendingBranch)) {
+            $this->addDecisionsChildrenRecursively($partnerAcceptDecision, $stepsCount, $chanceOfExtendingBranch);
         }
-        if ($this->faker->boolean(80)) {
-            $this->addDecisionsChildrenRecursively($partnerRefuseDecision, $stepsCount);
+        if ($this->faker->boolean($chanceOfExtendingBranch)) {
+            $this->addDecisionsChildrenRecursively($partnerRefuseDecision, $stepsCount, $chanceOfExtendingBranch);
         }
     }
 }

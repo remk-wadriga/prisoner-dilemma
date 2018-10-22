@@ -108,7 +108,11 @@ class StrategyController extends ControllerAbstract
     public function generateRandom(Request $request, StrategyService $strategyService, StrategyDecisionsService $decisionsService)
     {
         // Generate random strategy
-        $strategy = $strategyService->generateRandomStrategy($this->getUser(), $request->request->get('steps'), $request->request->get('name'));
+        $strategy = $strategyService->generateRandomStrategy($this->getUser(),
+            $request->request->get('steps'),
+            $request->request->get('name'),
+            $request->request->get('extendingChance')
+        );
 
         // Save strategy entity
         $em = $this->getDoctrine()->getManager();
