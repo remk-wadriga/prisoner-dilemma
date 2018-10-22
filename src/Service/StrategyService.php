@@ -30,7 +30,7 @@ class StrategyService extends AbstractService
     public function generateRandomStrategy(User $user, $steps = 0, $name = null): Strategy
     {
         if ($steps === 0) {
-            $steps = $this->faker->numberBetween(2, 9);
+            $steps = $this->faker->numberBetween(1, 10);
         }
         if ($name === null) {
             $name = $this->faker->name . ' ' . $steps . ' steps';
@@ -63,18 +63,20 @@ class StrategyService extends AbstractService
             return;
         }
 
-        if ($decision->getChildren()->count() === 0) {
-            $children = [
-                $this->decisionsService->generateRandomDecision($decision->getStrategy(), null, DecisionTypeEnum::TYPE_ACCEPT),
-                $this->decisionsService->generateRandomDecision($decision->getStrategy(), null, DecisionTypeEnum::TYPE_REFUSE),
-            ];
-        } else {
-            $children = $decision->getChildren();
-        }
+        // Create 2 decisions: for both partner decisions
+        $partnerAcceptDecision = $this->decisionsService->generateRandomDecision($decision->getStrategy());
+        $partnerRefuseDecision = $this->decisionsService->generateRandomDecision($decision->getStrategy());
 
-        foreach ($children as $child) {
-            $decision->addChild($child);
-            $this->addDecisionsChildrenRecursively($child, --$stepsCount);
+        $decision->addChild($partnerAcceptDecision);
+        $decision->addChild($partnerRefuseDecision);
+
+        // Extends some branches
+        $stepsCount--;
+        if ($this->faker->boolean(80)) {
+            $this->addDecisionsChildrenRecursively($partnerAcceptDecision, $stepsCount);
+        }
+        if ($this->faker->boolean(80)) {
+            $this->addDecisionsChildrenRecursively($partnerRefuseDecision, $stepsCount);
         }
     }
 }
