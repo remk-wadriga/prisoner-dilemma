@@ -8,11 +8,13 @@
 
 namespace App\Service;
 
+use Faker\Factory;
 use App\Entity\Strategy;
 use App\Entity\Decision;
 use App\Repository\DecisionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\Types\Enum\DecisionTypeEnum;
 
 class StrategyDecisionsService extends AbstractService
 {
@@ -21,10 +23,13 @@ class StrategyDecisionsService extends AbstractService
 
     static $allowedPortTypes = [self::PORT_TYPE_IN, self::PORT_TYPE_OUT];
 
+    /** @var \Faker\Generator */
+    private $faker;
     private $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
+        $this->faker = Factory::create();
         $this->entityManager = $entityManager;
     }
 
@@ -38,11 +43,42 @@ class StrategyDecisionsService extends AbstractService
         /** @var DecisionRepository $repository */
         $repository = $this->entityManager->getRepository(Decision::class);
         $rootDecision = $repository->findRootByStrategyId($strategy->getId());
+        if ($rootDecision === null) {
+            return null;
+        }
 
         return [
             'type' => $rootDecision->getType(),
             'children' => $this->getDecisionChildrenRecursively($rootDecision->getChildren()),
         ];
+    }
+
+    /**
+     * @param Strategy $strategy
+     * @param Decision|null $parent
+     * @param string|null $type
+     * @return Decision
+     */
+    public function generateRandomDecision(Strategy $strategy, Decision $parent = null, $type = null): Decision
+    {
+        if ($type === null) {
+            $randomInteger = $this->faker->numberBetween(1, 3);
+            switch ($randomInteger) {
+                case 1:
+                    $type = DecisionTypeEnum::TYPE_ACCEPT;
+                    break;
+                case 2:
+                    $type = DecisionTypeEnum::TYPE_REFUSE;
+                    break;
+                default:
+                    $type = DecisionTypeEnum::TYPE_RANDOM;
+            }
+        }
+
+        return (new Decision())
+            ->setStrategy($strategy)
+            ->setParent($parent)
+            ->setType($type);
     }
 
     /**

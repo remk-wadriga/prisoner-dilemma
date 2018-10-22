@@ -12,12 +12,12 @@ use App\Entity\Strategy;
 use App\Form\StrategyForm;
 use App\Security\AccessTokenAuthenticator;
 use App\Service\StrategyDecisionsService;
-use Mcfedr\JsonFormBundle\Controller\JsonController;
+use App\Service\StrategyService;
 use App\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 
-class StrategyController extends JsonController
+class StrategyController extends ControllerAbstract
 {
     /**
      * @Route("/", name="app_homepage", methods={"GET"})
@@ -40,12 +40,12 @@ class StrategyController extends JsonController
     }
 
     /**
-     * @Route("/strategy/{id}", name="strategy_show", methods={"GET"})
+     * @Route("/strategy/{id}", name="strategy_show", methods={"GET"}, requirements={"id"="\d+"})
      */
-    public function show(Strategy $strategy, AccessTokenAuthenticator $authenticator, StrategyDecisionsService $decisionsService)
+    public function show(Strategy $strategy, StrategyDecisionsService $decisionsService)
     {
         // Get current user
-        $user = $authenticator->getCurrentUser();
+        $user = $this->getUser();
         // Check is current user has permissions for this strategy
         if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
             throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
@@ -59,12 +59,12 @@ class StrategyController extends JsonController
     /**
      * @Route("/strategy", name="strategy_create", methods={"POST"})
      */
-    public function create(Request $request, AccessTokenAuthenticator $authenticator)
+    public function create(Request $request)
     {
         // Create new strategy
         $strategy = new Strategy();
         // Set current user as strategy owner
-        $strategy->setUser($authenticator->getCurrentUser());
+        $strategy->setUser($this->getUser());
         // Process request
         $form = $this->createJsonForm(StrategyForm::class, $strategy);
         $this->handleJsonForm($form, $request);
@@ -80,10 +80,10 @@ class StrategyController extends JsonController
     /**
      * @Route("/strategy/{id}", name="strategy_update", methods={"PUT"})
      */
-    public function update(Strategy $strategy, Request $request, AccessTokenAuthenticator $authenticator)
+    public function update(Strategy $strategy, Request $request)
     {
         // Check is current user has permissions for updating the strategy
-        $user = $authenticator->getCurrentUser();
+        $user = $this->getUser();
         if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
             throw new HttpException('Strategy is not found', HttpException::CODE_NOT_FOUND);
         }
@@ -103,12 +103,30 @@ class StrategyController extends JsonController
     }
 
     /**
+     * @Route("/strategy/random", name="strategy_generate_random", methods={"POST"})
+     */
+    public function generateRandom(Request $request, StrategyService $strategyService, StrategyDecisionsService $decisionsService)
+    {
+        // Generate random strategy
+        $strategy = $strategyService->generateRandomStrategy($this->getUser(), $request->request->get('steps'));
+
+        // Save strategy entity
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($strategy);
+        $em->flush();
+
+        return $this->json($this->strategyInfo($strategy, [
+            'decisionsData' => $decisionsService->parseDecisionsData($strategy),
+        ]));
+    }
+
+    /**
      * @Route("/strategy/{id}", name="strategy_delete", methods={"DELETE"})
      */
-    public function delete(Strategy $strategy, AccessTokenAuthenticator $authenticator)
+    public function delete(Strategy $strategy)
     {
         // Check is current user has permissions for updating the strategy
-        $user = $authenticator->getCurrentUser();
+        $user = $this->getUser();
         if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
             throw new HttpException('Strategy is not found', HttpException::CODE_NOT_FOUND);
         }

@@ -36,7 +36,7 @@ class Decision
     private $type;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="parent")
+     * @ORM\OneToMany(targetEntity="App\Entity\Decision", mappedBy="parent", cascade={"persist"})
      */
     private $children;
 
@@ -70,7 +70,9 @@ class Decision
     public function setParent(?self $parent): self
     {
         $this->parent = $parent;
-
+        if ($parent !== null) {
+            $this->setStrategy($parent->getStrategy());
+        }
         return $this;
     }
 
@@ -96,5 +98,28 @@ class Decision
     public function getChildren(): Collection
     {
         return $this->children;
+    }
+
+    public function addChild(Decision $child): self
+    {
+        if (!$this->children->contains($child)) {
+            $this->children[] = $child;
+            $child->setParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChild(Decision $child): self
+    {
+        if ($this->children->contains($child)) {
+            $this->children->removeElement($child);
+            // set the owning side to null (unless already changed)
+            if ($child->getParent() === $this) {
+                $child->setParent(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -11,13 +11,12 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserForm;
 use App\Security\AccessTokenUserProvider;
-use Mcfedr\JsonFormBundle\Controller\JsonController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Security\AccessTokenAuthenticator;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class SecurityController extends JsonController
+class SecurityController extends ControllerAbstract
 {
     private $usrProvider;
 
