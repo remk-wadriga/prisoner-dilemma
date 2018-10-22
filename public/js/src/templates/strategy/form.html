@@ -1,6 +1,7 @@
 <b-col id="strategy_form" v-if="isMounted">
     <b-tabs>
         <b-tab title="Decisions" active>
+            <b-button type="submit" variant="success" @click="generateRandomStrategy" v-if="isNewRecord">Generate random strategy</b-button>
             <DecisionForm v-bind:decisionsData="decisionsData" @changeDecisionsData="changeDecisionsData($event)"  v-if="decisionsData" />
         </b-tab>
 

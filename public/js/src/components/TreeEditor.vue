@@ -1,7 +1,5 @@
 <template>
-    <div id="tree_editor_container">
-        <b-button type="submit" variant="primary" @click="changeDecisionsData">Update</b-button>
-    </div>
+    <div id="tree_editor_container"></div>
 </template>
 
 <script>
@@ -13,17 +11,12 @@
             return {
                 editor: null,
                 tmpIndex: 1,
-                decisionsData: {index: 0}
+                decisionsData: null
             }
         },
         props: {
             options: Object,
             data: Object
-        },
-        methods: {
-            changeDecisionsData() {
-                this.decisionsData.index++
-            }
         },
         watch: {
             decisionsData: {

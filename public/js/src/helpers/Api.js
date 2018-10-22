@@ -16,6 +16,7 @@ const Api = {
             'user_info': '/user',
             'strategy_url': '/strategy/:id',
             'strategy_create_url': '/strategy',
+            'create_random_strategy_url': '/strategy/random',
         }
     },
     methods: {

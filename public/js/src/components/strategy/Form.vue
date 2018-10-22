@@ -19,6 +19,23 @@
             }
         },
         methods: {
+            setParams(strategy) {
+                this.isNewRecord = false
+                this.id = strategy.id
+                this.name = strategy.name
+                this.description = strategy.description
+                this.status = strategy.status
+                this.decisionsData = strategy.decisionsData
+                this.$store.commit('selectedStrategyId', null)
+            },
+            changeDecisionsData(data) {
+                this.decisionsData = data
+            },
+            generateRandomStrategy() {
+                Api.methods.request('create_random_strategy_url', {}, 'POST', response => {
+                    console.log(response)
+                })
+            },
             submitStrategyFrom() {
                 const data = {
                     strategy_form: {
@@ -43,18 +60,6 @@
                 /*Api.methods.request(url, data, method, response => {
                     this.$router.push({name: 'strategy_view', params: {id: response.id}})
                 })*/
-            },
-            setParams(strategy) {
-                this.isNewRecord = false
-                this.id = strategy.id
-                this.name = strategy.name
-                this.description = strategy.description
-                this.status = strategy.status
-                this.decisionsData = strategy.decisionsData
-                this.$store.commit('selectedStrategyId', null)
-            },
-            changeDecisionsData(data) {
-                this.decisionsData = data
             }
         },
         created() {
@@ -68,6 +73,7 @@
                     this.isMounted = true
                 })
             } else if (this.isNewRecord) {
+                this.decisionsData = {}
                 this.isMounted = true
             }
         }
