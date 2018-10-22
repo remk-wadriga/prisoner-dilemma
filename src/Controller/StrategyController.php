@@ -92,6 +92,8 @@ class StrategyController extends JsonController
         $form = $this->createJsonForm(StrategyForm::class, $strategy, ['action' => StrategyForm::ACTION_UPDATE]);
         $this->handleJsonForm($form, $request);
 
+        dd($_POST);
+
         // Save user entity
         $em = $this->getDoctrine()->getManager();
         $em->persist($strategy);

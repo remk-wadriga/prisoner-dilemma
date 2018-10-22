@@ -13,7 +13,6 @@
                 name: null,
                 description: null,
                 status: 'enabled',
-                decisions: null,
                 decisionsData: null,
                 isNewRecord: true,
                 isMounted: false,
@@ -38,9 +37,12 @@
                     method = 'PUT'
                     url = ['strategy_url', {id: this.id}]
                 }
-                Api.methods.request(url, data, method, response => {
+
+                console.log(this.decisionsData)
+
+                /*Api.methods.request(url, data, method, response => {
                     this.$router.push({name: 'strategy_view', params: {id: response.id}})
-                })
+                })*/
             },
             setParams(strategy) {
                 this.isNewRecord = false
@@ -50,7 +52,9 @@
                 this.status = strategy.status
                 this.decisionsData = strategy.decisionsData
                 this.$store.commit('selectedStrategyId', null)
-                this.$store.commit('setStrategyDecisionsData', this.decisionsData)
+            },
+            changeDecisionsData(data) {
+                this.decisionsData = data
             }
         },
         created() {

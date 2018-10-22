@@ -1,7 +1,7 @@
 <b-col id="strategy_form" v-if="isMounted">
     <b-tabs>
         <b-tab title="Decisions" active>
-            <DecisionForm />
+            <DecisionForm v-bind:decisionsData="decisionsData" @changeDecisionsData="changeDecisionsData($event)"  v-if="decisionsData" />
         </b-tab>
 
         <b-tab title="Params">

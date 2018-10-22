@@ -8,34 +8,45 @@
         components: { TreeEditor },
         data() {
             return {
-                decisionsOptions: null,
-                decisionsData: null
+                decisionsOptions: {
+                    legend: [
+                        {
+                            type: 'accept',
+                            color: 'green',
+                            label: 'Accept',
+                            shortLabel: 'A'
+                        },
+                        {
+                            type: 'refuse',
+                            color: 'red',
+                            label: 'Refuse',
+                            shortLabel: 'R'
+                        }
+                    ],
+                    children: [
+                        {label: 'yes'},
+                        {label: 'no'}
+                    ]
+                },
+                changedDecisionsData: null
             }
         },
-        mounted() {
-            this.decisionsOptions = {
-                legend: [
-                    {
-                        type: 'accept',
-                        color: 'green',
-                        label: 'Accept',
-                        shortLabel: 'A'
-                    },
-                    {
-                        type: 'refuse',
-                        color: 'red',
-                        label: 'Refuse',
-                        shortLabel: 'R'
-                    }
-                ],
-                children: [
-                    {label: 'yes'},
-                    {label: 'no'}
-                ]
-            };
-
-            this.decisionsData = this.$store.state.strategy.decisionsData
+        props: {
+            decisionsData: Object
         },
+        methods: {
+            changeDecisionsData(data) {
+                this.changedDecisionsData = data
+            }
+        },
+        watch: {
+            changedDecisionsData: {
+                handler: function() {
+                    this.$emit('changeDecisionsData', this.changedDecisionsData);
+                },
+                deep: true
+            }
+        }
     }
 </script>
 

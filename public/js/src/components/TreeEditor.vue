@@ -1,5 +1,7 @@
 <template>
-    <div id="tree_editor_container"></div>
+    <div id="tree_editor_container">
+        <b-button type="submit" variant="primary" @click="changeDecisionsData">Update</b-button>
+    </div>
 </template>
 
 <script>
@@ -10,11 +12,26 @@
         data() {
             return {
                 editor: null,
+                tmpIndex: 1,
+                decisionsData: {index: 0}
             }
         },
         props: {
             options: Object,
             data: Object
+        },
+        methods: {
+            changeDecisionsData() {
+                this.decisionsData.index++
+            }
+        },
+        watch: {
+            decisionsData: {
+                handler: function() {
+                    this.$emit('changeData', this.decisionsData);
+                },
+                deep: true
+            }
         },
         mounted() {
             this.editor = new TreeEditor('#tree_editor_container', this.options)
