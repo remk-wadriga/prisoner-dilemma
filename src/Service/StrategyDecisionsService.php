@@ -9,11 +9,9 @@
 namespace App\Service;
 
 use App\Exception\StrategyException;
-use Faker\Factory;
 use App\Entity\Strategy;
 use App\Entity\Decision;
 use App\Repository\DecisionRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Types\Enum\DecisionTypeEnum;
 
@@ -24,17 +22,8 @@ class StrategyDecisionsService extends AbstractService
 
     static $allowedPortTypes = [self::PORT_TYPE_IN, self::PORT_TYPE_OUT];
 
-    /** @var \Faker\Generator */
-    private $faker;
-    private $entityManager;
     private $randomDecisionChance = 15;
     private $acceptDecisionChance = 50;
-
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->faker = Factory::create();
-        $this->entityManager = $entityManager;
-    }
 
     public function setRandomDecisionChance(int $chance)
     {

@@ -10,24 +10,19 @@ namespace App\Service;
 
 use App\Repository\DecisionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Faker\Factory;
 use App\Entity\User;
 use App\Entity\Strategy;
 use App\Entity\Decision;
 
 class StrategyService extends AbstractService
 {
-    /** @var \Faker\Generator */
-    private $faker;
-    private $entityManager;
     private $decisionsService;
     private $maxRandomDecisionsCount = 10;
     private $chanceOfExtendingBranch = 70;
 
     public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService)
     {
-        $this->faker = Factory::create();
-        $this->entityManager = $entityManager;
+        parent::__construct($entityManager);
         $this->decisionsService = $decisionsService;
     }
 

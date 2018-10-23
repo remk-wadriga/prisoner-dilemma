@@ -10,7 +10,6 @@ namespace App\Controller;
 
 use App\Entity\Strategy;
 use App\Form\StrategyForm;
-use App\Security\AccessTokenAuthenticator;
 use App\Service\StrategyDecisionsService;
 use App\Service\StrategyService;
 use App\Exception\HttpException;
@@ -22,10 +21,10 @@ class StrategyController extends ControllerAbstract
     /**
      * @Route("/", name="app_homepage", methods={"GET"})
      */
-    public function list(AccessTokenAuthenticator $authenticator)
+    public function list()
     {
-        // 1. Get current user
-        $user = $authenticator->getCurrentUser();
+        // Get current user
+        $user = $this->getUser();
 
         if ($user->getIsAdmin()) {
             $strategies = $this->getDoctrine()->getRepository(Strategy::class)->findAllOrderedByCreatedAtDesc();
