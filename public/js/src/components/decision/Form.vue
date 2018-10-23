@@ -13,14 +13,14 @@
                         {
                             type: 'accept',
                             color: 'green',
-                            label: 'Accept',
-                            shortLabel: 'A'
+                            label: 'Yes',
+                            shortLabel: 'Y'
                         },
                         {
                             type: 'refuse',
                             color: 'red',
-                            label: 'Refuse',
-                            shortLabel: 'R'
+                            label: 'No',
+                            shortLabel: 'N'
                         },
                         {
                             type: 'random',

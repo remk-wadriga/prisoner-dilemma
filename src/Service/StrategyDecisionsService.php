@@ -27,11 +27,23 @@ class StrategyDecisionsService extends AbstractService
     /** @var \Faker\Generator */
     private $faker;
     private $entityManager;
+    private $randomDecisionChance = 15;
+    private $acceptDecisionChance = 50;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         $this->faker = Factory::create();
         $this->entityManager = $entityManager;
+    }
+
+    public function setRandomDecisionChance(int $chance)
+    {
+        $this->randomDecisionChance = $chance;
+    }
+
+    public function setAcceptDecisionChance(int $chance)
+    {
+        $this->acceptDecisionChance = $chance;
     }
 
     /**
@@ -63,16 +75,14 @@ class StrategyDecisionsService extends AbstractService
     public function generateRandomDecision(Strategy $strategy, Decision $parent = null, $type = null): Decision
     {
         if ($type === null) {
-            $randomInteger = $this->faker->numberBetween(1, 3);
-            switch ($randomInteger) {
-                case 1:
-                    $type = DecisionTypeEnum::TYPE_ACCEPT;
-                    break;
-                case 2:
-                    $type = DecisionTypeEnum::TYPE_REFUSE;
-                    break;
-                default:
-                    $type = DecisionTypeEnum::TYPE_RANDOM;
+            if ($this->faker->boolean($this->randomDecisionChance)) {
+                $type = DecisionTypeEnum::TYPE_RANDOM;
+            }
+            if ($type === null && $this->faker->boolean($this->acceptDecisionChance)) {
+                $type = DecisionTypeEnum::TYPE_ACCEPT;
+            }
+            if ($type === null) {
+                $type = DecisionTypeEnum::TYPE_REFUSE;
             }
         }
 

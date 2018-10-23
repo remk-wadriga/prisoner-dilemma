@@ -35,10 +35,12 @@ class StrategyService extends AbstractService
      * @param User $user
      * @param int $steps
      * @param string|null $name
-     * @param int $chanceOfExtendingBranch
+     * @param int|null $chanceOfExtendingBranch
+     * @param int|null $randomDecisionChance
+     * @param int|null $acceptDecisionChance
      * @return Strategy
      */
-    public function generateRandomStrategy(User $user, $steps = 0, $name = null, $chanceOfExtendingBranch = null): Strategy
+    public function generateRandomStrategy(User $user, $steps = 0, $name = null, $chanceOfExtendingBranch = null, $randomDecisionChance = null, $acceptDecisionChance = null): Strategy
     {
         if (!$steps) {
             $steps = $this->faker->numberBetween(1, $this->maxRandomDecisionsCount);
@@ -48,6 +50,12 @@ class StrategyService extends AbstractService
         }
         if ((int)$chanceOfExtendingBranch > 0) {
             $this->chanceOfExtendingBranch = (int)$chanceOfExtendingBranch;
+        }
+        if ($randomDecisionChance !== null) {
+            $this->decisionsService->setRandomDecisionChance((int)$randomDecisionChance);
+        }
+        if ($acceptDecisionChance !== null) {
+            $this->decisionsService->setAcceptDecisionChance((int)$acceptDecisionChance);
         }
 
         // Create strategy

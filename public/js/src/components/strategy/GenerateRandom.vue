@@ -10,7 +10,9 @@
                 onCloseCallbackFunction: () => {  },
                 name: null,
                 steps: 0,
-                extendingChance: 70
+                extendingChance: 70,
+                randomDecisionChance: 15,
+                acceptDecisionChance: 50
             }
         },
         computed: {
@@ -28,7 +30,9 @@
                 const data = {
                     name: this.name,
                     steps: this.steps,
-                    extendingChance: this.extendingChance
+                    extendingChance: this.extendingChance,
+                    randomDecisionChance: this.randomDecisionChance,
+                    acceptDecisionChance: this.acceptDecisionChance
                 }
                 Api.methods.request('create_random_strategy_url', data, 'POST', response => {
                     this.$store.commit('selectedStrategyId', response.id)

@@ -11,31 +11,54 @@
     >
         <div class="d-block text-center">
             <h4>Set strategy params</h4>
+
             <b-form-group
                     label="Strategy name:"
                     label-for="generate_strategy_name_input">
                 <b-form-input id="generate_strategy_name_input"
-                              type="text"
-                              v-model="name"
-                              placeholder="Enter a strategy name">
+                      type="text"
+                      v-model="name"
+                      placeholder="Enter a strategy name">
                 </b-form-input>
             </b-form-group>
+
             <b-form-group
                     label="Steps count:"
                     label-for="generate_strategy_steps_input">
                 <b-form-input id="generate_strategy_steps_input"
-                              type="number"
-                              v-model="steps"
-                              placeholder="Enter strategy steps count">
+                      type="number"
+                      v-model="steps"
+                      placeholder="Enter strategy steps count">
                 </b-form-input>
             </b-form-group>
+
             <b-form-group
                     label="Extending chance:"
                     label-for="generate_strategy_extending_chance_input">
                 <b-form-input id="generate_strategy_extending_chance_input"
-                              type="number"
-                              v-model="extendingChance"
-                              placeholder="Enter strategy extending branch chance">
+                      type="number"
+                      v-model="extendingChance"
+                      placeholder="Enter strategy extending branch chance">
+                </b-form-input>
+            </b-form-group>
+
+            <b-form-group
+                    label="Random decision chance:"
+                    label-for="generate_strategy_random_decision_chance_input">
+                <b-form-input id="generate_strategy_random_decision_chance_input"
+                      type="number"
+                      v-model="randomDecisionChance"
+                      placeholder="Enter strategy random decision chance">
+                </b-form-input>
+            </b-form-group>
+
+            <b-form-group
+                    label="Accept decision chance:"
+                    label-for="generate_strategy_accept_decision_chance_input">
+                <b-form-input id="generate_strategy_accept_decision_chance_input"
+                      type="number"
+                      v-model="acceptDecisionChance"
+                      placeholder="Enter strategy accept decision chance">
                 </b-form-input>
             </b-form-group>
 

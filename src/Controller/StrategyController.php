@@ -118,7 +118,9 @@ class StrategyController extends ControllerAbstract
         $strategy = $strategyService->generateRandomStrategy($this->getUser(),
             $request->request->get('steps'),
             $request->request->get('name'),
-            $request->request->get('extendingChance')
+            $request->request->get('extendingChance'),
+            $request->request->get('randomDecisionChance'),
+            $request->request->get('acceptDecisionChance')
         );
 
         // Save strategy entity
