@@ -93,7 +93,7 @@ const Api = {
                     return;
                 }
 
-                // Error code "1001" means that access token is invalid, so, let`s logout user and go to the login page!
+                // Error code "1001" means that access token is invalid, so, let`s logout user and go to login page!
                 if (error.code === 1001) {
                     user.methods.logout();
                     store.commit('addLogMessage', {type: 'info', text: error.message})
