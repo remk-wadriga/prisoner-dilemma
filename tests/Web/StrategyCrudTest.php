@@ -46,7 +46,6 @@ class StrategyCrudTest extends AbstractApiTestCase
         // 2. Get strategy and create new params for it. But if user has no one strategies - we just have nothing to test yet
         $strategy = $this->getUserStrategy();
         if ($strategy === null) {
-            $this->assertTrue(true);
             return;
         }
         // Remember old and new params
@@ -126,15 +125,17 @@ class StrategyCrudTest extends AbstractApiTestCase
         // 2. Get current users strategy and send request. But if user has no one strategies - we just have nothing to test yet
         $strategy = $this->getUserStrategy();
         if ($strategy === null) {
-            $this->assertTrue(true);
             return;
         }
         $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
         // 3. Check response
         $this->checkIsCorrectStrategyParamsInResponse($response, 'show strategy');
 
-        // 3. Get some different users strategy and send request
+        // 3. Get some different users strategy and send request. But if no one strategy is found - we just have nothing to test yet
         $strategy = $this->getNotUserStrategy();
+        if ($strategy === null) {
+            return;
+        }
         $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
         $this->checkNotOwnStrategyResponse($response, 'show another user strategy');
 
@@ -150,7 +151,6 @@ class StrategyCrudTest extends AbstractApiTestCase
         // 2. Get some user strategy, remember it prams and try to delete it. But if user has no one strategies - we just have nothing to test yet
         $strategy = $this->getUserStrategy();
         if ($strategy === null) {
-            $this->assertTrue(true);
             return;
         }
         $strategyParams = [
@@ -175,7 +175,6 @@ class StrategyCrudTest extends AbstractApiTestCase
         // 3. Try do delete strategy of some different user. But if it`s no other users strategies yet, we just have nothing to test yet
         $strategy = $this->getNotUserStrategy();
         if ($strategy === null) {
-            $this->assertTrue(true);
             return;
         }
         $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');

@@ -17,7 +17,6 @@ class StrategyDecisionsServiceTest extends BaseStrategyTestCase
         // 1. Search some strategy with decisions. If it's not found - we have nothing to test yet
         $strategy = $this->findNotEmptyStrategy();
         if (empty($strategy)) {
-            $this->assertTrue(true);
             return;
         }
 
