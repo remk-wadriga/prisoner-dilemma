@@ -1,0 +1,6 @@
+const Config = {
+    api: {
+        baseUrl: "http://api.local"
+    }
+};
+export default Config;

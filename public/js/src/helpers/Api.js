@@ -1,12 +1,13 @@
 import user from '@/entityes/User'
 import store from '@/store'
 import router from '@/router'
+import Config from '@/config.js'
 
 var lastRequestParams = null;
 
 const Api = {
     data: {
-        baseUrl: 'http://strategy.local',
+        baseUrl: Config.api.baseUrl,
         routes: {
             'app_homepage': '/',
             'security_login': '/login',

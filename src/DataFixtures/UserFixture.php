@@ -22,9 +22,9 @@ class UserFixture extends AbstractFixture
                 case 0:
                     // 1. Create default admin
                     $user
-                        ->setEmail('remkwadriga2013@gmail.com')
-                        ->setFirstName('Rem')
-                        ->setLastName('Kwadriga')
+                        ->setEmail('admin@gmail.com')
+                        ->setFirstName('Default')
+                        ->setLastName('Admin')
                         ->setPassword($this->encoder->encodePassword($user, 'test'))
                         ->setRoles(['ROLE_ADMIN']);
                     break;
