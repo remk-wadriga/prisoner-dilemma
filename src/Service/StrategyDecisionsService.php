@@ -75,21 +75,28 @@ class StrategyDecisionsService extends AbstractService
     public function generateRandomDecision(Strategy $strategy, Decision $parent = null, $type = null): Decision
     {
         if ($type === null) {
-            if ($this->faker->boolean($this->randomDecisionChance)) {
-                $type = DecisionTypeEnum::TYPE_RANDOM;
-            }
-            if ($type === null && $this->faker->boolean($this->acceptDecisionChance)) {
-                $type = DecisionTypeEnum::TYPE_ACCEPT;
-            }
-            if ($type === null) {
-                $type = DecisionTypeEnum::TYPE_REFUSE;
-            }
+            $type = $this->getRandomDecisionType();
         }
 
         return (new Decision())
             ->setStrategy($strategy)
             ->setParent($parent)
             ->setType($type);
+    }
+
+    public function getRandomDecisionType(): string
+    {
+        $type = null;
+        if ($this->faker->boolean($this->randomDecisionChance)) {
+            $type = DecisionTypeEnum::TYPE_RANDOM;
+        }
+        if ($type === null && $this->faker->boolean($this->acceptDecisionChance)) {
+            $type = DecisionTypeEnum::TYPE_ACCEPT;
+        }
+        if ($type === null) {
+            $type = DecisionTypeEnum::TYPE_REFUSE;
+        }
+        return $type;
     }
 
     /**

@@ -101,28 +101,32 @@ class BaseStrategyTestCase extends AbstractUnitTestCase
         return $decision->getStrategy();
     }
 
-    protected function generateRandomDecisionsData($stepsLeft, $stepDecision = [])
+    protected function generateRandomDecisionsData($stepsLeft, $stepDecision = [], $chanceOfExtendingBranch = null)
     {
         // Stop condition - when it's no more steps left
         if ($stepsLeft <= 0) {
             return $stepDecision;
         }
 
-        // Create root decision data
-        if (empty($stepDecision)) {
-            $stepDecision = ['type' => DecisionTypeEnum::TYPE_ACCEPT, 'children' => []];
+        // Get services
+        $decisionService = $this->getStrategyDecisionsService();
+        if ($chanceOfExtendingBranch === null) {
+            $chanceOfExtendingBranch = $this->getStrategyService()->getChanceOfExtendingBranch();
         }
 
-        // Create accept and refuse data params
-        $acceptDecision = ['type' => DecisionTypeEnum::TYPE_ACCEPT, 'children' => []];
-        $refuseDecision = ['type' => DecisionTypeEnum::TYPE_REFUSE, 'children' => []];
+        // Create root decision data
+        if (empty($stepDecision)) {
+            $stepDecision = ['type' => $decisionService->getRandomDecisionType(), 'children' => []];
+        }
 
-        // Add accept and refuse decision to step decision
+        // Create two data params and add them to step decision as children
         $stepsLeft--;
-        $stepDecision['children'] = [
-            $this->generateRandomDecisionsData($stepsLeft, $acceptDecision),
-            $this->generateRandomDecisionsData($stepsLeft, $refuseDecision),
-        ];
+        for ($i = 0; $i < 2; $i++) {
+            if ($this->faker->boolean($chanceOfExtendingBranch)) {
+                $child = ['type' => $decisionService->getRandomDecisionType(), 'children' => []];
+                $stepDecision['children'][] = $this->generateRandomDecisionsData($stepsLeft, $child, $chanceOfExtendingBranch);
+            }
+        }
 
         // Return decision
         return $stepDecision;

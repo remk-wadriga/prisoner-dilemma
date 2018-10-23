@@ -32,7 +32,7 @@ class StrategyServiceTest extends BaseStrategyTestCase
 
         // 2. Set strategy data array
         $steps = $this->faker->numberBetween(1, 5);
-        $strategy->setDecisionsData($this->generateRandomDecisionsData($steps));
+        $strategy->setDecisionsData($this->generateRandomDecisionsData($steps, [], 100));
 
         // 3. Create decisions params array to real decisions tree and add it to strategy
         $this->getStrategyService()->parseDecisionsData($strategy);

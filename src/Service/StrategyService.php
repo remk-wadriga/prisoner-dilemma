@@ -99,6 +99,12 @@ class StrategyService extends AbstractService
         $strategy->addDecision($rootDecision);
     }
 
+
+    public function getChanceOfExtendingBranch()
+    {
+        return $this->chanceOfExtendingBranch;
+    }
+
     /**
      * @param Decision $decision
      * @param int $stepsCount
