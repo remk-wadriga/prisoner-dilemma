@@ -32,7 +32,7 @@ Create database and paste connection config into file .env (based on .env.dist):
 DATABASE_URL=mysql://root:@127.0.0.1:3306/your_db_name
 ```
 
-If you use not MySQL DB, you would note this in db connection config line, then delete all migrations (/src/Migrations) and then generate new ones:
+If you use not MySQL DB, you should note this in db connection config line, then note your DB driver in file /config/packages/doctrine.yaml, then delete all migrations (/src/Migrations) and then generate new ones:
 ```bash
 $ ./bin/console make:migration
 ```
