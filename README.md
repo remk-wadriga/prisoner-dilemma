@@ -32,7 +32,7 @@ Create database and paste connection config into file .env (based on .env.dist):
 DATABASE_URL=mysql://root:@127.0.0.1:3306/your_db_name
 ```
 
-If you use not MySQL DB, you whould note this in db connecion cofig line, then delete all migrations (/src/Migrations) and then generate new ones:
+If you use not MySQL DB, you would note this in db connection config line, then delete all migrations (/src/Migrations) and then generate new ones:
 ```bash
 $ ./bin/console make:migration
 ```
@@ -51,7 +51,7 @@ Generate fake data:
 ```bash
 $ ./bin/console doctrine:fixtures:load
 ```
-Now you have few users with different roles (admin@gmail.com, owner@gmail.com and user@gmail.com with password "test"), Also you can register your own user (but user user@gmail.com is required for tests) and some strategys.
+Now you have few users with different roles (admin@gmail.com, owner@gmail.com and user@gmail.com with password "test"), Also you can register your own user (but user user@gmail.com is required for tests) and some strategies.
 
 Run local npm dev-server:
 ```bash
