@@ -51,7 +51,7 @@ class StrategyDecisionsService extends AbstractService
 
         return [
             'type' => $rootDecision->getType(),
-            'children' => $this->getDecisionChildrenRecursively($rootDecision->getChildren()),
+            'children' => $this->getDecisionChildrenDataRecursively($rootDecision->getChildren()),
         ];
     }
 
@@ -138,11 +138,12 @@ class StrategyDecisionsService extends AbstractService
         return $decision;
     }
 
+
     /**
      * @param Collection $children
      * @return array
      */
-    private function getDecisionChildrenRecursively(Collection $children)
+    private function getDecisionChildrenDataRecursively(Collection $children)
     {
         $result = [];
 
@@ -154,7 +155,7 @@ class StrategyDecisionsService extends AbstractService
         foreach ($children as $decision) {
             $result[] = [
                 'type' => $decision->getType(),
-                'children' => $this->getDecisionChildrenRecursively($decision->getChildren()),
+                'children' => $this->getDecisionChildrenDataRecursively($decision->getChildren()),
             ];
         }
 

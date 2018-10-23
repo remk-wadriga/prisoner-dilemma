@@ -42,13 +42,36 @@ class DecisionRepository extends ServiceEntityRepository
      */
     public function findDecisionsByStrategyIdOrderedByIdDesc($strategyID)
     {
-        return $this->createQueryBuilder('d')
-            ->andWhere('d.strategy = :strategy_id')
-            ->setParameter('strategy_id', $strategyID)
+        return $this->createQueryBuilderForFindDecisionsByStrategyId($strategyID)
             ->orderBy('d.id', 'DESC')
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    /**
+     * @param $strategyID
+     * @return Decision[]
+     */
+    public function findDecisionsByStrategyIdOrderedByIdAsc($strategyID)
+    {
+        return $this->createQueryBuilderForFindDecisionsByStrategyId($strategyID)
+            ->orderBy('d.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+
+    /**
+     * @param int $strategyID
+     * @return \Doctrine\ORM\QueryBuilder
+     */
+    private function createQueryBuilderForFindDecisionsByStrategyId($strategyID)
+    {
+        return $this->createQueryBuilder('d')
+            ->andWhere('d.strategy = :strategy_id')
+            ->setParameter('strategy_id', $strategyID);
     }
 
 //    /**

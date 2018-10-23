@@ -10,7 +10,6 @@ namespace App\Tests\Unit;
 
 use App\Entity\Decision;
 use App\Entity\Strategy;
-use App\Entity\Types\Enum\DecisionTypeEnum;
 use App\Tests\AbstractUnitTestCase;
 use App\Service\StrategyService;
 use App\Service\StrategyDecisionsService;

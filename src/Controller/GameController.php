@@ -30,6 +30,8 @@ class GameController extends ControllerAbstract
 
         $results = $gameService->runGame($user, $strategiesIds);
 
-        dd($results);
+        return $this->json([
+            'results' => $results,
+        ]);
     }
 }

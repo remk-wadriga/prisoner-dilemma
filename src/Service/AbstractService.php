@@ -10,9 +10,12 @@ namespace App\Service;
 
 use Faker\Factory;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Helpers\LoggerTrait;
 
 abstract class AbstractService
 {
+    use LoggerTrait;
+
     /** @var \Faker\Generator */
     protected $faker;
     protected $entityManager;
