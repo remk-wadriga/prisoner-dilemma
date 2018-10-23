@@ -102,13 +102,13 @@ const Api = {
                 } else if (error.code === 1002) {
                     let renewToken = user.methods.getRenewToken();
                     if (!renewToken) {
-                        store.commit('addLogMessage', {type: 'danger', text: 'Access token missing, try to login again'})
+                        store.commit('addLogMessage', {type: 'danger', text: 'Access token is expired, try to login again'})
                         return;
                     }
                     Api.methods.request('security_renew_token', {renew_token: renewToken}, 'POST', (response) => {
                         // Login user with new tokens
                         user.methods.login(response)
-                        // If las request prams is not null - remake last request
+                        // If last request prams is not null - remake last request
                         if (lastRequestParams !== null) {
                             // Check is response has "access_token" param
                             if (response.access_token === undefined) {
