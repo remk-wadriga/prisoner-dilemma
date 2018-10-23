@@ -2,6 +2,7 @@
 
 namespace App\Tests\Strategy;
 
+use App\Entity\Decision;
 use App\Entity\Strategy;
 use App\Entity\Types\Enum\IsEnabledEnum;
 use App\Entity\User;
@@ -178,6 +179,42 @@ class StrategyCrudTest extends AbstractApiTestCase
         $this->entityManager->flush();
     }
 
+    public function testGenerateRandomAction()
+    {
+        // 1. Login user
+        $this->logInAsUser();
+        $user = $this->user;
+
+        // 2. Create new strategy params
+        $faker = Factory::create();
+        $name = $faker->text(17);
+        $steps = $faker->numberBetween(1, 5);
+        $data = [
+            'name' => $name,
+            'steps' => $steps,
+            'extendingChance' => 100,
+        ];
+
+        // 3. Calculate expected strategy steps count
+        $expectedDecisionsCount = pow(2, $steps + 1) - 1;
+
+        // 4. Try to create new strategy
+        $response = $this->request('strategy_generate_random', $data, 'POST');
+        $strategy = $this->checkIsCorrectStrategyParamsInResponse($response, 'generate random strategy', $name, null, IsEnabledEnum::TYPE_ENABLED, $user);
+        $this->assertNotNull($strategy, 'Testing "generate random strategy" is failed: where is my strategy?..');
+
+        // 5. Check strategy decisions count
+        /** @var \App\Repository\DecisionRepository $decisionsRepository */
+        $decisionsRepository = $this->entityManager->getRepository(Decision::class);
+        $realDecisionsCount = count($decisionsRepository->findDecisionsByStrategyIdOrderedByIdDesc($strategy->getId()));
+        $this->assertEquals($expectedDecisionsCount, $realDecisionsCount,
+            sprintf('Testing "generate random strategy" is failed: expected decisions count for %s steps is %s, %s given (Strategy ID: %s)',
+                $steps, $expectedDecisionsCount, $realDecisionsCount, $strategy->getId()));
+
+        // 6. If we are here, it means that everything is correct, so, we can delete this test strategy
+        $this->entityManager->remove($strategy);
+        $this->entityManager->flush();
+    }
 
     private function createStrategyDataArray(string $name = null, string $description = null, string $status = null)
     {
