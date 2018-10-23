@@ -6,7 +6,7 @@
  * Time: 23:09
  */
 
-namespace App\Tests\User;
+namespace App\Tests\Web;
 
 use App\Tests\AbstractApiTestCase;
 use App\Tests\ApiResponse;

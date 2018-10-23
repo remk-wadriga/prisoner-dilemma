@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Strategy;
+namespace App\Tests\Web;
 
 use App\Entity\Decision;
 use App\Entity\Strategy;
