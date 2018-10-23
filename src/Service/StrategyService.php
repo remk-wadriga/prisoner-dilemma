@@ -105,6 +105,7 @@ class StrategyService extends AbstractService
      */
     private function addDecisionsChildrenRecursively(Decision $decision, $stepsCount = 0)
     {
+        // Stop condition - when is no steps left
         if ($stepsCount <= 0) {
             return;
         }

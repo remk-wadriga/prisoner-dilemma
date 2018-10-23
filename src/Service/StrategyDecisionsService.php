@@ -118,7 +118,7 @@ class StrategyDecisionsService extends AbstractService
             ->setStrategy($strategy)
             ->setType($params['type']);
 
-        // Return condition - when decision has no children
+        // Stop condition - when decision has no children
         if (empty($params['children'])) {
             return $decision;
         }
@@ -149,6 +149,8 @@ class StrategyDecisionsService extends AbstractService
     private function getDecisionChildrenRecursively(Collection $children)
     {
         $result = [];
+
+        // Stop condition - when is no children left
         if ($children->count() === 0) {
             return $result;
         }
