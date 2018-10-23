@@ -116,20 +116,16 @@ class StrategyService extends AbstractService
             return;
         }
 
-        // Create 2 decisions: for both partner decisions
-        $partnerAcceptDecision = $this->decisionsService->generateRandomDecision($decision->getStrategy());
-        $partnerRefuseDecision = $this->decisionsService->generateRandomDecision($decision->getStrategy());
-
-        $decision->addChild($partnerAcceptDecision);
-        $decision->addChild($partnerRefuseDecision);
-
-        // Extends some branches
+        // Minus one step
         $stepsCount--;
-        if ($this->faker->boolean($this->chanceOfExtendingBranch)) {
-            $this->addDecisionsChildrenRecursively($partnerAcceptDecision, $stepsCount);
-        }
-        if ($this->faker->boolean($this->chanceOfExtendingBranch)) {
-            $this->addDecisionsChildrenRecursively($partnerRefuseDecision, $stepsCount);
+
+        // Create 2 decisions for both partner decisions add add them to children array
+        for ($i = 0; $i < 2; $i++) {
+            if ($this->faker->boolean($this->chanceOfExtendingBranch)) {
+                $child = $this->decisionsService->generateRandomDecision($decision->getStrategy());
+                $decision->addChild($child);
+                $this->addDecisionsChildrenRecursively($child, $stepsCount);
+            }
         }
     }
 }
