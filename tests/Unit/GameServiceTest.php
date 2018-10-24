@@ -50,9 +50,11 @@ class GameServiceTest extends BaseStrategyTestCase
         // 5. Calculate actual decisions count
         $actualDecisionsCount = 0;
         foreach ($strategiesData as $data) {
-            $this->assertArrayHasKey('decisions', $data,
-                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data mus have an "decisions" key');
-            $actualDecisionsCount += $this->calculateDecisionsDataChildrenRecursively($data['decisions']);
+            $this->assertArrayHasKey('type', $data,
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data mus have an "type" key');
+            $this->assertArrayHasKey('children', $data,
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data mus have an "children" key');
+            $actualDecisionsCount += $this->calculateDecisionsDataChildrenRecursively($data);
         }
 
         // 6. Check is decisions count has correct values

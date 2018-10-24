@@ -18,6 +18,7 @@ use App\Entity\Types\Enum\IsEnabledEnum;
 class GameService extends AbstractService
 {
     private $decisionsService;
+    private $decisionsTreeForStrategies = [];
 
     public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService)
     {
@@ -37,6 +38,13 @@ class GameService extends AbstractService
 
     public function createDecisionsTreeByStrategiesIds(User $user, $strategiesIds = []): array
     {
+        // Try to get decisions tree from runtime cache
+        $key = md5($user->getId() . ':' . serialize($strategiesIds));
+        if (isset($this->decisionsTreeForStrategies[$key])) {
+            return $this->decisionsTreeForStrategies[$key];
+        }
+        $this->decisionsTreeForStrategies[$key] = [];
+
         // Find user enabled strategies by ids
         $criteria = [
             'user' => $user,
@@ -62,8 +70,8 @@ class GameService extends AbstractService
             throw $this->createNotFoundException('Decisions for user`s #%s strategies are not found', $user->getId(), $strategiesIds);
         }
 
-        // Get strategies IDs array and index strategies array by it
-        foreach ($strategies as $index => $strategy) {
+        // Generate decisions tree for each strategy (using recursively function) and add to runtime cache, indexed by strategies Ids
+        foreach ($strategies as $strategy) {
             $strategyDecisions = [];
             foreach ($decisions as $decisionIndex => $decision) {
                 if ($decision->getStrategy()->getId() === $strategy->getId()) {
@@ -71,13 +79,11 @@ class GameService extends AbstractService
                     $strategyDecisions[] = $decision;
                 }
             }
-            $strategies[$index] = [
-                'strategy' => $strategy,
-                'decisions' => $this->generateDecisionsTreeRecursively($strategyDecisions),
-            ];
+            // Using recursive function for create strategy decisions tree
+            $this->decisionsTreeForStrategies[$key][$strategy->getId()] = $this->generateDecisionsTreeRecursively($strategyDecisions);
         }
 
-        return $strategies;
+        return $this->decisionsTreeForStrategies[$key];
     }
 
 
