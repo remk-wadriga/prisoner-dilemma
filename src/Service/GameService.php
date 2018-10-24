@@ -35,12 +35,18 @@ class GameService extends AbstractService
         $this->decisionsService = $decisionsService;
     }
 
-    public function getRoundsCount()
+    public function getParams()
     {
-        return $this->roundsCount;
+        return [
+            'rounds' => $this->roundsCount,
+            'balesForWin' => $this->balesForWin,
+            'balesForLoos' => $this->balesForLoos,
+            'balesForCooperation' => $this->balesForCooperation,
+            'balesForDraw' => $this->balesForDraw,
+        ];
     }
 
-    public function runGame(User $user, $strategiesIds = [], bool $writeCoupesStrategiesResults = true, int $roundsCount = null): array
+    public function runGame(User $user, $strategiesIds = [], int $roundsCount = null, int $balesForWin = null, int $balesForLoos = null, int $balesForCooperation = null, int $balesForDraw = null, bool $writeCoupesStrategiesResults = true): array
     {
         // Create a decisions tree for all strategies (array indexed by strategies Ids)
         $strategies = $this->createDecisionsTreeByStrategiesIds($user, $strategiesIds);
@@ -50,16 +56,28 @@ class GameService extends AbstractService
             throw new GameException('It\'s impossible to make game with less then 2 strategies', GameException::CODE_GAME_IMPOSSIBLE);
         }
 
-        // Set rounds count
+        // Set game params
         if ($roundsCount !== null) {
             $this->roundsCount = $roundsCount;
+        }
+        if ($balesForWin !== null) {
+            $this->balesForWin = $balesForWin;
+        }
+        if ($balesForLoos !== null) {
+            $this->balesForLoos = $balesForLoos;
+        }
+        if ($balesForCooperation !== null) {
+            $this->balesForCooperation = $balesForCooperation;
+        }
+        if ($balesForDraw !== null) {
+            $this->balesForDraw = $balesForDraw;
         }
 
         // Write "game started" log
         $this->logInfo('Game started!', [
             'userID' => $user->getId(),
             'strategiesIds' => $strategiesIds,
-            'rounds' => $this->roundsCount,
+            'params' => $this->getParams(),
         ]);
 
         // Remember strategies names
@@ -90,7 +108,7 @@ class GameService extends AbstractService
         $this->logInfo('Game finished!', [
             'userID' => $user->getId(),
             'strategiesIds' => $strategiesIds,
-            'rounds' => $this->roundsCount,
+            'params' => $this->getParams(),
             'results' => $results,
         ]);
 

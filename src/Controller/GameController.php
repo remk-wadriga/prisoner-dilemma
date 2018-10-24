@@ -29,10 +29,16 @@ class GameController extends ControllerAbstract
         }
 
         // Play game with all selected (or just all enabled user strategies) and get results
-        $results = $gameService->runGame($user, $strategiesIds, true, $request->request->get('rounds'));
+        $results = $gameService->runGame($user, $strategiesIds,
+            $request->request->get('rounds'),
+            $request->request->get('balesForWin'),
+            $request->request->get('balesForLoos'),
+            $request->request->get('balesForCooperation'),
+            $request->request->get('balesForDraw'),
+            (bool)$request->request->get('writeCoupesStrategiesResults', true));
 
         return $this->json([
-            'rounds' => $gameService->getRoundsCount(),
+            'params' => $gameService->getParams(),
             'results' => $results,
         ]);
     }
