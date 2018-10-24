@@ -28,9 +28,11 @@ class GameController extends ControllerAbstract
             $strategiesIds = json_decode($stretegiesIDs, true);
         }
 
-        $results = $gameService->runGame($user, $strategiesIds);
+        // Play game with all selected (or just all enabled user strategies) and get results
+        $results = $gameService->runGame($user, $strategiesIds, true, $request->request->get('rounds'));
 
         return $this->json([
+            'rounds' => $gameService->getRoundsCount(),
             'results' => $results,
         ]);
     }

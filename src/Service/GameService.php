@@ -35,7 +35,12 @@ class GameService extends AbstractService
         $this->decisionsService = $decisionsService;
     }
 
-    public function runGame(User $user, $strategiesIds = [], $writeCoupesStrategiesResults = true): array
+    public function getRoundsCount()
+    {
+        return $this->roundsCount;
+    }
+
+    public function runGame(User $user, $strategiesIds = [], bool $writeCoupesStrategiesResults = true, int $roundsCount = null): array
     {
         // Create a decisions tree for all strategies (array indexed by strategies Ids)
         $strategies = $this->createDecisionsTreeByStrategiesIds($user, $strategiesIds);
@@ -45,18 +50,39 @@ class GameService extends AbstractService
             throw new GameException('It\'s impossible to make game with less then 2 strategies', GameException::CODE_GAME_IMPOSSIBLE);
         }
 
+        // Set rounds count
+        if ($roundsCount !== null) {
+            $this->roundsCount = $roundsCount;
+        }
+
         // Write "game started" log
         $this->logInfo('Game started!', [
             'userID' => $user->getId(),
             'strategiesIds' => $strategiesIds,
+            'rounds' => $this->roundsCount,
         ]);
+
+        // Remember strategies names
+        $strategiesNames = [];
+        foreach ($strategies as $strategy) {
+            $strategiesNames[$strategy['strategyID']] = $strategy['strategyName'];
+        }
 
         // Start a game!
         $results = $this->makeGameWithStrategiesRecursively($strategies, $writeCoupesStrategiesResults);
 
+        // Fulfil results - remove strategies IDs from indexes and add strategy ID and name to result
+        foreach ($results as $id => $result) {
+            $results[$id] = [
+                'id' => $id,
+                'name' => isset($strategiesNames[$id]) ? $strategiesNames[$id] : null,
+                'result' => $result,
+            ];
+        }
+
         // Merge results - total score + strategies couples score
         $results = [
-            'total' => $results,
+            'total' => array_values($results),
             'couples' => $this->coupesStrategiesResults,
         ];
 
@@ -64,6 +90,7 @@ class GameService extends AbstractService
         $this->logInfo('Game finished!', [
             'userID' => $user->getId(),
             'strategiesIds' => $strategiesIds,
+            'rounds' => $this->roundsCount,
             'results' => $results,
         ]);
 
