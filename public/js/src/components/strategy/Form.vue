@@ -61,10 +61,9 @@
 
                 Api.methods.request(url, data, method, response => {
                     if (this.isNewRecord) {
-                        this.$router.push({name: 'strategy_update', params: {id: response.id}})
-                    } else {
-                        this.$router.go(0);
+                        this.$router.replace({name: 'strategy_update', params: {id: response.id}})
                     }
+                    this.$router.go(0);
                 })
                 return false
             }

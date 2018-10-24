@@ -10,8 +10,9 @@
                 onCloseCallbackFunction: () => {  },
                 name: null,
                 steps: 0,
-                extendingChance: 70,
-                randomDecisionChance: 15,
+                extendingChance: 80,
+                randomDecisionChance: 10,
+                copyDecisionChance: 20,
                 acceptDecisionChance: 50
             }
         },
@@ -32,6 +33,7 @@
                     steps: this.steps,
                     extendingChance: this.extendingChance,
                     randomDecisionChance: this.randomDecisionChance,
+                    copyDecisionChance: this.copyDecisionChance,
                     acceptDecisionChance: this.acceptDecisionChance
                 }
                 Api.methods.request('create_random_strategy_url', data, 'POST', response => {

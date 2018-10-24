@@ -18,7 +18,7 @@ class StrategyService extends AbstractService
 {
     private $decisionsService;
     private $maxRandomDecisionsCount = 10;
-    private $chanceOfExtendingBranch = 70;
+    private $chanceOfExtendingBranch = 80;
 
     public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService)
     {
@@ -32,10 +32,11 @@ class StrategyService extends AbstractService
      * @param string|null $name
      * @param int|null $chanceOfExtendingBranch
      * @param int|null $randomDecisionChance
+     * @param int|null $copyDecisionChance
      * @param int|null $acceptDecisionChance
      * @return Strategy
      */
-    public function generateRandomStrategy(User $user, $steps = 0, $name = null, $chanceOfExtendingBranch = null, $randomDecisionChance = null, $acceptDecisionChance = null): Strategy
+    public function generateRandomStrategy(User $user, $steps = 0, $name = null, $chanceOfExtendingBranch = null, $randomDecisionChance = null, $copyDecisionChance = null, $acceptDecisionChance = null): Strategy
     {
         if (!$steps) {
             $steps = $this->faker->numberBetween(1, $this->maxRandomDecisionsCount);
@@ -48,6 +49,9 @@ class StrategyService extends AbstractService
         }
         if ($randomDecisionChance !== null) {
             $this->decisionsService->setRandomDecisionChance((int)$randomDecisionChance);
+        }
+        if ($copyDecisionChance !== null) {
+            $this->decisionsService->setCopyDecisionChance($copyDecisionChance);
         }
         if ($acceptDecisionChance !== null) {
             $this->decisionsService->setAcceptDecisionChance((int)$acceptDecisionChance);

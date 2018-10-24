@@ -22,12 +22,18 @@ class StrategyDecisionsService extends AbstractService
 
     static $allowedPortTypes = [self::PORT_TYPE_IN, self::PORT_TYPE_OUT];
 
-    private $randomDecisionChance = 15;
+    private $randomDecisionChance = 10;
+    private $copyDecisionChance = 20;
     private $acceptDecisionChance = 50;
 
     public function setRandomDecisionChance(int $chance)
     {
         $this->randomDecisionChance = $chance;
+    }
+
+    public function setCopyDecisionChance(int $chance)
+    {
+        $this->copyDecisionChance = $chance;
     }
 
     public function setAcceptDecisionChance(int $chance)
@@ -78,6 +84,9 @@ class StrategyDecisionsService extends AbstractService
         $type = null;
         if ($this->faker->boolean($this->randomDecisionChance)) {
             $type = DecisionTypeEnum::TYPE_RANDOM;
+        }
+        if ($type === null && $this->faker->boolean($this->copyDecisionChance)) {
+            $type = DecisionTypeEnum::TYPE_COPY;
         }
         if ($type === null && $this->faker->boolean($this->acceptDecisionChance)) {
             $type = DecisionTypeEnum::TYPE_ACCEPT;

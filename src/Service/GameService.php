@@ -115,7 +115,7 @@ class GameService extends AbstractService
                 }
             }
             // Using recursive function for create strategy decisions tree
-            $this->decisionsTreeForStrategies[$key][] = $this->generateDecisionsTreeRecursively($strategyDecisions);
+            $this->decisionsTreeForStrategies[$key][$strategy->getId()] = $this->generateDecisionsTreeRecursively($strategyDecisions);
         }
 
         return $this->decisionsTreeForStrategies[$key];
@@ -210,11 +210,13 @@ class GameService extends AbstractService
      * @param array $rootDecision2
      * @param array|null $decision1
      * @param array|null $decision2
+     * @param string|null $lastAnswer1
+     * @param string|null $lastAnswer2
      * @param int $round
      * @return array
      * @throws GameException
      */
-    private function makeGameWithTwoDecisionsRecursively(array $rootDecision1, array $rootDecision2, array $decision1 = null, array $decision2 = null, $round = 1): array
+    private function makeGameWithTwoDecisionsRecursively(array $rootDecision1, array $rootDecision2, array $decision1 = null, array $decision2 = null, $lastAnswer1 = null, $lastAnswer2 = null, $round = 1): array
     {
         $results = [];
 
@@ -248,14 +250,31 @@ class GameService extends AbstractService
             $results[$strategy2ID] = 0;
         }
 
-        // Get "Yes", "No" and "random" decision types
+        // Get "Yes", "No", "random" and "copy" decision types
         $yes = DecisionTypeEnum::TYPE_ACCEPT;
         $no = DecisionTypeEnum::TYPE_REFUSE;
         $random = DecisionTypeEnum::TYPE_RANDOM;
+        $copy = DecisionTypeEnum::TYPE_COPY;
+
+        // If last answers are not set - that's means that it's first round, so "copy partner action" means just "make random decision"
+        if ($lastAnswer1 === null) {
+            $lastAnswer1 = $random;
+        }
+        if ($lastAnswer2 === null) {
+            $lastAnswer2 = $random;
+        }
 
         // Get types for both decisions
         $answer1 = $decision1['type'];
         $answer2 = $decision2['type'];
+
+        // If first answer is "copy partner action" - that's means that we will copy partner last action
+        if ($answer1 === $copy) {
+            $answer1 = $lastAnswer2;
+        }
+        if ($answer2 === $copy) {
+            $answer2 = $lastAnswer1;
+        }
 
         // If one of answers is random - set for it "Yes" or "No" by random
         if ($answer1 === $random) {
@@ -308,7 +327,7 @@ class GameService extends AbstractService
         $round++;
 
         // Play next decisions and sum results fro each strategy - recursively
-        $nextResults = $this->makeGameWithTwoDecisionsRecursively($rootDecision1, $rootDecision2, $nextDecision1, $nextDecision2, $round);
+        $nextResults = $this->makeGameWithTwoDecisionsRecursively($rootDecision1, $rootDecision2, $nextDecision1, $nextDecision2, $answer1, $answer2, $round);
         if (isset($nextResults[$strategy1ID])) {
             $results[$strategy1ID] += $nextResults[$strategy1ID];
         }
@@ -325,7 +344,7 @@ class GameService extends AbstractService
      * @param array|null $stepElement
      * @return Decision[]
      */
-    private function generateDecisionsTreeRecursively(array &$decisions, array &$stepElement = []): array
+    private function generateDecisionsTreeRecursively(array &$decisions, array $stepElement = []): array
     {
         // Stop condition - when no more decisions left
         if (empty($decisions)) {
@@ -339,6 +358,7 @@ class GameService extends AbstractService
                     unset($decisions[$index]);
                     $stepElement = [
                         'strategyID' => $decision->getStrategy()->getId(),
+                        'strategyName' => $decision->getStrategy()->getName(),
                         'id' => $decision->getId(),
                         'parentID' => null,
                         'type' => $decision->getType(),
@@ -362,6 +382,7 @@ class GameService extends AbstractService
                 // Second - create child element from child decision object
                 $child = [
                     'strategyID' => $decision->getStrategy()->getId(),
+                    'strategyName' => $decision->getStrategy()->getName(),
                     'id' => $decision->getId(),
                     'parentID' => $stepElement['id'],
                     'type' => $decision->getType(),

@@ -14,11 +14,13 @@ class DecisionTypeEnum
     const TYPE_ACCEPT = 'accept';
     const TYPE_REFUSE = 'refuse';
     const TYPE_RANDOM = 'random';
+    const TYPE_COPY = 'copy';
 
     protected static $typeName = [
         self::TYPE_ACCEPT => 'Accept',
         self::TYPE_REFUSE => 'Refuse',
         self::TYPE_RANDOM => 'Random',
+        self::TYPE_COPY => 'Copy'
     ];
 
     public static function getTypeName(string $typeShortName): string
@@ -42,7 +44,7 @@ class DecisionTypeEnum
     public static function getAvailableTypes(): array
     {
         return [
-            self::TYPE_ACCEPT, self::TYPE_REFUSE, self::TYPE_RANDOM
+            self::TYPE_ACCEPT, self::TYPE_REFUSE, self::TYPE_RANDOM, self::TYPE_COPY
         ];
     }
 }

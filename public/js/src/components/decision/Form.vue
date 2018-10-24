@@ -27,6 +27,12 @@
                             color: 'blue',
                             label: 'Random',
                             shortLabel: 'R'
+                        },
+                        {
+                            type: 'copy',
+                            color: 'gray',
+                            label: 'Copy',
+                            shortLabel: 'C'
                         }
                     ],
                     children: [

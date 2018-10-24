@@ -53,6 +53,16 @@
             </b-form-group>
 
             <b-form-group
+                    label="Copy partner action decision chance:"
+                    label-for="generate_strategy_copy_decision_chance_input">
+                <b-form-input id="generate_strategy_copy_decision_chance_input"
+                      type="number"
+                      v-model="copyDecisionChance"
+                      placeholder="Enter strategy copy decision chance">
+                </b-form-input>
+            </b-form-group>
+
+            <b-form-group
                     label="Accept decision chance:"
                     label-for="generate_strategy_accept_decision_chance_input">
                 <b-form-input id="generate_strategy_accept_decision_chance_input"

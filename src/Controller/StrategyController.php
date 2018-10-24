@@ -119,6 +119,7 @@ class StrategyController extends ControllerAbstract
             $request->request->get('name'),
             $request->request->get('extendingChance'),
             $request->request->get('randomDecisionChance'),
+            $request->request->get('copyDecisionChance'),
             $request->request->get('acceptDecisionChance')
         );
 

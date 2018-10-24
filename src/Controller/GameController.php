@@ -15,7 +15,7 @@ use App\Service\GameService;
 class GameController extends ControllerAbstract
 {
     /**
-     * @Route("/game/start", name="game_start", methods={"GET"})
+     * @Route("/game/start", name="game_start", methods={"GET", "POST"})
      */
     public function start(Request $request, GameService $gameService)
     {
