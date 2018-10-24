@@ -89,6 +89,9 @@ class GameService extends AbstractService
         // Start a game!
         $results = $this->makeGameWithStrategiesRecursively($strategies, $writeCoupesStrategiesResults);
 
+        // Calculate total game sum
+        $totalSum = 0;
+
         // Fulfil results - remove strategies IDs from indexes and add strategy ID and name to result
         foreach ($results as $id => $result) {
             $results[$id] = [
@@ -96,10 +99,12 @@ class GameService extends AbstractService
                 'name' => isset($strategiesNames[$id]) ? $strategiesNames[$id] : null,
                 'result' => $result,
             ];
+            $totalSum += $result;
         }
 
         // Merge results - total score + strategies couples score
         $results = [
+            'sum' => $totalSum,
             'total' => array_values($results),
             'couples' => $this->coupesStrategiesResults,
         ];
