@@ -80,6 +80,7 @@
 
                 this.isMounted = true
             } else {
+                this.isNewRecord = true
                 this.decisionsData = {}
                 this.isMounted = true
             }
