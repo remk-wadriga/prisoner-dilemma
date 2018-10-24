@@ -389,7 +389,7 @@ class GameService extends AbstractService
      * @param array|null $stepElement
      * @return Decision[]
      */
-    private function generateDecisionsTreeRecursively(array &$decisions, array $stepElement = []): array
+    private function generateDecisionsTreeRecursively(array &$decisions, array &$stepElement = []): array
     {
         // Stop condition - when no more decisions left
         if (empty($decisions)) {
