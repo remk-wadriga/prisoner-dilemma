@@ -292,6 +292,14 @@ class GameService extends AbstractService
         $partnerSayNoNextDecision1 = isset($decision1['children'][1]) ? $decision1['children'][1] : null;
         $partnerSayYesNextDecision2 = isset($decision2['children'][0]) ? $decision2['children'][0] : null;
         $partnerSayNoNextDecision2 = isset($decision2['children'][1]) ? $decision2['children'][1] : null;
+        // If strategy in current step has only one decision for -
+        //  it means that it just has two similar decisions for both partner answers
+        if ($partnerSayNoNextDecision1 === null) {
+            $partnerSayNoNextDecision1 = $partnerSayYesNextDecision1;
+        }
+        if ($partnerSayNoNextDecision2 === null) {
+            $partnerSayNoNextDecision2 = $partnerSayYesNextDecision2;
+        }
         // Finally - next decisions...
         $nextDecision1 = $answer2 === $yes ? $partnerSayYesNextDecision1 : $partnerSayNoNextDecision1;
         $nextDecision2 = $answer1 === $yes ? $partnerSayYesNextDecision2 : $partnerSayNoNextDecision2;
