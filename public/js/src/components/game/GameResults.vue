@@ -8,7 +8,9 @@
 
             }
         },
-        props: ['results'],
+        props: {
+            results: Object
+        },
         methods: {
 
         },
