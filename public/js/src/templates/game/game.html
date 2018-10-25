@@ -1,5 +1,75 @@
-<b-col id="game_page">
-    <b-row>
-        <h4>Game game game!</h4>
+<b-col id="game_page" v-if="isReady">
+    <b-row id="game_page" v-if="isReady">
+        <b-col md="4" class="my-2">
+            <h3>Game params:</h3>
+
+            <b-form id="start_game_form" @submit="startGame">
+
+                <b-form-group
+                        label="Rounds count:"
+                        label-for="start_game_rounds_input">
+                    <b-form-input id="start_game_rounds_input"
+                                  type="number"
+                                  v-model="params.rounds">
+                    </b-form-input>
+                </b-form-group>
+
+                <b-form-group
+                        label="Bales for win:"
+                        label-for="strategy_name_input">
+                    <b-form-input id="start_game_bales_for_win_input"
+                          type="number"
+                          v-model="params.balesForWin">
+                    </b-form-input>
+                </b-form-group>
+
+                <b-form-group
+                        label="Bales for loos:"
+                        label-for="strategy_bales_for_loos_input">
+                    <b-form-input id="strategy_bales_for_loos_input"
+                          type="number"
+                          v-model="params.balesForLoos">
+                    </b-form-input>
+                </b-form-group>
+
+                <b-form-group
+                        label="Bales fro cooperation:"
+                        label-for="strategy_bales_for_cooperation_input">
+                    <b-form-input id="strategy_bales_for_cooperation_input"
+                          type="number"
+                          v-model="params.balesForCooperation">
+                    </b-form-input>
+                </b-form-group>
+
+                <b-form-group
+                        label="Bales fro draw:"
+                        label-for="strategy_bales_for_draw_input">
+                    <b-form-input id="strategy_bales_for_draw_input"
+                          type="number"
+                          v-model="params.balesForDraw">
+                    </b-form-input>
+                </b-form-group>
+
+                <b-form-group
+                        label="Write results for each strategies couples?"
+                        label-for="strategy_write_couples_results_checkbox">
+                    <b-form-checkbox id="strategy_write_couples_results_checkbox"
+                          v-model="writeCoupesStrategiesResults">
+                    </b-form-checkbox>
+                </b-form-group>
+
+                <b-button type="submit" variant="primary">Start</b-button>
+            </b-form>
+        </b-col>
+
+        <b-col md="8" class="my-2">
+            <div class="d-block text-center">
+                <h3>Selected strategies:</h3>
+                <b-form-group label="">
+                    <b-form-checkbox-group buttons v-model="checkedStrategiesIds" stacked :options="checkedStrategiesIdsOptions">
+                    </b-form-checkbox-group>
+                </b-form-group>
+            </div>
+        </b-col>
     </b-row>
 </b-col>
