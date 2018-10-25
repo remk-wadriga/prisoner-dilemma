@@ -37,7 +37,7 @@
                     label-for="generate_strategy_extending_chance_input">
                 <b-form-input id="generate_strategy_extending_chance_input"
                       type="number"
-                      v-model="extendingChance"
+                      v-model="params.chanceOfExtendingBranch"
                       placeholder="Enter strategy extending branch chance">
                 </b-form-input>
             </b-form-group>
@@ -47,7 +47,7 @@
                     label-for="generate_strategy_random_decision_chance_input">
                 <b-form-input id="generate_strategy_random_decision_chance_input"
                       type="number"
-                      v-model="randomDecisionChance"
+                      v-model="params.randomDecisionChance"
                       placeholder="Enter strategy random decision chance">
                 </b-form-input>
             </b-form-group>
@@ -57,7 +57,7 @@
                     label-for="generate_strategy_copy_decision_chance_input">
                 <b-form-input id="generate_strategy_copy_decision_chance_input"
                       type="number"
-                      v-model="copyDecisionChance"
+                      v-model="params.copyDecisionChance"
                       placeholder="Enter strategy copy decision chance">
                 </b-form-input>
             </b-form-group>
@@ -67,7 +67,7 @@
                     label-for="generate_strategy_accept_decision_chance_input">
                 <b-form-input id="generate_strategy_accept_decision_chance_input"
                       type="number"
-                      v-model="acceptDecisionChance"
+                      v-model="params.acceptDecisionChance"
                       placeholder="Enter strategy accept decision chance">
                 </b-form-input>
             </b-form-group>

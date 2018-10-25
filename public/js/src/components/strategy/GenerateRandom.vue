@@ -10,10 +10,12 @@
                 onCloseCallbackFunction: () => {  },
                 name: null,
                 steps: 0,
-                extendingChance: 80,
-                randomDecisionChance: 10,
-                copyDecisionChance: 20,
-                acceptDecisionChance: 50
+                params: {
+                    acceptDecisionChance: 50,
+                    chanceOfExtendingBranch: 70,
+                    copyDecisionChance: 30,
+                    randomDecisionChance: 20,
+                }
             }
         },
         computed: {
@@ -28,15 +30,10 @@
         },
         methods: {
             generateStrategy() {
-                const data = {
-                    name: this.name,
-                    steps: this.steps,
-                    extendingChance: this.extendingChance,
-                    randomDecisionChance: this.randomDecisionChance,
-                    copyDecisionChance: this.copyDecisionChance,
-                    acceptDecisionChance: this.acceptDecisionChance
-                }
-                Api.methods.request('create_random_strategy_url', data, 'POST', response => {
+                this.params.name = this.name
+                this.params.steps = this.steps
+
+                Api.methods.request('create_random_strategy_url', this.params, 'POST', response => {
                     this.$store.commit('selectedStrategyId', response.id)
                     this.onCloseCallback
                 })
@@ -47,6 +44,10 @@
             }
         },
         mounted() {
+            Api.methods.request('params_strategy_url', {}, 'GET', response => {
+                this.params = response
+            })
+
             this.$refs.generateStrategyModalRef.show()
         }
     }
