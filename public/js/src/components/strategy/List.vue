@@ -11,22 +11,23 @@
         data() {
             return {
                 strategies: [],
-                fields: [
-                    {
-                        key: 'name',
+                fields: {
+                    checkboxes: {
+                    },
+                    name: {
                         sortable: true
                     },
-                    {
-                        key: 'status',
+                    status: {
                         sortable: true
                     },
-                    {
-                        key: 'shortDescription',
+                    shortDescription: {
                         label: 'Description',
                         sortable: false
                     },
-                    'actions',
-                ],
+                    actions: {
+                        label: 'Actions'
+                    },
+                },
                 deleteStrategyVisible: false,
                 viewBtnVar: 'primary',
                 updateBtnVar: 'success',
@@ -36,7 +37,17 @@
                 currentPage: 1,
                 perPage: 10,
                 totalRows: 0,
+                checkedStrategiesIds: {},
+                allStrategiesSelected: false,
+                checkedStrategiesIdsArray: []
             }
+        },
+        watch: {
+            allStrategiesSelected() {
+                this.strategies.forEach(item => {
+                    this.checkedStrategiesIds[item.id] = this.allStrategiesSelected
+                })
+            },
         },
         methods: {
             selectedStrategy(id) {
@@ -65,11 +76,21 @@
                 // Trigger pagination to update the number of buttons/pages due to filtering
                 this.totalRows = filteredItems.length
                 this.currentPage = 1
+            },
+            startGame() {
+                this.checkedStrategiesIdsArray = []
+                this.strategies.forEach(strategy => {
+                    if (this.checkedStrategiesIds[strategy.id] === true) {
+                        this.checkedStrategiesIdsArray.push(strategy.id)
+                    }
+                })
+                console.log(this.checkedStrategiesIdsArray)
             }
         },
         mounted() {
             Api.methods.request('app_homepage', {}, 'GET', response => {
                 response.forEach(item => {
+                    this.checkedStrategiesIds[item.id] = false
                     item.shortDescription = item.description.substring(0, 150) + '...'
                     this.totalRows++
                 })

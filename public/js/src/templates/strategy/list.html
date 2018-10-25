@@ -29,23 +29,36 @@
     <b-row>
         <b-col md="4" class="my-2">
             <b-form-group horizontal label="Per page" class="mb-0">
-                <b-form-select :options="[5, 10, 15]" v-model="perPage" />
+                <b-form-select :options="[5, 10, 15, {value: 10000, text: 'All'}]" v-model="perPage" />
             </b-form-group>
+        </b-col>
+        <b-col md="4" class="my-2">
+            <b-button :variant="viewBtnVar" size="md" @click="startGame" class="mr-1">
+                Start game with selected strategies (all if nothing selected)
+            </b-button>
         </b-col>
     </b-row>
 
     <b-row>
         <b-col md="12" class="my-2">
             <b-table
-                    striped hover
-                    stacked="md"
-                    :items="strategies"
-                    :fields="fields"
-                    :filter="filter"
-                    :current-page="currentPage"
-                    :per-page="perPage"
-                    @filtered="onFiltered"
+                striped hover
+                stacked="md"
+                :items="strategies"
+                :fields="fields"
+                :filter="filter"
+                :current-page="currentPage"
+                :per-page="perPage"
+                @filtered="onFiltered"
             >
+                <template slot="HEAD_checkboxes" slot-scope="data">
+                    <b-form-checkbox v-model="allStrategiesSelected" @click.native.stop />
+                </template>
+                <template slot="checkboxes" slot-scope="row">
+                    <!--<b-form-checkbox @change="checkStrategy(row.item.id)" v-model="checkedStrategiesIds" />-->
+                    <!--<b-form-checkbox :id="'strategy_row_checkbox_' + row.item.id" :value="row.item.id" v-model="checkedStrategyId" />-->
+                    <b-form-checkbox v-model="checkedStrategiesIds[row.item.id]" />
+                </template>
                 <template slot="actions" slot-scope="row">
                     <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
                     <b-button :variant="viewBtnVar" size="sm" @click.stop="selectedStrategy(row.item.id)" class="mr-1">
