@@ -4,10 +4,11 @@
     import Vue from 'vue'
     import Api from '@/helpers/Api'
     import DeleteStrategy from '@/components/strategy/Delete.vue'
+    import StartGameModal from '@/components/game/StartModal.vue'
 
     export default {
         name: "StrategyList",
-        components: { DeleteStrategy },
+        components: { DeleteStrategy, StartGameModal },
         data() {
             return {
                 strategies: [],
@@ -39,7 +40,8 @@
                 totalRows: 0,
                 checkedStrategiesIds: {},
                 allStrategiesSelected: false,
-                checkedStrategiesIdsArray: []
+                checkedStrategies: [],
+                startGameVisible: false
             }
         },
         watch: {
@@ -77,14 +79,26 @@
                 this.totalRows = filteredItems.length
                 this.currentPage = 1
             },
-            startGame() {
-                this.checkedStrategiesIdsArray = []
+            openStartGameModal() {
+                this.checkedStrategies = []
                 this.strategies.forEach(strategy => {
                     if (this.checkedStrategiesIds[strategy.id] === true) {
-                        this.checkedStrategiesIdsArray.push(strategy.id)
+                        this.checkedStrategies.push(strategy)
                     }
                 })
-                console.log(this.checkedStrategiesIdsArray)
+                if (this.checkedStrategies.length === 0) {
+                    this.checkedStrategies = this.strategies
+                }
+
+                StartGameModal.computed.onStartCallback = () => {
+                    this.$store.commit('setCheckedStrategies', this.checkedStrategies)
+                    this.$router.push({name: 'game_start'})
+                }
+
+                this.startGameVisible = true
+            },
+            changeCheckedStrategies(data) {
+                this.checkedStrategies = data
             }
         },
         mounted() {
@@ -100,6 +114,7 @@
                 this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}])
                 this.$store.commit('setPageTopButtons', [{title: 'Create new strategy', type: 'success', click: {url: {name: 'strategy_create'}}}])
                 this.$store.commit('selectedStrategyId', null)
+                this.$store.commit('setCheckedStrategies', [])
             })
         }
     }

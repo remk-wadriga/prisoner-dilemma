@@ -41,6 +41,15 @@ class StrategyDecisionsService extends AbstractService
         $this->acceptDecisionChance = $chance;
     }
 
+    public function getParams()
+    {
+        return [
+            'randomDecisionChance' => $this->randomDecisionChance,
+            'copyDecisionChance' => $this->copyDecisionChance,
+            'acceptDecisionChance' => $this->acceptDecisionChance,
+        ];
+    }
+
     /**
      * @param Strategy $strategy
      * @return array|null

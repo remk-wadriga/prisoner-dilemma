@@ -1,0 +1,20 @@
+<div id="start_game_modal">
+    <b-modal
+            title="Start a tame"
+            ref="startGameRef"
+            @ok="startGame"
+            @cancel="close"
+            ok-title="Start"
+            cancel-title="Cancel"
+            ok-variant="danger"
+            cancel-variant="primary"
+    >
+        <div class="d-block text-center">
+            <h3>Are yuo sure you want to start game with selected strategies?</h3>
+            <b-form-group label="Checked strategies:">
+                <b-form-checkbox-group buttons v-model="checkedStrategiesIds" stacked :options="checkedStrategiesIdsOptions">
+                </b-form-checkbox-group>
+            </b-form-group>
+        </div>
+    </b-modal>
+</div>

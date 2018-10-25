@@ -18,6 +18,8 @@ const Api = {
             'strategy_url': '/strategy/:id',
             'strategy_create_url': '/strategy',
             'create_random_strategy_url': '/strategy/random',
+            'start_game_url': '/game/start',
+            'params_game_url': '/params/game',
         }
     },
     methods: {

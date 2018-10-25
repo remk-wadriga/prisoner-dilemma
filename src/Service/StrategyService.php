@@ -26,6 +26,14 @@ class StrategyService extends AbstractService
         $this->decisionsService = $decisionsService;
     }
 
+    public function getParams()
+    {
+        return array_merge([
+            'maxRandomDecisionsCount' => $this->maxRandomDecisionsCount,
+            'chanceOfExtendingBranch' => $this->chanceOfExtendingBranch,
+        ], $this->decisionsService->getParams());
+    }
+
     /**
      * @param User $user
      * @param int $steps

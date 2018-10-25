@@ -35,7 +35,8 @@ export default new Vuex.Store({
             ]
         },
         strategy: {
-            selectedId: null
+            selectedId: null,
+            checked: []
         }
     },
     mutations: {
@@ -73,6 +74,9 @@ export default new Vuex.Store({
         },
         selectedStrategyId(state, strategyId) {
             state.strategy.selectedId = strategyId
+        },
+        setCheckedStrategies(state, strategies) {
+            state.strategy.checked = strategies
         }
     }
 })
