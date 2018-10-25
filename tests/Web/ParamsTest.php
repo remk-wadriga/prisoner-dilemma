@@ -10,6 +10,7 @@ namespace App\Tests\Web;
 
 use App\Tests\AbstractApiTestCase;
 use App\Tests\ApiResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class ParamsTest extends AbstractApiTestCase
 {
@@ -42,6 +43,9 @@ class ParamsTest extends AbstractApiTestCase
 
     private function checkIsResponseContains(ApiResponse $response, array $params, string $message = '')
     {
+        $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
+            sprintf('%s expected http response code is %s, %s given', $message, Response::HTTP_OK, $response->getStatus()));
+
         foreach ($params as $key) {
             $this->assertArrayHasKey($key, $response->getData(),
                 sprintf('%s Response not contains param "%s". Response is: "%s"', $message, $key, $response->getContent()));
