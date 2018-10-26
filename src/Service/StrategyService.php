@@ -89,6 +89,11 @@ class StrategyService extends AbstractService
      */
     public function parseDecisionsData(Strategy $strategy)
     {
+        // If strategy decisions are not changed - we have nothing to do
+        if ($strategy->getDecisionsData() === null) {
+            return;
+        }
+
         // Remove old decisions
         /** @var DecisionRepository $repository */
         $repository = $this->entityManager->getRepository(Decision::class);

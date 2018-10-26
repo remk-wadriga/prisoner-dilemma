@@ -44,7 +44,7 @@ class StrategyCrudTest extends AbstractApiTestCase
         $user = $this->user;
 
         // 2. Get strategy and create new params for it. But if user has no one strategies - we just have nothing to test yet
-        $strategy = $this->getUserStrategy();
+        $strategy = $this->findStrategy();
         if ($strategy === null) {
             return;
         }
@@ -123,7 +123,7 @@ class StrategyCrudTest extends AbstractApiTestCase
         $user = $this->user;
 
         // 2. Get current users strategy and send request. But if user has no one strategies - we just have nothing to test yet
-        $strategy = $this->getUserStrategy();
+        $strategy = $this->findStrategy();
         if ($strategy === null) {
             return;
         }
@@ -140,58 +140,7 @@ class StrategyCrudTest extends AbstractApiTestCase
         $this->checkNotOwnStrategyResponse($response, 'show another user strategy');
 
     }
-
-    public function testDeleteAction()
-    {
-        // 1. Get User and login him and remember user strategies count
-        $this->logInAsUser();
-        $user = $this->user;
-        $userStrategiesCount = $user->getStrategies()->count();
-
-        // 2. Get some user strategy, remember it prams and try to delete it. But if user has no one strategies - we just have nothing to test yet
-        $strategy = $this->getUserStrategy();
-        if ($strategy === null) {
-            return;
-        }
-        $strategyParams = [
-            'name' => $strategy->getName(),
-            'description' => $strategy->getDescription(),
-            'status' => $strategy->getStatus(),
-        ];
-        $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
-        // Check request
-        $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
-            sprintf('Wrong test "delete strategy" response format, status code must be equal to %s, but it is not. It is: %s. The content is: %s',
-                Response::HTTP_OK,  $response->getStatus(), $response->getContent()));
-        $this->assertContains('OK', $response->getContent(),
-            'Wrong test "delete strategy" response format, response must contains "OK" string, but it is not. It is: %s.', $response->getContent());
-        // Check data - user mustn`t have this strategy and user`s strategies count mus be equals to "oldCount - 1"
-        $this->assertFalse($user->getStrategies()->contains($strategy), sprintf('Test "delete strategy" is failed: user #%s steel has the strategy #%s',
-            $user->getId(), $strategy->getId()));
-        $this->assertEquals($user->getStrategies()->count(), $userStrategiesCount - 1,
-            sprintf('Test "delete strategy" is failed: user #%s steel has a %s strategies, but he should have %s after deleting the one',
-                $user->getId(), $userStrategiesCount, $userStrategiesCount - 1));
-
-        // 3. Try do delete strategy of some different user. But if it`s no other users strategies yet, we just have nothing to test yet
-        $strategy = $this->getNotUserStrategy();
-        if ($strategy === null) {
-            return;
-        }
-        $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
-        $this->checkNotOwnStrategyResponse($response, 'delete not own strategy');
-
-        // 4. Create the same strategy again
-        $strategy = new Strategy();
-        $user = $this->entityManager->getRepository(User::class)->find($user->getId());
-        $strategy
-            ->setUser($user)
-            ->setName($strategyParams['name'])
-            ->setDescription($strategyParams['description'])
-            ->setStatus($strategyParams['status']);
-        $this->entityManager->persist($strategy);
-        $this->entityManager->flush();
-    }
-
+    
     public function testGenerateRandomAction()
     {
         // 1. Login user
@@ -227,6 +176,51 @@ class StrategyCrudTest extends AbstractApiTestCase
         // 6. If we are here, it means that everything is correct, so, we can delete this test strategy
         $this->entityManager->remove($strategy);
         $this->entityManager->flush();
+    }
+
+    public function testDeleteAction()
+    {
+        // 1. Get User and login him and remember user strategies count
+        $this->logInAsUser();
+        $user = $this->user;
+        $userStrategiesCount = $user->getStrategies()->count();
+
+        // 2. Generate new random strategy and find it it
+        $data = [
+            'steps' => 2,
+            'extendingChance' => 100,
+        ];
+        $response = $this->request('strategy_generate_random', $data, 'POST');
+        $data = $response->getData();
+        $this->assertArrayHasKey('id', $data,
+            sprintf('Test "delete strategy action" is failed: can\'t generate random strategy. Generating action response code is %s, body is %s',
+            $response->getStatus(), $response->getContent()));
+        $strategy = $this->findStrategy(null, $data['id']);
+        $this->assertNotEmpty($strategy,
+            sprintf('Test "delete strategy action" is failed: can\'t find just created strategy by ID #%s', $data['id']));
+
+        // 3. Try to delete just created strategy
+        $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
+        // Check request
+        $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
+            sprintf('Wrong test "delete strategy" response format, status code must be equal to %s, but it is not. It is: %s. The content is: %s',
+                Response::HTTP_OK,  $response->getStatus(), $response->getContent()));
+        $this->assertContains('OK', $response->getContent(),
+            'Wrong test "delete strategy" response format, response must contains "OK" string, but it is not. It is: %s.', $response->getContent());
+        // Check data - user mustn`t have this strategy and user`s strategies count mus be equals to "oldCount"
+        $this->assertFalse($user->getStrategies()->contains($strategy), sprintf('Test "delete strategy" is failed: user #%s steel has the strategy #%s',
+            $user->getId(), $strategy->getId()));
+        $this->assertEquals($user->getStrategies()->count(), $userStrategiesCount,
+            sprintf('Test "delete strategy" is failed: user #%s has a %s strategies, but he should have %s after deleting a new one',
+                $user->getId(), $userStrategiesCount, $userStrategiesCount));
+
+        // 3. Try do delete strategy of some different user. But if it`s no other users strategies yet, we just have nothing to test yet
+        $strategy = $this->getNotUserStrategy();
+        if ($strategy === null) {
+            return;
+        }
+        $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
+        $this->checkNotOwnStrategyResponse($response, 'delete not own strategy');
     }
 
     private function createStrategyDataArray(string $name = null, string $description = null, string $status = null)
@@ -314,7 +308,7 @@ class StrategyCrudTest extends AbstractApiTestCase
                 $testKeysID,'not found', $data['error']['message'], json_encode($data['error'])));
     }
 
-    private function getUserStrategy(int $userID = null): ?Strategy
+    private function findStrategy(int $userID = null, int $strategyID = null): ?Strategy
     {
         if ($userID === null && $this->user !== null) {
             $userID = $this->user->getId();
@@ -322,7 +316,13 @@ class StrategyCrudTest extends AbstractApiTestCase
         if ($userID === null) {
             return null;
         }
-        return $this->entityManager->getRepository(Strategy::class)->findOneBy(['user' => $userID]);
+        
+        if ($strategyID === null) {
+            $criteria = ['user' => $userID];
+        } else {
+            $criteria = ['id' => $strategyID];
+        }
+        return $this->entityManager->getRepository(Strategy::class)->findOneBy($criteria);
     }
 
     private function getNotUserStrategy(int $userID = null): ?Strategy
