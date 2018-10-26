@@ -8,13 +8,13 @@
 
     <b-row>
         <b-col md="12" class="my-2" v-if="winner">
-            <h4>The winner: <b>#{{ winner.id }} {{ winner.name }} ({{ winner.result }})</b></h4>
+            <h4>Winner: <b>#{{ winner.id }} {{ winner.name }} ({{ winner.result }})</b></h4>
         </b-col>
     </b-row>
 
     <b-row>
         <b-col md="12" class="my-2" v-if="looser">
-            <h4>The looser: <b>#{{ looser.id }} {{ looser.name }} ({{ looser.result }})</b></h4>
+            <h4>Looser: <b>#{{ looser.id }} {{ looser.name }} ({{ looser.result }})</b></h4>
         </b-col>
     </b-row>
 
@@ -24,18 +24,51 @@
                 <b-btn v-b-toggle.result_toggled_container class="m-1">Results</b-btn>
                 <b-collapse id="result_toggled_container" visible>
                     <b-card>
-                        <b-table striped hover :items="score"></b-table>
+                        <h4>Total results</h4>
+
+                        <b-table
+                            striped
+                            stacked="md"
+                            :items="score"
+                            :fields="fields"
+                        >
+                            <template slot="id" slot-scope="row">
+                                #{{ row.item.id }}
+                            </template>
+                            <template slot="name" slot-scope="row">
+                                <router-link :to="{name: 'strategy_update', params: {id: row.item.id}}">{{ row.item.name }}</router-link>
+                            </template>
+                            <template slot="actions" slot-scope="row" v-if="hasCouplesResults">
+                                <b-button variant="primary" size="sm" @click.stop="showIndividualResults(row.item)" class="mr-1">
+                                    ->
+                                </b-button>
+                            </template>
+                        </b-table>
                     </b-card>
                 </b-collapse>
             </div>
         </b-col>
 
         <b-col md="6" class="my-2">
-            <div v-if="couples">
-                <b-btn v-b-toggle.couples_results_toggled_container class="m-1">Couples results</b-btn>
-                <b-collapse id="couples_results_toggled_container">
+            <div v-if="individualResult.length > 0 && individualResultsStrategy">
+                <b-btn v-b-toggle.couples_results_toggled_container class="m-1">Individual results</b-btn>
+                <b-collapse id="couples_results_toggled_container" :visible="individualResult.length > 0">
                     <b-card>
-                        {{ couples }}
+                        <h4>Results for strategy #{{ individualResultsStrategy.id }} ({{ individualResultsStrategy.name }})</h4>
+
+                        <b-table
+                            striped
+                            stacked="md"
+                            :items="individualResult"
+                            :fields="individualResultFields"
+                        >
+                            <template slot="id" slot-scope="row">
+                                #{{ row.item.id }}
+                            </template>
+                            <template slot="name" slot-scope="row">
+                                <router-link :to="{name: 'strategy_update', params: {id: row.item.id}}">{{ row.item.name }}</router-link>
+                            </template>
+                        </b-table>
                     </b-card>
                 </b-collapse>
             </div>

@@ -7,16 +7,103 @@
             return {
                 sum: 0,
                 score: [],
-                couples: [],
+                hasCouplesResults: false,
+                strategies: {},
                 winner: null,
-                looser: null
+                looser: null,
+                fields: {
+                    id: {
+                        sortable: true
+                    },
+                    name: {
+                        sortable: true
+                    },
+                    result: {
+                        sortable: true
+                    },
+                    actions: {
+                        label: 'Individual results'
+                    }
+                },
+                individualResultFields: {
+                    id: {
+                        sortable: true
+                    },
+                    name: {
+                        sortable: true
+                    },
+                    strategyResult: {
+                        label: 'Res',
+                        sortable: true
+                    },
+                    partnerResult: {
+                        label: 'Partner res',
+                        sortable: true
+                    }
+                },
+                individualResults: {},
+                individualResult: [],
+                individualResultsStrategy: null
             }
         },
         props: {
             results: Object
         },
         methods: {
+            showIndividualResults (strategy) {
+                this.individualResultsStrategy = strategy
+                let id = strategy.id
 
+                if (this.individualResults[id] !== undefined) {
+                    this.individualResult = this.individualResults[id]
+                    return
+                }
+                if (!this.hasCouplesResults || this.strategies[id] === undefined) {
+                    return
+                }
+
+                this.individualResults[id] = []
+
+                Object.keys(this.results.results.couples).forEach(key => {
+                    if (!key.split(':').includes(id.toString())) {
+                        return
+                    }
+
+                    let coupleResult = this.results.results.couples[key]
+                    let strategy, partner = null
+                    Object.keys(coupleResult).forEach(index => {
+                        if (index == id) {
+                            if (this.strategies[index] === undefined) {
+                                return
+                            }
+                            strategy = {
+                                id: this.strategies[index].id,
+                                name: this.strategies[index].name,
+                                result: coupleResult[index]
+                            }
+                        } else {
+                            if (this.strategies[index] === undefined) {
+                                return
+                            }
+                            partner = {
+                                id: this.strategies[index].id,
+                                name: this.strategies[index].name,
+                                result: coupleResult[index]
+                            }
+                        }
+                    })
+
+                    this.individualResults[id].push({
+                        id: partner.id,
+                        name: partner.name,
+                        strategyResult: strategy.result,
+                        partnerResult: partner.result
+                    })
+                })
+
+                this.individualResults[id].sort((one, due) => { return one.strategyResult < due.strategyResult ? 1 : 0 })
+                this.individualResult = this.individualResults[id]
+            }
         },
         mounted() {
             if (this.results != null && this.results.results !== undefined) {
@@ -26,9 +113,6 @@
                 if (this.results.results.total !== undefined) {
                     this.score = this.results.results.total
                     this.score.sort((one, due) => { return one.result < due.result ? 1 : 0 })
-                }
-                if (this.results.results.couples !== undefined) {
-                    let tmpCoupleResIds = []
                     this.score.forEach(res => {
                         if (this.winner === null || this.winner.result < res.result) {
                             this.winner = res
@@ -36,30 +120,11 @@
                         if (this.looser === null || this.looser.result > res.result) {
                             this.looser = res
                         }
-
-                        for (let index in this.results.results.couples) {
-                            if (!tmpCoupleResIds.includes(index)) {
-                                tmpCoupleResIds.push(index)
-
-                                let coupleRes = this.results.results.couples[index]
-                                let tmpCoupleRes = []
-
-                                index.split(':').forEach((id) => {
-                                    if (coupleRes[id] !== undefined) {
-                                        tmpCoupleRes.push({
-                                            id: id,
-                                            name: res.name,
-                                            result: coupleRes[id]
-                                        })
-                                    }
-                                })
-
-                                if (tmpCoupleRes.length === 2) {
-                                    this.couples.push(tmpCoupleRes)
-                                }
-                            }
-                        }
+                        this.strategies[res.id] = res
                     })
+                }
+                if (this.results.results.couples !== undefined) {
+                    this.hasCouplesResults = Object.keys(this.results.results.couples).length > 0
                 }
             }
         }

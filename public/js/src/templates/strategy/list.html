@@ -55,8 +55,6 @@
                     <b-form-checkbox v-model="allStrategiesSelected" @click.native.stop />
                 </template>
                 <template slot="checkboxes" slot-scope="row">
-                    <!--<b-form-checkbox @change="checkStrategy(row.item.id)" v-model="checkedStrategiesIds" />-->
-                    <!--<b-form-checkbox :id="'strategy_row_checkbox_' + row.item.id" :value="row.item.id" v-model="checkedStrategyId" />-->
                     <b-form-checkbox v-model="checkedStrategiesIds[row.item.id]" />
                 </template>
                 <template slot="actions" slot-scope="row">
