@@ -79,7 +79,6 @@ class GameService extends AbstractService
             'strategiesIds' => $strategiesIds,
             'params' => $this->getParams(),
         ]);
-
         // Remember strategies names
         $strategiesNames = [];
         foreach ($strategies as $strategy) {
@@ -165,7 +164,10 @@ class GameService extends AbstractService
                 }
             }
             // Using recursive function for create strategy decisions tree
-            $this->decisionsTreeForStrategies[$key][$strategy->getId()] = $this->generateDecisionsTreeRecursively($strategyDecisions);
+            $strategyDecisions = $this->generateDecisionsTreeRecursively($strategyDecisions);
+            if (!empty($strategyDecisions)) {
+                $this->decisionsTreeForStrategies[$key][$strategy->getId()] = $strategyDecisions;
+            }
         }
 
         return $this->decisionsTreeForStrategies[$key];
