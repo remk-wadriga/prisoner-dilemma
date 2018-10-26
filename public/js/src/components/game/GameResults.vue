@@ -101,7 +101,7 @@
                     })
                 })
 
-                this.individualResults[id].sort((one, due) => { return one.strategyResult < due.strategyResult ? 1 : 0 })
+                this.individualResults[id].sort((one, due) => one.strategyResult < due.strategyResult ? 1 : 0)
                 this.individualResult = this.individualResults[id]
             }
         },
@@ -112,16 +112,16 @@
                 }
                 if (this.results.results.total !== undefined) {
                     this.score = this.results.results.total
-                    this.score.sort((one, due) => { return one.result < due.result ? 1 : 0 })
-                    this.score.forEach(res => {
-                        if (this.winner === null || this.winner.result < res.result) {
-                            this.winner = res
-                        }
-                        if (this.looser === null || this.looser.result > res.result) {
-                            this.looser = res
-                        }
-                        this.strategies[res.id] = res
-                    })
+                    this.score.sort((one, due) => one.result < due.result ? 1 : 0)
+                        .forEach(res => {
+                            if (this.winner === null || this.winner.result < res.result) {
+                                this.winner = res
+                            }
+                            if (this.looser === null || this.looser.result > res.result) {
+                                this.looser = res
+                            }
+                            this.strategies[res.id] = res
+                        })
                 }
                 if (this.results.results.couples !== undefined) {
                     this.hasCouplesResults = Object.keys(this.results.results.couples).length > 0
