@@ -40,7 +40,7 @@ class GameController extends ControllerAbstract
                 $request->request->get('balesForDraw'),
                 (bool)$request->request->get('writeIndividualResults', true));
         } catch (GameException $e) {
-            throw new HttpException(sprintf('The game is failed: %s', $e->getMessage()), 0, $e);
+            throw new HttpException('Game is failed', 0, $e);
         }
 
 
