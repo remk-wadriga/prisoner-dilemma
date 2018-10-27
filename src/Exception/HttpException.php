@@ -22,7 +22,6 @@ class HttpException extends BaseHttpException
 
     public function __construct(?string $message = null, int $code, \Exception $previous = null, array $headers = [])
     {
-
         if ($previous !== null && $previous instanceof StrategyException) {
             if ($code === 0) {
                 $code = $previous->getCode();
@@ -50,6 +49,12 @@ class HttpException extends BaseHttpException
                 $statusCode = Response::HTTP_FORBIDDEN;
                 break;
             case StrategyException::CODE_INVALID_PARAMS:
+                $statusCode = Response::HTTP_BAD_REQUEST;
+                break;
+            case GameException::CODE_GAME_IMPOSSIBLE:
+                $statusCode = Response::HTTP_BAD_REQUEST;
+                break;
+            case GameException::CODE_STRATEGIES_NOT_FOUND:
                 $statusCode = Response::HTTP_BAD_REQUEST;
                 break;
             default:

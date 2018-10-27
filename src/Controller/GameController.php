@@ -11,6 +11,8 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\GameService;
+use App\Exception\HttpException;
+use App\Exception\GameException;
 
 class GameController extends ControllerAbstract
 {
@@ -29,13 +31,18 @@ class GameController extends ControllerAbstract
         }
 
         // Play game with all selected (or just all enabled user strategies) and get results
-        $results = $gameService->runGame($user, $strategiesIds,
-            $request->request->get('rounds'),
-            $request->request->get('balesForWin'),
-            $request->request->get('balesForLoos'),
-            $request->request->get('balesForCooperation'),
-            $request->request->get('balesForDraw'),
-            (bool)$request->request->get('writeCoupesStrategiesResults', true));
+        try {
+            $results = $gameService->runGame($user, $strategiesIds,
+                $request->request->get('rounds'),
+                $request->request->get('balesForWin'),
+                $request->request->get('balesForLoos'),
+                $request->request->get('balesForCooperation'),
+                $request->request->get('balesForDraw'),
+                (bool)$request->request->get('writeIndividualResults', true));
+        } catch (GameException $e) {
+            throw new HttpException(sprintf('The game is failed: %s', $e->getMessage()), 0, $e);
+        }
+
 
         return $this->json([
             'params' => $gameService->getParams(),

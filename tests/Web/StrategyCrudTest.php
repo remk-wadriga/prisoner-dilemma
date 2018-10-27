@@ -2,11 +2,11 @@
 
 namespace App\Tests\Web;
 
+use App\Tests\AbstractApiTestCase;
 use App\Entity\Decision;
 use App\Entity\Strategy;
 use App\Entity\Types\Enum\IsEnabledEnum;
 use App\Entity\User;
-use App\Tests\AbstractApiTestCase;
 use App\Exception\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 use App\Tests\ApiResponse;

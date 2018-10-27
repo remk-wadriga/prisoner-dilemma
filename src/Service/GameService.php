@@ -27,7 +27,7 @@ class GameService extends AbstractService
     private $balesForLoos = -10;
     private $balesForCooperation = 5;
     private $balesForDraw = 0;
-    private $coupesStrategiesResults = [];
+    private $individualResults = [];
 
     public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService)
     {
@@ -46,7 +46,7 @@ class GameService extends AbstractService
         ];
     }
 
-    public function runGame(User $user, $strategiesIds = [], int $roundsCount = null, int $balesForWin = null, int $balesForLoos = null, int $balesForCooperation = null, int $balesForDraw = null, bool $writeCoupesStrategiesResults = true): array
+    public function runGame(User $user, $strategiesIds = [], int $roundsCount = null, int $balesForWin = null, int $balesForLoos = null, int $balesForCooperation = null, int $balesForDraw = null, bool $writeIndividualResults = true): array
     {
         // Create a decisions tree for all strategies (array indexed by strategies Ids)
         $strategies = $this->createDecisionsTreeByStrategiesIds($user, $strategiesIds);
@@ -86,7 +86,7 @@ class GameService extends AbstractService
         }
 
         // Start a game!
-        $results = $this->makeGameWithStrategiesRecursively($strategies, $writeCoupesStrategiesResults);
+        $results = $this->makeGameWithStrategiesRecursively($strategies, $writeIndividualResults);
 
         // Calculate total game sum
         $totalSum = 0;
@@ -105,7 +105,7 @@ class GameService extends AbstractService
         $results = [
             'sum' => $totalSum,
             'total' => array_values($results),
-            'couples' => $this->coupesStrategiesResults,
+            'individual' => $this->individualResults,
         ];
 
         // Write "game finished" log
@@ -176,11 +176,11 @@ class GameService extends AbstractService
 
     /**
      * @param array $strategies
-     * @param bool $writeCoupesStrategiesResults
+     * @param bool $writeIndividualResults
      * @return array
      * @throws GameException
      */
-    private function makeGameWithStrategiesRecursively(array &$strategies, $writeCoupesStrategiesResults = true): array
+    private function makeGameWithStrategiesRecursively(array &$strategies, $writeIndividualResults = true): array
     {
         $results = [];
 
@@ -222,29 +222,15 @@ class GameService extends AbstractService
             }
 
             // Write couples of strategies results
-            if ($writeCoupesStrategiesResults) {
-                // Add results in couples of strategies results array
-                $coupleResultsKey = $strategy1ID . ':' . $strategy2ID;
-                if (!isset($this->coupesStrategiesResults[$coupleResultsKey])) {
-                    $this->coupesStrategiesResults[$coupleResultsKey] = [];
-                }
-                if (!isset($this->coupesStrategiesResults[$coupleResultsKey][$strategy1ID])) {
-                    $this->coupesStrategiesResults[$coupleResultsKey][$strategy1ID] = 0;
-                }
-                if (!isset($this->coupesStrategiesResults[$coupleResultsKey][$strategy2ID])) {
-                    $this->coupesStrategiesResults[$coupleResultsKey][$strategy2ID] = 0;
-                }
-                if (isset($currentResults[$strategy1ID])) {
-                    $this->coupesStrategiesResults[$coupleResultsKey][$strategy1ID] += $currentResults[$strategy1ID];
-                }
-                if (isset($currentResults[$strategy2ID])) {
-                    $this->coupesStrategiesResults[$coupleResultsKey][$strategy2ID] += $currentResults[$strategy2ID];
-                }
+            if ($writeIndividualResults) {
+                // Add results in individual of strategies results array
+                $this->writeCoupleResultsToIndividualStrategyResults($currentStrategy, $nexStrategy, $currentResults);
+                $this->writeCoupleResultsToIndividualStrategyResults($nexStrategy, $currentStrategy, $currentResults);
             }
         }
 
         // Recursion - make game with strategies which are left and sum all results
-        $nextResults = $this->makeGameWithStrategiesRecursively($strategies, $writeCoupesStrategiesResults);
+        $nextResults = $this->makeGameWithStrategiesRecursively($strategies, $writeIndividualResults);
         foreach ($nextResults as $strategyID => $sum) {
             if (!isset($results[$strategyID])) {
                 $results[$strategyID] = 0;
@@ -255,6 +241,28 @@ class GameService extends AbstractService
         // Return results
         return $results;
 
+    }
+
+    private function writeCoupleResultsToIndividualStrategyResults(array $strategy1, array $strategy2, array $results)
+    {
+        $strategy1ID = $strategy1['strategyID'];
+        $strategy2ID = $strategy2['strategyID'];
+        if (!isset($results[$strategy1ID]) || !isset($results[$strategy2ID])) {
+            return;
+        }
+        if (!isset($this->individualResults[$strategy1ID])) {
+            $this->individualResults[$strategy1ID] = [];
+        }
+        if (!isset($this->individualResults[$strategy1ID][$strategy2ID])) {
+            $this->individualResults[$strategy1ID][$strategy2ID] = [
+                'result' => 0,
+                'partnerResult' => 0,
+                'partnerID' => $strategy2ID,
+                'partnerName' => $strategy2['strategyName'],
+            ];
+        }
+        $this->individualResults[$strategy1ID][$strategy2ID]['result'] += $results[$strategy1ID];
+        $this->individualResults[$strategy1ID][$strategy2ID]['partnerResult'] += $results[$strategy2ID];
     }
 
     /**
