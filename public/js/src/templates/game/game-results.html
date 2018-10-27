@@ -38,7 +38,7 @@
                             <template slot="name" slot-scope="row">
                                 <router-link :to="{name: 'strategy_update', params: {id: row.item.id}}">{{ row.item.name }}</router-link>
                             </template>
-                            <template slot="actions" slot-scope="row" v-if="hasCouplesResults">
+                            <template slot="actions" slot-scope="row" v-if="hasIndividualResults">
                                 <b-button variant="primary" size="sm" @click.stop="showIndividualResults(row.item)" class="mr-1">
                                     ->
                                 </b-button>
@@ -62,11 +62,11 @@
                             :items="individualResult"
                             :fields="individualResultFields"
                         >
-                            <template slot="id" slot-scope="row">
-                                #{{ row.item.id }}
+                            <template slot="partnerID" slot-scope="row">
+                                #{{ row.item.partnerID }}
                             </template>
-                            <template slot="name" slot-scope="row">
-                                <router-link :to="{name: 'strategy_update', params: {id: row.item.id}}">{{ row.item.name }}</router-link>
+                            <template slot="partnerName" slot-scope="row">
+                                <router-link :to="{name: 'strategy_update', params: {id: row.item.partnerID}}">{{ row.item.partnerName }}</router-link>
                             </template>
                         </b-table>
                     </b-card>

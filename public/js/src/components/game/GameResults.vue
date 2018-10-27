@@ -7,7 +7,7 @@
             return {
                 sum: 0,
                 score: [],
-                hasCouplesResults: false,
+                hasIndividualResults: false,
                 strategies: {},
                 winner: null,
                 looser: null,
@@ -26,13 +26,15 @@
                     }
                 },
                 individualResultFields: {
-                    id: {
+                    partnerID: {
+                        label: 'Id',
                         sortable: true
                     },
-                    name: {
+                    partnerName: {
+                        label: 'Name',
                         sortable: true
                     },
-                    strategyResult: {
+                    result: {
                         label: 'Res',
                         sortable: true
                     },
@@ -41,8 +43,8 @@
                         sortable: true
                     }
                 },
-                individualResults: {},
                 individualResult: [],
+                individualResults: {},
                 individualResultsStrategy: null
             }
         },
@@ -51,58 +53,12 @@
         },
         methods: {
             showIndividualResults (strategy) {
-                this.individualResultsStrategy = strategy
-                let id = strategy.id
-
-                if (this.individualResults[id] !== undefined) {
-                    this.individualResult = this.individualResults[id]
-                    return
+                if (this.individualResults[strategy.id] !== undefined) {
+                    this.individualResultsStrategy = strategy
+                    this.individualResult = this.individualResults[strategy.id]
+                } else {
+                    this.individualResultsStrategy = null
                 }
-                if (!this.hasCouplesResults || this.strategies[id] === undefined) {
-                    return
-                }
-
-                this.individualResults[id] = []
-
-                Object.keys(this.results.results.couples).forEach(key => {
-                    if (!key.split(':').includes(id.toString())) {
-                        return
-                    }
-
-                    let coupleResult = this.results.results.couples[key]
-                    let strategy, partner = null
-                    Object.keys(coupleResult).forEach(index => {
-                        if (index == id) {
-                            if (this.strategies[index] === undefined) {
-                                return
-                            }
-                            strategy = {
-                                id: this.strategies[index].id,
-                                name: this.strategies[index].name,
-                                result: coupleResult[index]
-                            }
-                        } else {
-                            if (this.strategies[index] === undefined) {
-                                return
-                            }
-                            partner = {
-                                id: this.strategies[index].id,
-                                name: this.strategies[index].name,
-                                result: coupleResult[index]
-                            }
-                        }
-                    })
-
-                    this.individualResults[id].push({
-                        id: partner.id,
-                        name: partner.name,
-                        strategyResult: strategy.result,
-                        partnerResult: partner.result
-                    })
-                })
-
-                this.individualResults[id].sort((one, due) => one.strategyResult < due.strategyResult ? 1 : 0)
-                this.individualResult = this.individualResults[id]
             }
         },
         mounted() {
@@ -123,8 +79,14 @@
                             this.strategies[res.id] = res
                         })
                 }
-                if (this.results.results.couples !== undefined) {
-                    this.hasCouplesResults = Object.keys(this.results.results.couples).length > 0
+                if (this.results.results.individual !== undefined) {
+                    Object.keys(this.results.results.individual).forEach(id => {
+                        this.individualResults[id] = []
+                        Object.keys(this.results.results.individual[id]).forEach(partnerID => {
+                            this.individualResults[id].push(this.results.results.individual[id][partnerID])
+                        })
+                    })
+                    this.hasIndividualResults = Object.keys(this.individualResults).length > 0
                 }
             }
         }
