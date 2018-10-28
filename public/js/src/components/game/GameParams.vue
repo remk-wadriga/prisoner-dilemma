@@ -50,19 +50,30 @@
             this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}, {title: 'Game', url: 'game_start'}])
             this.$store.commit('setPageTopButtons', [])
 
-            Api.methods.request('params_game_url', {}, 'GET', response => {
-                this.params = response
+            let getPramsCallback = () => {
+                Api.methods.request('params_game_url', {}, 'GET', response => {
+                    this.params = response
 
-                this.strategies.forEach(strategy => {
-                    this.checkedStrategiesIds.push(strategy.id)
-                    this.checkedStrategiesIdsOptions.push({
-                        value: strategy.id,
-                        text: strategy.name
+                    this.strategies.forEach(strategy => {
+                        this.checkedStrategiesIds.push(strategy.id)
+                        this.checkedStrategiesIdsOptions.push({
+                            value: strategy.id,
+                            text: strategy.name
+                        })
                     })
-                })
 
-                this.isReady = true
-            })
+                    this.isReady = true
+                })
+            }
+
+            if (this.strategies.length === 0) {
+                Api.methods.request('app_homepage', {}, 'GET', response => {
+                    this.strategies = response
+                    getPramsCallback()
+                })
+            } else {
+                getPramsCallback()
+            }
         }
     }
 </script>
