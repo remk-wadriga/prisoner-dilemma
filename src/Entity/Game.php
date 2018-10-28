@@ -6,9 +6,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use phpDocumentor\Reflection\Types\This;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\GameRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Game
 {
@@ -40,6 +42,8 @@ class Game
      * @ORM\OneToMany(targetEntity="App\Entity\GameResult", mappedBy="game", orphanRemoval=true)
      */
     private $gameResults;
+
+    private $resultsData;
 
     public function __construct()
     {
@@ -116,5 +120,31 @@ class Game
         }
 
         return $this;
+    }
+
+
+    public function setResultsData(array $resultsData): self
+    {
+        $this->resultsData = $resultsData;
+        return $this;
+    }
+
+    public function getResultsData(): ?array
+    {
+        return $this->resultsData;
+    }
+
+
+
+    // Lifecycle Callbacks
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function beforeCreate()
+    {
+        if ($this->getDate() === null) {
+            $this->setDate(new \DateTime());
+        }
     }
 }

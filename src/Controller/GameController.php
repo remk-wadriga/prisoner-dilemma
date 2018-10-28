@@ -8,9 +8,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Game;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\GameService;
+use App\Form\GameForm;
 use App\Exception\HttpException;
 use App\Exception\GameServiceException;
 
@@ -47,5 +49,42 @@ class GameController extends ControllerAbstract
             'params' => $gameService->getParams(),
             'results' => $results,
         ]);
+    }
+
+    /**
+     * @Route("/game", name="game_create", methods={"POST"})
+     */
+    public function create(Request $request, GameService $gameService)
+    {
+        // Create new game
+        $game = new Game();
+
+        // Process request
+        $form = $this->createJsonForm(GameForm::class, $game);
+        $this->handleJsonForm($form, $request);
+
+        // Create game related entities for "total" and "individual" results
+        try {
+            $gameService->parseResultsData($game);
+        } catch (GameServiceException $e) {
+            throw new HttpException('Can\'t create game', 0, $e);
+        }
+
+        // Save user entity
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($game);
+        $em->flush();
+
+        return $this->json($this->gameInfo($game));
+    }
+
+
+    private function gameInfo(Game $game)
+    {
+        return [
+            'id' => $game->getId(),
+            'name' => $game->getName(),
+            'description' => $game->getDescription(),
+        ];
     }
 }

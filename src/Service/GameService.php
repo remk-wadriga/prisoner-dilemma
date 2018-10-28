@@ -8,6 +8,7 @@
 
 namespace App\Service;
 
+use App\Entity\Game;
 use App\Entity\Types\Enum\DecisionTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Exception\GameServiceException;
@@ -19,6 +20,7 @@ use App\Entity\Types\Enum\IsEnabledEnum;
 class GameService extends AbstractService
 {
     private $decisionsService;
+    private $gameResultsService;
     private $decisionsTreeForStrategies = [];
 
     // Game coefficients and attributes
@@ -29,10 +31,11 @@ class GameService extends AbstractService
     private $balesForDraw = 0;
     private $individualResults = [];
 
-    public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService)
+    public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService, GameResultsService $gameResultsService)
     {
         parent::__construct($entityManager);
         $this->decisionsService = $decisionsService;
+        $this->gameResultsService = $gameResultsService;
     }
 
     public function getParams()
@@ -172,6 +175,60 @@ class GameService extends AbstractService
         }
 
         return $this->decisionsTreeForStrategies[$key];
+    }
+
+    public function parseResultsData(Game $game)
+    {
+        // If results not changed - we have nothing to do
+        if ($game->getResultsData() === null) {
+            return;
+        }
+
+        // Remove old results
+        foreach ($game->getGameResults() as $gameResult) {
+            foreach ($gameResult->getIndividualGameResults() as $individualGameResult) {
+                $gameResult->removeIndividualGameResult($individualGameResult);
+                $this->entityManager->remove($individualGameResult);
+            }
+            $game->removeGameResult($gameResult);
+            $this->entityManager->remove($gameResult);
+        }
+
+        // If new results it's empty array - just return, will be removed old results and that's all
+        if (empty($game->getResultsData())) {
+            return;
+        }
+
+
+        // If we are here, we have a new game results and should create objects and create structure
+        $resultsData = $game->getResultsData();
+        $this->checkGameResultsData($resultsData);
+
+        // Create total game results
+        foreach ($resultsData['total'] as $totalResultsData) {
+            // Create game result
+            $gameResult = $this->gameResultsService->createGameResultFromDataArray($totalResultsData);
+            $this->entityManager->persist($gameResult);
+
+            // Check is individual results exists in individual results data array
+            $strategyID = $gameResult->getStrategy()->getId();
+            if (!isset($resultsData['individual'][$strategyID])) {
+                throw new GameServiceException(
+                    sprintf('Game results data array have an incorrect structure: "total" array has #%s decision, but "individual" is not', $strategyID),
+                    GameServiceException::CODE_INVALID_PARAMS
+                );
+            }
+
+            // Create individual results and add them to game result
+            foreach ($resultsData['individual'][$strategyID] as $individualResultData) {
+                $individualResult = $this->gameResultsService->createIndividualResultFromDataArray($individualResultData);
+                $this->entityManager->persist($individualResult);
+                $gameResult->addIndividualGameResult($individualResult);
+            }
+
+            // Add game result to game
+            $game->addGameResult($gameResult);
+        }
     }
 
 
@@ -518,6 +575,22 @@ class GameService extends AbstractService
             throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "children" attribute, It must be an array, but "%s" given',
                 $decision['id'], (string)$decision['children']),
                 GameServiceException::CODE_INVALID_PARAMS);
+        }
+    }
+
+    /**
+     * Check game results data array - it must have "total" and "individual" not empty arrays attributes
+     *
+     * @param array $result
+     * @throws GameServiceException
+     */
+    private function checkGameResultsData(array $result)
+    {
+        if (!isset($result['total']) || !is_array($result['total']) || empty($result['total'])) {
+            throw new GameServiceException('Results array mus have a "total" kay and it\'s should be a not empty array', GameServiceException::CODE_INVALID_PARAMS);
+        }
+        if (!isset($result['individual']) || !is_array($result['individual']) || empty($result['individual'])) {
+            throw new GameServiceException('Results array mus have a "individual" kay and it\'s should be a not empty array', GameServiceException::CODE_INVALID_PARAMS);
         }
     }
 }
