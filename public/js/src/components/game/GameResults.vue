@@ -1,14 +1,17 @@
 <template src="@/templates/game/game-results.html" />
 
 <script>
+    import SaveGameResults from '@/components/game/SaveGameResults'
+
     export default {
         name: "GameResults",
+        components: { SaveGameResults },
         data() {
             return {
                 sum: 0,
                 score: [],
                 hasIndividualResults: false,
-                strategies: {},
+                strategies: [],
                 winner: null,
                 looser: null,
                 fields: {
@@ -45,7 +48,8 @@
                 },
                 individualResult: [],
                 individualResults: {},
-                individualResultsStrategy: null
+                individualResultsStrategy: null,
+                saveGameResultsModalVisible: false
             }
         },
         props: {
@@ -59,6 +63,12 @@
                 } else {
                     this.individualResultsStrategy = null
                 }
+            },
+            openSaveGameResultsModal () {
+                SaveGameResults.computed.onCloseCallback = () => {
+                    this.saveGameResultsModalVisible = false
+                }
+                this.saveGameResultsModalVisible = true
             }
         },
         mounted() {

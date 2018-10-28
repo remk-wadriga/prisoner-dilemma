@@ -75,4 +75,11 @@
         </b-col>
     </b-row>
 
+    <b-row>
+        <b-button variant="success" size="sm" @click="openSaveGameResultsModal" class="mr-1">
+            Save results
+        </b-button>
+    </b-row>
+
+    <SaveGameResults v-bind:totalResults="score" v-bind:individualResults="individualResults" v-if="saveGameResultsModalVisible" />
 </div>

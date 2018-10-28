@@ -1,0 +1,39 @@
+<div id="save_game_results_modal">
+    <b-modal
+            title="Save game results"
+            ref="saveGameResultsModalRef"
+            @ok="save"
+            @cancel="close"
+            ok-title="Save"
+            cancel-title="Cancel"
+            ok-variant="danger"
+            cancel-variant="primary"
+    >
+        <div class="d-block text-center">
+            <h4>Set game params</h4>
+
+            <b-form-group
+                    label="Game name:"
+                    label-for="save_game_results_name_input">
+                <b-form-input id="save_game_results_name_input"
+                      required
+                      type="text"
+                      v-model="params.name"
+                      placeholder="Enter a game name">
+                </b-form-input>
+            </b-form-group>
+
+            <b-form-group
+                    label="Game description:"
+                    label-for="save_game_results_description_input">
+                <b-form-textarea id="save_game_results_description_input"
+                     v-model="params.description"
+                     :rows="3"
+                     :max-rows="6"
+                     placeholder="Enter a game description">
+                </b-form-textarea>
+            </b-form-group>
+
+        </div>
+    </b-modal>
+</div>
