@@ -12,7 +12,7 @@ class StrategyFixture extends AbstractFixture  implements DependentFixtureInterf
 {
     protected function loadData(ObjectManager $manager)
     {
-        $this->createMany(Strategy::class, 10, function (Strategy $strategy, int $i) use ($manager) {
+        $this->createMany(Strategy::class, 50, function (Strategy $strategy, int $i) use ($manager) {
             /** @var \App\Entity\User $user */
             $user = $this->getRandomReference(User::class);
             $strategy

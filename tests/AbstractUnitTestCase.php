@@ -14,7 +14,6 @@ use Doctrine\ORM\EntityManager;
 use Faker\Factory;
 use App\Entity\User;
 
-
 class AbstractUnitTestCase extends KernelTestCase
 {
     /**

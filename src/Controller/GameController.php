@@ -43,7 +43,6 @@ class GameController extends ControllerAbstract
             throw new HttpException('Game is failed', 0, $e);
         }
 
-
         return $this->json([
             'params' => $gameService->getParams(),
             'results' => $results,

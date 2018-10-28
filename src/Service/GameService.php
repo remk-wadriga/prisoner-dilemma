@@ -165,6 +165,7 @@ class GameService extends AbstractService
             }
             // Using recursive function for create strategy decisions tree
             $strategyDecisions = $this->generateDecisionsTreeRecursively($strategyDecisions);
+
             if (!empty($strategyDecisions)) {
                 $this->decisionsTreeForStrategies[$key][$strategy->getId()] = $strategyDecisions;
             }
@@ -410,7 +411,6 @@ class GameService extends AbstractService
         if (empty($decisions)) {
             return [];
         }
-
         // Find root element - for first step
         if (empty($stepElement)) {
             foreach ($decisions as $index => $decision) {
@@ -432,7 +432,6 @@ class GameService extends AbstractService
         if (empty($stepElement)) {
             return [];
         }
-
         // Add children to current step decision recursively
         foreach ($decisions as $index => $decision) {
             // Find the child of current decision

@@ -17,7 +17,7 @@ class AbstractApiTestCase extends WebTestCase
 {
     const STANDARD_USER = 'user@gmail.com';
     const STANDARD_OWNER = 'owner@gmail.com';
-    const STANDARD_ADMIN = 'remkwadriga2013@gmail.com';
+    const STANDARD_ADMIN = 'admin@gmail.com';
     const DEFAULT_PASSWORD = 'test';
 
     /**

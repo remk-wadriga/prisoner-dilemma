@@ -9,6 +9,7 @@
 namespace App\Tests\Web;
 
 use App\Entity\Strategy;
+use App\Entity\Types\Enum\IsEnabledEnum;
 use App\Exception\GameException;
 use App\Tests\ApiResponse;
 use App\Tests\AbstractApiTestCase;
@@ -28,7 +29,11 @@ class StrategyTest extends AbstractApiTestCase
         $strategyRepository = $this->entityManager->getRepository(Strategy::class);
         /** @var \App\Entity\Strategy[] $strategies */
         $strategies = $strategyRepository->createQueryBuilder('s')
-            ->setMaxResults($faker->numberBetween(2, 5))
+            ->andWhere('s.user = :user')
+            ->andWhere('s.status = :status_enabled')
+            ->setMaxResults($faker->numberBetween(2, 7))
+            ->setParameter('status_enabled', IsEnabledEnum::TYPE_ENABLED)
+            ->setParameter('user', $this->user)
             ->getQuery()
             ->getResult()
         ;
@@ -40,7 +45,6 @@ class StrategyTest extends AbstractApiTestCase
         foreach ($strategies as $strategy) {
             $strategiesIds[] = $strategy->getId();
         }
-
         // 3. Send "/game/start" without calculating individual results query and check the response result
         $response = $this->request('game_start', ['strategiesIds' => $strategiesIds, 'writeIndividualResults' => false], 'POST');
         $this->checkStartGameResponse($response, false, count($strategiesIds));
@@ -220,7 +224,7 @@ class StrategyTest extends AbstractApiTestCase
 
             $this->assertEquals($expectedCode, $data['error']['code'],
                 sprintf('%s. Error response code mus be %s but %s given. Error response content is %s', $message, $expectedCode, $data['error']['code'], $errorJsonData));
-            $this->assertContains('The game is failed:', $data['error']['message'],
+            $this->assertContains('Game is failed:', $data['error']['message'],
                 sprintf('%s. Error response message must contains the "The game is failed:" substring, but it\'s not. Error response message message is %s',
                     $message, $data['error']['message']));
         }
