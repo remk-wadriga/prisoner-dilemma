@@ -51,10 +51,10 @@ class HttpException extends BaseHttpException
             case StrategyException::CODE_INVALID_PARAMS:
                 $statusCode = Response::HTTP_BAD_REQUEST;
                 break;
-            case GameException::CODE_GAME_IMPOSSIBLE:
+            case GameServiceException::CODE_GAME_IMPOSSIBLE:
                 $statusCode = Response::HTTP_BAD_REQUEST;
                 break;
-            case GameException::CODE_STRATEGIES_NOT_FOUND:
+            case GameServiceException::CODE_STRATEGIES_NOT_FOUND:
                 $statusCode = Response::HTTP_BAD_REQUEST;
                 break;
             default:

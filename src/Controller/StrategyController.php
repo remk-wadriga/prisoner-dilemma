@@ -9,6 +9,8 @@
 namespace App\Controller;
 
 use App\Entity\Strategy;
+use App\Exception\StrategyException;
+use App\Exception\StrategyServiceException;
 use App\Form\StrategyForm;
 use App\Service\StrategyDecisionsService;
 use App\Service\StrategyService;
@@ -50,8 +52,15 @@ class StrategyController extends ControllerAbstract
             throw new HttpException('Strategy not found', HttpException::CODE_NOT_FOUND);
         }
 
+        // Build strategy decisions tree
+        try {
+            $decisionsData = $decisionsService->parseDecisionsData($strategy);
+        } catch (StrategyServiceException $e) {
+            throw new HttpException('Can\'t build strategy decisions tree', 0, $e);
+        }
+
         return $this->json($this->strategyInfo($strategy, [
-            'decisionsData' => $decisionsService->parseDecisionsData($strategy),
+            'decisionsData' => $decisionsData,
         ]));
     }
 
@@ -69,15 +78,26 @@ class StrategyController extends ControllerAbstract
         $this->handleJsonForm($form, $request);
 
         // Parse decisions data - it means create new decisions tree and add it to strategy
-        $strategyService->parseDecisionsData($strategy);
+        try {
+            $strategyService->parseDecisionsData($strategy);
+        } catch (StrategyServiceException $e) {
+            throw new HttpException('Can\'t parse decision data', 0, $e);
+        }
 
         // Save user entity
         $em = $this->getDoctrine()->getManager();
         $em->persist($strategy);
         $em->flush();
 
+        // Build strategy decisions tree
+        try {
+            $decisionsData = $decisionsService->parseDecisionsData($strategy);
+        } catch (StrategyServiceException $e) {
+            throw new HttpException('Can\'t build strategy decisions tree', 0, $e);
+        }
+
         return $this->json($this->strategyInfo($strategy, [
-            'decisionsData' => $decisionsService->parseDecisionsData($strategy),
+            'decisionsData' => $decisionsData,
         ]));
     }
 
@@ -98,7 +118,11 @@ class StrategyController extends ControllerAbstract
 
         // Parse decisions data - it means delete old strategy decisions tree,
         //  create new decisions tree and add it to strategy
-        $strategyService->parseDecisionsData($strategy);
+        try {
+            $strategyService->parseDecisionsData($strategy);
+        } catch (StrategyServiceException $e) {
+            throw new HttpException('Can\'t parse decision data', 0, $e);
+        }
 
         // Save user entity
         $em = $this->getDoctrine()->getManager();

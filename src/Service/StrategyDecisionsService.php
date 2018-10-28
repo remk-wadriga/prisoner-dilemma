@@ -8,12 +8,13 @@
 
 namespace App\Service;
 
-use App\Exception\StrategyException;
 use App\Entity\Strategy;
 use App\Entity\Decision;
+use App\Exception\StrategyServiceException;
 use App\Repository\DecisionRepository;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\Types\Enum\DecisionTypeEnum;
+use Doctrine\ORM\NonUniqueResultException;
 
 class StrategyDecisionsService extends AbstractService
 {
@@ -53,13 +54,18 @@ class StrategyDecisionsService extends AbstractService
     /**
      * @param Strategy $strategy
      * @return array|null
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws StrategyServiceException
      */
-    public function parseDecisionsData(Strategy $strategy)
+    public function parseDecisionsData(Strategy $strategy): ?array
     {
         /** @var DecisionRepository $repository */
         $repository = $this->entityManager->getRepository(Decision::class);
-        $rootDecision = $repository->findRootByStrategyId($strategy->getId());
+        try {
+            $rootDecision = $repository->findRootByStrategyId($strategy->getId());
+        } catch (NonUniqueResultException $e) {
+            throw new StrategyServiceException(sprintf('Strategy %s root decision is not unique', $strategy->getId()), StrategyServiceException::CODE_INVALID_STRATEGY_DATA);
+        }
+
         if ($rootDecision === null) {
             return null;
         }
@@ -110,7 +116,7 @@ class StrategyDecisionsService extends AbstractService
      * @param Strategy $strategy
      * @param array $params
      * @return Decision
-     * @throws StrategyException
+     * @throws StrategyServiceException
      */
     public function generateDecisionTreeByParamsRecursively(Strategy $strategy, array $params = []): Decision
     {
@@ -121,10 +127,10 @@ class StrategyDecisionsService extends AbstractService
 
         // Check decisions data
         if (!isset($params['type'])) {
-            throw new StrategyException('Param "type" is missed', StrategyException::CODE_INVALID_PARAMS);
+            throw new StrategyServiceException('Param "type" is missed', StrategyServiceException::CODE_INVALID_PARAMS);
         }
         if (!in_array($params['type'], DecisionTypeEnum::getAvailableTypes())) {
-            throw new StrategyException(sprintf('Invalid value for param "type": "%s"', $params['type']), StrategyException::CODE_INVALID_PARAMS);
+            throw new StrategyServiceException(sprintf('Invalid value for param "type": "%s"', $params['type']), StrategyServiceException::CODE_INVALID_PARAMS);
         }
 
         // Create new decision
@@ -139,7 +145,7 @@ class StrategyDecisionsService extends AbstractService
 
         // Check children param
         if (!is_array($params['children'])) {
-            throw new StrategyException('Param "children mus be an array"', StrategyException::CODE_INVALID_PARAMS);
+            throw new StrategyServiceException('Param "children mus be an array"', StrategyServiceException::CODE_INVALID_PARAMS);
         }
 
         // Create objects for all children recursively
@@ -148,7 +154,7 @@ class StrategyDecisionsService extends AbstractService
                 continue;
             }
             if (!is_array($childParams)) {
-                throw new StrategyException('Child is not an array', StrategyException::CODE_INVALID_PARAMS);
+                throw new StrategyServiceException('Child is not an array', StrategyServiceException::CODE_INVALID_PARAMS);
             }
             $decision->addChild($this->generateDecisionTreeByParamsRecursively($strategy, $childParams));
         }

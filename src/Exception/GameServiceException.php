@@ -9,7 +9,7 @@
 namespace App\Exception;
 
 
-class GameException extends ServiceException
+class GameServiceException extends ServiceException
 {
     const CODE_STRATEGIES_NOT_FOUND = 3100;
     const CODE_GAME_IMPOSSIBLE = 3200;

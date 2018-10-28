@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\GameService;
 use App\Exception\HttpException;
-use App\Exception\GameException;
+use App\Exception\GameServiceException;
 
 class GameController extends ControllerAbstract
 {
@@ -39,7 +39,7 @@ class GameController extends ControllerAbstract
                 $request->request->get('balesForCooperation'),
                 $request->request->get('balesForDraw'),
                 (bool)$request->request->get('writeIndividualResults', true));
-        } catch (GameException $e) {
+        } catch (GameServiceException $e) {
             throw new HttpException('Game is failed', 0, $e);
         }
 

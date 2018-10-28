@@ -10,7 +10,7 @@ namespace App\Service;
 
 use App\Entity\Types\Enum\DecisionTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Exception\GameException;
+use App\Exception\GameServiceException;
 use App\Entity\Strategy;
 use App\Entity\Decision;
 use App\Entity\User;
@@ -53,7 +53,7 @@ class GameService extends AbstractService
 
         // For game we need 2 or more strategies
         if (count($strategies) < 2) {
-            throw new GameException('It\'s impossible to make game with less then 2 strategies', GameException::CODE_GAME_IMPOSSIBLE);
+            throw new GameServiceException('It\'s impossible to make game with less then 2 strategies', GameServiceException::CODE_GAME_IMPOSSIBLE);
         }
 
         // Set game params
@@ -179,7 +179,7 @@ class GameService extends AbstractService
      * @param array $strategies
      * @param bool $writeIndividualResults
      * @return array
-     * @throws GameException
+     * @throws GameServiceException
      */
     private function makeGameWithStrategiesRecursively(array &$strategies, $writeIndividualResults = true): array
     {
@@ -275,7 +275,7 @@ class GameService extends AbstractService
      * @param string|null $lastAnswer2
      * @param int $round
      * @return array
-     * @throws GameException
+     * @throws GameServiceException
      */
     private function makeGameWithTwoDecisionsRecursively(array $rootDecision1, array $rootDecision2, array $decision1 = null, array $decision2 = null, $lastAnswer1 = null, $lastAnswer2 = null, $round = 1): array
     {
@@ -467,15 +467,15 @@ class GameService extends AbstractService
      * @param string $message
      * @param int $userID
      * @param array $strategiesIds
-     * @return GameException
+     * @return GameServiceException
      */
-    private function createNotFoundException(string $message, int $userID, array $strategiesIds): GameException
+    private function createNotFoundException(string $message, int $userID, array $strategiesIds): GameServiceException
     {
         $message = sprintf($message, $userID);
         if (!empty($strategiesIds)) {
             $message = $message . '. Strategies Ids: ' . implode(',', $strategiesIds);
         }
-        return new GameException($message, GameException::CODE_STRATEGIES_NOT_FOUND);
+        return new GameServiceException($message, GameServiceException::CODE_STRATEGIES_NOT_FOUND);
     }
 
     /**
@@ -485,39 +485,39 @@ class GameService extends AbstractService
      * "children" - array
      *
      * @param array $decision
-     * @throws GameException
+     * @throws GameServiceException
      */
     private function checkGameDecisionElement(array $decision)
     {
         if (!isset($decision['id'])) {
-            throw new GameException('Every game decision must have a "id" attribute', GameException::CODE_INVALID_PARAMS);
+            throw new GameServiceException('Every game decision must have a "id" attribute', GameServiceException::CODE_INVALID_PARAMS);
         }
         if (!isset($decision['strategyID'])) {
-            throw new GameException('Every game decision must have a "strategyID" attribute', GameException::CODE_INVALID_PARAMS);
+            throw new GameServiceException('Every game decision must have a "strategyID" attribute', GameServiceException::CODE_INVALID_PARAMS);
         }
         if ((int)$decision['strategyID'] === 0) {
-            throw new GameException(sprintf('Game decision #%s has an incorrect value of "strategyID" attribute, It must be an integer (> 0), but "%s" given',
+            throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "strategyID" attribute, It must be an integer (> 0), but "%s" given',
                 $decision['id'], $decision['strategyID']),
-                GameException::CODE_INVALID_PARAMS);
+                GameServiceException::CODE_INVALID_PARAMS);
         }
         if (!isset($decision['type'])) {
-            throw new GameException('Every game decision must have a "type" attribute', GameException::CODE_INVALID_PARAMS);
+            throw new GameServiceException('Every game decision must have a "type" attribute', GameServiceException::CODE_INVALID_PARAMS);
         }
         if (!in_array((string)$decision['type'], DecisionTypeEnum::getAvailableTypes())) {
-            throw new GameException(sprintf('Game decision #%s has an incorrect value of "type" attribute, It must be one of [%s], but "%s" given',
+            throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "type" attribute, It must be one of [%s], but "%s" given',
                     $decision['id'],
                  '"' . implode('", "', DecisionTypeEnum::getAvailableTypes()) . '"',
                     (string)$decision['type']
                 ),
-                GameException::CODE_INVALID_PARAMS);
+                GameServiceException::CODE_INVALID_PARAMS);
         }
         if (!isset($decision['children'])) {
-            throw new GameException('Every game decision must have a "children" attribute', GameException::CODE_INVALID_PARAMS);
+            throw new GameServiceException('Every game decision must have a "children" attribute', GameServiceException::CODE_INVALID_PARAMS);
         }
         if (!is_array($decision['children'])) {
-            throw new GameException(sprintf('Game decision #%s has an incorrect value of "children" attribute, It must be an array, but "%s" given',
+            throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "children" attribute, It must be an array, but "%s" given',
                 $decision['id'], (string)$decision['children']),
-                GameException::CODE_INVALID_PARAMS);
+                GameServiceException::CODE_INVALID_PARAMS);
         }
     }
 }

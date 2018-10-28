@@ -84,8 +84,7 @@ class StrategyService extends AbstractService
 
     /**
      * @param Strategy $strategy
-     * @throws \App\Exception\StrategyException
-     * @throws \Doctrine\ORM\NonUniqueResultException
+     * @throws \App\Exception\StrategyServiceException
      */
     public function parseDecisionsData(Strategy $strategy)
     {
