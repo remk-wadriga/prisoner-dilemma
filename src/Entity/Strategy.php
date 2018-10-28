@@ -47,9 +47,21 @@ class Strategy
 
     private $decisionsData;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\GameResult", mappedBy="strategy", orphanRemoval=true)
+     */
+    private $gameResults;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\IndividualGameResult", mappedBy="partner", orphanRemoval=true)
+     */
+    private $individualGameResults;
+
     public function __construct()
     {
         $this->decisions = new ArrayCollection();
+        $this->gameResults = new ArrayCollection();
+        $this->individualGameResults = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -153,6 +165,68 @@ class Strategy
     public function setDecisionsData(array $decisionsData): self
     {
         $this->decisionsData = $decisionsData;
+        return $this;
+    }
+
+    /**
+     * @return Collection|GameResult[]
+     */
+    public function getGameResults(): Collection
+    {
+        return $this->gameResults;
+    }
+
+    public function addGameResult(GameResult $gameResult): self
+    {
+        if (!$this->gameResults->contains($gameResult)) {
+            $this->gameResults[] = $gameResult;
+            $gameResult->setStrategy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameResult(GameResult $gameResult): self
+    {
+        if ($this->gameResults->contains($gameResult)) {
+            $this->gameResults->removeElement($gameResult);
+            // set the owning side to null (unless already changed)
+            if ($gameResult->getStrategy() === $this) {
+                $gameResult->setStrategy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|IndividualGameResult[]
+     */
+    public function getIndividualGameResults(): Collection
+    {
+        return $this->individualGameResults;
+    }
+
+    public function addIndividualGameResult(IndividualGameResult $individualGameResult): self
+    {
+        if (!$this->individualGameResults->contains($individualGameResult)) {
+            $this->individualGameResults[] = $individualGameResult;
+            $individualGameResult->setPartner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIndividualGameResult(IndividualGameResult $individualGameResult): self
+    {
+        if ($this->individualGameResults->contains($individualGameResult)) {
+            $this->individualGameResults->removeElement($individualGameResult);
+            // set the owning side to null (unless already changed)
+            if ($individualGameResult->getPartner() === $this) {
+                $individualGameResult->setPartner(null);
+            }
+        }
+
         return $this;
     }
 
