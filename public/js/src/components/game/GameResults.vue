@@ -68,7 +68,8 @@
                 }
                 if (this.results.results.total !== undefined) {
                     this.score = this.results.results.total
-                    this.score.sort((one, due) => one.result < due.result ? 1 : 0)
+                    this.score
+                        .sort((one, due) => one.result < due.result ? 1 : -1)
                         .forEach(res => {
                             if (this.winner === null || this.winner.result < res.result) {
                                 this.winner = res
@@ -85,6 +86,9 @@
                         Object.keys(this.results.results.individual[id]).forEach(partnerID => {
                             this.individualResults[id].push(this.results.results.individual[id][partnerID])
                         })
+                    })
+                    Object.keys(this.individualResults).forEach(id => {
+                        this.individualResults[id].sort((one, due) => one.result < due.result ? 1 : -1)
                     })
                     this.hasIndividualResults = Object.keys(this.individualResults).length > 0
                 }
