@@ -17,7 +17,7 @@
                 },
                 checkedStrategiesIds: [],
                 checkedStrategiesIdsOptions: [],
-                writeCoupesStrategiesResults: true,
+                writeIndividualResults: true,
                 gameResults: null,
                 isReady: false
             }
@@ -27,7 +27,7 @@
                 this.gameResults = null
 
                 this.params.strategiesIds = this.checkedStrategiesIds
-                this.params.writeCoupesStrategiesResults = this.writeCoupesStrategiesResults
+                this.params.writeIndividualResults = this.writeIndividualResults
 
                 Api.methods.request('start_game_url', this.params, 'POST', response => {
                     this.gameResults = response
