@@ -54,7 +54,7 @@ class StrategyController extends ControllerAbstract
 
         // Build strategy decisions tree
         try {
-            $decisionsData = $decisionsService->parseDecisionsData($strategy);
+            $decisionsData = $decisionsService->createDecisionsDataArray($strategy);
         } catch (StrategyServiceException $e) {
             throw new HttpException('Can\'t build strategy decisions tree', 0, $e);
         }
@@ -91,7 +91,7 @@ class StrategyController extends ControllerAbstract
 
         // Build strategy decisions tree
         try {
-            $decisionsData = $decisionsService->parseDecisionsData($strategy);
+            $decisionsData = $decisionsService->createDecisionsDataArray($strategy);
         } catch (StrategyServiceException $e) {
             throw new HttpException('Can\'t build strategy decisions tree', 0, $e);
         }

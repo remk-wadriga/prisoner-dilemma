@@ -65,7 +65,7 @@ class GameResultsService extends AbstractService
         return $individualResult;
     }
 
-    public function parseGameResultsData(Game $game): array
+    public function createGameResultsDataArray(Game $game): array
     {
         // 1. Check is game has results
         if ($game->getGameResults()->count() === 0) {

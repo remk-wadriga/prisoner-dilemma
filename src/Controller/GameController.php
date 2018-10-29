@@ -59,7 +59,7 @@ class GameController extends ControllerAbstract
     {
         // Build strategy decisions tree
         try {
-            $results = $gameResultsService->parseGameResultsData($game);
+            $results = $gameResultsService->createGameResultsDataArray($game);
         } catch (GameServiceException $e) {
             throw new HttpException('Can\'t build game results data', 0, $e);
         }

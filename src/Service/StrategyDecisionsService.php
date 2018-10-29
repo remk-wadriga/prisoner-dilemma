@@ -56,7 +56,7 @@ class StrategyDecisionsService extends AbstractService
      * @return array|null
      * @throws StrategyServiceException
      */
-    public function parseDecisionsData(Strategy $strategy): ?array
+    public function createDecisionsDataArray(Strategy $strategy): ?array
     {
         /** @var DecisionRepository $repository */
         $repository = $this->entityManager->getRepository(Decision::class);

@@ -21,7 +21,7 @@ class StrategyDecisionsServiceTest extends BaseStrategyTestCase
         }
 
         // 2. Get strategy decisions as array and check it's params
-        $data = $this->getStrategyDecisionsService()->parseDecisionsData($strategy);
+        $data = $this->getStrategyDecisionsService()->createDecisionsDataArray($strategy);
         $this->assertNotEmpty($data, 'Test "StrategyDecisionsService.parseDecisionsData" is filed: parsed decisions data is empty');
         $this->assertArrayHasKey('type', $data, 'Test "StrategyDecisionsService.parseDecisionsData" is filed: parsed decisions has no "type" attribute');
         $this->assertArrayHasKey('children', $data, 'Test "StrategyDecisionsService.parseDecisionsData" is filed: parsed decisions has no "children" attribute');

@@ -10,7 +10,7 @@ namespace App\Tests\Web;
 
 use App\Entity\Strategy;
 use App\Entity\Types\Enum\IsEnabledEnum;
-use App\Exception\GameException;
+use App\Exception\GameServiceException;
 use App\Tests\ApiResponse;
 use App\Tests\AbstractApiTestCase;
 use Faker\Factory;
@@ -55,11 +55,11 @@ class StrategyTest extends AbstractApiTestCase
 
         // 5. Send request with 1 strategy and check the error response
         $response = $this->request('game_start', ['strategiesIds' => [current($strategiesIds)]], 'POST');
-        $this->checkStartGameResponse($response, true, 0, Response::HTTP_BAD_REQUEST, GameException::CODE_GAME_IMPOSSIBLE);
+        $this->checkStartGameResponse($response, true, 0, Response::HTTP_BAD_REQUEST, GameServiceException::CODE_GAME_IMPOSSIBLE);
 
         // 6. Send request with incorrect strategy IDs and check the error response
         $response = $this->request('game_start', ['strategiesIds' => ['incorrect_id_1', 'incorrect_id_2']], 'POST');
-        $this->checkStartGameResponse($response, true, 0, Response::HTTP_BAD_REQUEST, GameException::CODE_STRATEGIES_NOT_FOUND);
+        $this->checkStartGameResponse($response, true, 0, Response::HTTP_BAD_REQUEST, GameServiceException::CODE_STRATEGIES_NOT_FOUND);
     }
 
 

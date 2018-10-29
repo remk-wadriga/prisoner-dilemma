@@ -9,6 +9,7 @@
 namespace App\Tests\Unit;
 
 use App\Entity\Strategy;
+use App\Service\GameResultsService;
 use App\Service\GameService;
 use App\Entity\Types\Enum\IsEnabledEnum;
 
@@ -16,6 +17,8 @@ class GameServiceTest extends BaseStrategyTestCase
 {
     /** @var GameService */
     protected $gameService;
+    /** @var GameResultsService */
+    protected $gameResultsService;
 
     public function testCreatingDecisionsTreeByStrategiesIds()
     {
@@ -68,6 +71,14 @@ class GameServiceTest extends BaseStrategyTestCase
         if ($this->gameService !== null) {
             return $this->gameService;
         }
-        return $this->gameService = new GameService($this->entityManager, $this->getStrategyDecisionsService());
+        return $this->gameService = new GameService($this->entityManager, $this->getStrategyDecisionsService(), $this->getGameResultsService());
+    }
+
+    protected function getGameResultsService(): GameResultsService
+    {
+        if ($this->gameResultsService !== null) {
+            return $this->gameResultsService;
+        }
+        return $this->gameResultsService = new GameResultsService($this->entityManager);
     }
 }
