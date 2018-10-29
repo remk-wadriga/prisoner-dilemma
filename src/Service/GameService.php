@@ -38,15 +38,27 @@ class GameService extends AbstractService
         $this->gameResultsService = $gameResultsService;
     }
 
-    public function getParams()
+    public function getParams(Game $game = null): array
     {
-        return [
+        $params = [
             'rounds' => $this->roundsCount,
             'balesForWin' => $this->balesForWin,
             'balesForLoos' => $this->balesForLoos,
             'balesForCooperation' => $this->balesForCooperation,
             'balesForDraw' => $this->balesForDraw,
         ];
+
+        if ($game !== null) {
+            foreach (array_keys($params) as $name) {
+                $getter = 'get' . ucfirst($name);
+                $value = $game->$getter();
+                if ($value !== null) {
+                    $params[$name] = $value;
+                }
+            }
+        }
+
+        return $params;
     }
 
     public function runGame(User $user, $strategiesIds = [], int $roundsCount = null, int $balesForWin = null, int $balesForLoos = null, int $balesForCooperation = null, int $balesForDraw = null, bool $writeIndividualResults = true): array

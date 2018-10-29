@@ -45,6 +45,31 @@ class Game
 
     private $resultsData;
 
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $rounds;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $balesForWin;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $balesForLoos;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $balesForCooperation;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $balesForDraw;
+
     public function __construct()
     {
         $this->gameResults = new ArrayCollection();
@@ -146,5 +171,65 @@ class Game
         if ($this->getDate() === null) {
             $this->setDate(new \DateTime());
         }
+    }
+
+    public function getRounds(): ?int
+    {
+        return $this->rounds;
+    }
+
+    public function setRounds(?int $rounds): self
+    {
+        $this->rounds = $rounds;
+
+        return $this;
+    }
+
+    public function getBalesForWin(): ?int
+    {
+        return $this->balesForWin;
+    }
+
+    public function setBalesForWin(?int $balesForWin): self
+    {
+        $this->balesForWin = $balesForWin;
+
+        return $this;
+    }
+
+    public function getBalesForLoos(): ?int
+    {
+        return $this->balesForLoos;
+    }
+
+    public function setBalesForLoos(?int $balesForLoos): self
+    {
+        $this->balesForLoos = $balesForLoos;
+
+        return $this;
+    }
+
+    public function getBalesForCooperation(): ?int
+    {
+        return $this->balesForCooperation;
+    }
+
+    public function setBalesForCooperation(?int $balesForCooperation): self
+    {
+        $this->balesForCooperation = $balesForCooperation;
+
+        return $this;
+    }
+
+    public function getBalesForDraw(): ?int
+    {
+        return $this->balesForDraw;
+    }
+
+    public function setBalesForDraw(?int $balesForDraw): self
+    {
+        $this->balesForDraw = $balesForDraw;
+
+        return $this;
     }
 }

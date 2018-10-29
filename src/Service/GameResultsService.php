@@ -8,6 +8,7 @@
 
 namespace App\Service;
 
+use App\Entity\Game;
 use App\Entity\GameResult;
 use App\Entity\IndividualGameResult;
 use App\Entity\Strategy;
@@ -64,6 +65,48 @@ class GameResultsService extends AbstractService
         return $individualResult;
     }
 
+    public function parseGameResultsData(Game $game): array
+    {
+        // 1. Check is game has results
+        if ($game->getGameResults()->count() === 0) {
+            return [];
+        }
+
+        // 2. Create total game results and individual game results array
+        $sum = 0;
+        $totalResults = [];
+        $individualResults = [];
+        foreach ($game->getGameResults() as $totalResult) {
+            foreach ($totalResult->getIndividualGameResults() as $individualResult) {
+                $strategyID = $totalResult->getStrategy()->getId();
+                if (!isset($individualResults[$strategyID])) {
+                    $individualResults[$strategyID] = [];
+                }
+                $individualResults[$strategyID][$individualResult->getPartner()->getId()] = [
+                    'result' => $individualResult->getResult(),
+                    'partnerResult' => $individualResult->getPartnerResult(),
+                    'partnerID' => $individualResult->getPartner()->getId(),
+                    'partnerName' => $individualResult->getPartner()->getName(),
+                ];
+            }
+            $totalResults[] = [
+                'id' => $totalResult->getStrategy()->getId(),
+                'name' => $totalResult->getStrategy()->getName(),
+                'result' => $totalResult->getResult(),
+            ];
+
+            $sum += $totalResult->getResult();
+        }
+
+        // 3. Return results
+        return [
+            'results' => [
+                'sum' => $sum,
+                'total' => $totalResults,
+                'individual' => $individualResults,
+            ],
+        ];
+    }
 
     /**
      * Check game result element - it must have "id" and "result" attributes
