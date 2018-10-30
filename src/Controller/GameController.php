@@ -16,6 +16,7 @@ use App\Service\GameService;
 use App\Form\GameForm;
 use App\Exception\HttpException;
 use App\Exception\GameServiceException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class GameController extends ControllerAbstract
 {
@@ -54,6 +55,7 @@ class GameController extends ControllerAbstract
 
     /**
      * @Route("/game/{id}", name="game_show", methods={"GET"})
+     * @IsGranted("MANAGE", subject="game")
      */
     public function show(Game $game, GameService $gameService, GameResultsService $gameResultsService)
     {
@@ -78,6 +80,7 @@ class GameController extends ControllerAbstract
     {
         // Create new game
         $game = new Game();
+        $game->setUser($this->getUser());
 
         // Process request
         $form = $this->createJsonForm(GameForm::class, $game);
@@ -103,6 +106,7 @@ class GameController extends ControllerAbstract
 
     /**
      * @Route("/game/{id}", name="game_update", methods={"PUT"})
+     * @IsGranted("MANAGE", subject="game")
      */
     public function update(Game $game, Request $request, GameService $gameService)
     {

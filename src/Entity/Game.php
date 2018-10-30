@@ -70,6 +70,12 @@ class Game
      */
     private $balesForDraw;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="games")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
+
     public function __construct()
     {
         $this->gameResults = new ArrayCollection();
@@ -229,6 +235,18 @@ class Game
     public function setBalesForDraw(?int $balesForDraw): self
     {
         $this->balesForDraw = $balesForDraw;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

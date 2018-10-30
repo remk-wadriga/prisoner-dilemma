@@ -89,9 +89,15 @@ class User implements AccessTokenEntityInterface
      */
     private $strategies;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Game", mappedBy="user", orphanRemoval=true)
+     */
+    private $games;
+
     public function __construct()
     {
         $this->strategies = new ArrayCollection();
+        $this->games = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -334,6 +340,37 @@ class User implements AccessTokenEntityInterface
     public function beforeUpdate()
     {
         $this->setUpdatedAt(new \DateTime());
+    }
+
+    /**
+     * @return Collection|Game[]
+     */
+    public function getGames(): Collection
+    {
+        return $this->games;
+    }
+
+    public function addGame(Game $game): self
+    {
+        if (!$this->games->contains($game)) {
+            $this->games[] = $game;
+            $game->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGame(Game $game): self
+    {
+        if ($this->games->contains($game)) {
+            $this->games->removeElement($game);
+            // set the owning side to null (unless already changed)
+            if ($game->getUser() === $this) {
+                $game->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
 
