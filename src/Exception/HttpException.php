@@ -38,6 +38,20 @@ class HttpException extends BaseHttpException
             $message = '';
         }
 
+        if ($previous instanceof BaseHttpException) {
+            switch ($previous->getStatusCode()) {
+                case Response::HTTP_FORBIDDEN:
+                    $code = self::CODE_ACCESS_DENIED;
+                    break;
+                case Response::HTTP_BAD_REQUEST:
+                    $code = self::CODE_BAD_REQUEST;
+                    break;
+                case Response::HTTP_NOT_FOUND:
+                    $code = self::CODE_NOT_FOUND;
+                    break;
+            }
+        }
+
         switch ($code) {
             case self::CODE_NOT_FOUND:
                 $statusCode = Response::HTTP_NOT_FOUND;

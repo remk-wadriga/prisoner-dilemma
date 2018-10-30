@@ -17,6 +17,7 @@ use App\Service\StrategyService;
 use App\Exception\HttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class StrategyController extends ControllerAbstract
 {
@@ -42,6 +43,7 @@ class StrategyController extends ControllerAbstract
 
     /**
      * @Route("/strategy/{id}", name="strategy_show", methods={"GET"}, requirements={"id"="\d+"})
+     * @IsGranted("MANAGE", subject="strategy")
      */
     public function show(Strategy $strategy, StrategyDecisionsService $decisionsService)
     {
@@ -103,15 +105,10 @@ class StrategyController extends ControllerAbstract
 
     /**
      * @Route("/strategy/{id}", name="strategy_update", methods={"PUT"})
+     * @IsGranted("MANAGE", subject="strategy")
      */
     public function update(Strategy $strategy, Request $request, StrategyService $strategyService, StrategyDecisionsService $decisionsService)
     {
-        // Check is current user has permissions for updating the strategy
-        $user = $this->getUser();
-        if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
-            throw new HttpException('Strategy is not found', HttpException::CODE_NOT_FOUND);
-        }
-
         // Process request
         $form = $this->createJsonForm(StrategyForm::class, $strategy, ['action' => StrategyForm::ACTION_UPDATE]);
         $this->handleJsonForm($form, $request);
@@ -157,14 +154,10 @@ class StrategyController extends ControllerAbstract
 
     /**
      * @Route("/strategy/{id}", name="strategy_delete", methods={"DELETE"})
+     * @IsGranted("MANAGE", subject="strategy")
      */
     public function delete(Strategy $strategy)
     {
-        // Check is current user has permissions for updating the strategy
-        $user = $this->getUser();
-        if (!$user->getIsAdmin() && $user->getId() !== $strategy->getUser()->getId()) {
-            throw new HttpException('Strategy is not found', HttpException::CODE_NOT_FOUND);
-        }
         // Try to delete strategy
         $manager = $this->getDoctrine()->getManager();
         $manager->remove($strategy);

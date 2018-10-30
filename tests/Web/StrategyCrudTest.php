@@ -118,9 +118,8 @@ class StrategyCrudTest extends AbstractApiTestCase
 
     public function testViewAction()
     {
-        // 1. Get User and login him
+        // 1. Login as user
         $this->logInAsUser();
-        $user = $this->user;
 
         // 2. Get current users strategy and send request. But if user has no one strategies - we just have nothing to test yet
         $strategy = $this->findStrategy();
@@ -290,9 +289,9 @@ class StrategyCrudTest extends AbstractApiTestCase
 
     private function checkNotOwnStrategyResponse(ApiResponse $response, string $testKeysID)
     {
-        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatus(),
-            sprintf('Wrong test "show another strategy" response format, status code must be equal to %s, but it is not. It is: %s. The content is: %s',
-                Response::HTTP_NOT_FOUND, $response->getStatus(), $response->getContent()));
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatus(),
+            sprintf('Wrong test "%s" response format, status code must be equal to %s, but it is not. It is: %s. The content is: %s',
+                $testKeysID, Response::HTTP_FORBIDDEN, $response->getStatus(), $response->getContent()));
         $data = $response->getData();
         $this->assertArrayHasKey('error', $data,
             sprintf('Wrong test "%s" response format, response must have a "error" param but it`s not. The response is: %s', $testKeysID, $response->getContent()));
@@ -300,12 +299,12 @@ class StrategyCrudTest extends AbstractApiTestCase
             sprintf('Wrong test "%s" response format, response must have a "code" param but it`s not. The response is: %s', $testKeysID, json_encode($data['error'])));
         $this->assertArrayHasKey('message', $data['error'],
             sprintf('Wrong test "%s" response format, response must have a "message" param but it`s not. The response is: %s', $testKeysID, json_encode($data['error'])));
-        $this->assertEquals(HttpException::CODE_NOT_FOUND, $data['error']['code'],
+        $this->assertEquals(HttpException::CODE_ACCESS_DENIED, $data['error']['code'],
             sprintf('Wrong test "%s" response format, response must have a "code" param equals to %s but it`s not, It is: %s. The response is: %s',
-                $testKeysID,HttpException::CODE_NOT_FOUND, $data['error']['code'], json_encode($data['error'])));
-        $this->assertContains('not found', $data['error']['message'],
+                $testKeysID,HttpException::CODE_ACCESS_DENIED, $data['error']['code'], json_encode($data['error'])));
+        $this->assertContains('access denied', strtolower($data['error']['message']),
             sprintf('Wrong test "%s" response format, response must have a "message" param equals to "%s" but it`s not, It is: "%s". The response is: %s',
-                $testKeysID,'not found', $data['error']['message'], json_encode($data['error'])));
+                $testKeysID,'access denied', $data['error']['message'], json_encode($data['error'])));
     }
 
     private function findStrategy(int $userID = null, int $strategyID = null): ?Strategy
