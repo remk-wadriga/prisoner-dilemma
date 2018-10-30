@@ -38,7 +38,7 @@ class HttpException extends BaseHttpException
             $message = '';
         }
 
-        if ($previous instanceof BaseHttpException) {
+        if ($code === 0 && $previous instanceof BaseHttpException) {
             switch ($previous->getStatusCode()) {
                 case Response::HTTP_FORBIDDEN:
                     $code = self::CODE_ACCESS_DENIED;
