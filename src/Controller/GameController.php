@@ -178,6 +178,7 @@ class GameController extends ControllerAbstract
             'name' => $game->getName(),
             'sum' => $game->getSum(),
             'description' => $game->getDescription(),
+            'date' => $this->formatDateTime($game->getDate()),
         ];
 
         foreach ($additionalFields as $index => $field) {

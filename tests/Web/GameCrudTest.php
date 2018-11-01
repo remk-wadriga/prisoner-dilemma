@@ -415,6 +415,7 @@ class GameCrudTest extends AbstractApiTestCase
             ['name', 'string'],
             ['sum', 'integer'],
             ['description', 'string'],
+            ['date', 'string'],
         ], $additionalParams);
 
         foreach ($params as $param) {
