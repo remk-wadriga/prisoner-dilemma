@@ -2,6 +2,7 @@
 
 <script>
     import SaveGameResults from '@/components/game/SaveGameResults'
+    import Api from '@/helpers/Api.js'
 
     export default {
         name: "GameResults",
@@ -49,7 +50,8 @@
                 individualResult: [],
                 individualResults: {},
                 individualResultsStrategy: null,
-                saveGameResultsModalVisible: false
+                saveGameResultsModalVisible: false,
+                onCloseCallback: () => {}
             }
         },
         props: {
@@ -65,13 +67,33 @@
                 }
             },
             openSaveGameResultsModal () {
-                SaveGameResults.computed.onCloseCallback = () => {
-                    this.saveGameResultsModalVisible = false
-                }
                 this.saveGameResultsModalVisible = true
+            },
+            onCloseCallbackFunction (data) {
+                this.saveGameResultsModalVisible = false
+                if (data === null) {
+                    return
+                }
+
+                data.resultsData = {}
+                Object.keys(this.results.params).forEach(key => {
+                    data[key] = this.results.params[key]
+                })
+                Object.keys(this.results.results).forEach(key => {
+                    data.resultsData[key] = this.results.results[key]
+                })
+
+                if (Object.keys(data.resultsData).length > 0 && data.name !== undefined && data.name !== null) {
+                    Api.methods.request('save_game_url', {game_form: data}, 'POST', response => {
+                        this.$router.push({name: 'game_view', params: {id: response.info.id}})
+                        this.$router.go(0)
+                    })
+                }
             }
         },
         mounted() {
+            this.onCloseCallback = this.onCloseCallbackFunction
+
             if (this.results != null && this.results.results !== undefined) {
                 if (this.results.results.sum !== undefined) {
                     this.sum = this.results.results.sum

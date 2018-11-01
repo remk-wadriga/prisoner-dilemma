@@ -9,6 +9,7 @@
         components: { GameParams, GameResults },
         data() {
             return {
+                game: null,
                 gameResults: null
             }
         },
@@ -18,7 +19,7 @@
             }
         },
         mounted() {
-
+            console.log(this.gameResults)
         }
     }
 </script>

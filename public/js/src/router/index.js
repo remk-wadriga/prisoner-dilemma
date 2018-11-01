@@ -49,6 +49,11 @@ export default new Router({
             component: StrategyUpdate
         },
         {
+            path: '/game/:id',
+            name: 'game_view',
+            component: Game
+        },
+        {
             path: '/game/start',
             name: 'game_start',
             component: Game

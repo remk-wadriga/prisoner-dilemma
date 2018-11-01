@@ -81,5 +81,5 @@
         </b-button>
     </b-row>
 
-    <SaveGameResults v-bind:totalResults="score" v-bind:individualResults="individualResults" v-if="saveGameResultsModalVisible" />
+    <SaveGameResults v-bind:totalResults="score" v-bind:individualResults="individualResults" v-bind:onCloseCallback="onCloseCallback" v-if="saveGameResultsModalVisible" />
 </div>
