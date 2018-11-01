@@ -54,6 +54,32 @@ class GameController extends ControllerAbstract
     }
 
     /**
+     * @Route("/games", name="game_list", methods={"GET"})
+     */
+    public function actionList()
+    {
+        // Get current user
+        $user = $this->getUser();
+
+        /** @var \App\Repository\GameRepository $repository */
+        $repository = $this->getDoctrine()->getRepository(Game::class);
+
+        /** @var \App\Entity\Game[] $gamesList */
+        if ($user->getIsAdmin()) {
+            $gamesList = $repository->findAllOrderedByCreatedAtDesc();
+        } else {
+            $gamesList = $repository->findAllOrderedByCreatedAtDesc($user->getId());
+        }
+
+        $data = [];
+        foreach ($gamesList as $game) {
+            $data[] = $this->gameInfo($game, ['decisionsCount']);
+        }
+
+        return $this->json($data);
+    }
+
+    /**
      * @Route("/game/{id}", name="game_show", methods={"GET"})
      * @IsGranted("MANAGE", subject="game")
      */
@@ -132,11 +158,25 @@ class GameController extends ControllerAbstract
         ]);
     }
 
+    /**
+     * @Route("/game/{id}", name="game_delete", methods={"DELETE"})
+     * @IsGranted("MANAGE", subject="game")
+     */
+    public function delete(Game $game)
+    {
+        // Try to delete strategy
+        $manager = $this->getDoctrine()->getManager();
+        $manager->remove($game);
+        $manager->flush();
+        return $this->json('OK');
+    }
+
     private function gameInfo(Game $game, array $additionalFields = [])
     {
         $params = [
             'id' => $game->getId(),
             'name' => $game->getName(),
+            'sum' => $game->getSum(),
             'description' => $game->getDescription(),
         ];
 

@@ -71,6 +71,9 @@ class ApiResponse
 
     public function get(string $name, $defaultValue = null)
     {
+        if (!is_array($this->data)) {
+            $this->data = [];
+        }
         return isset($this->data[$name]) ? $this->data[$name] : $defaultValue;
     }
 
@@ -87,7 +90,7 @@ class ApiResponse
      */
     public function getData(): array
     {
-        return $this->data;
+        return is_array($this->data) ? $this->data : [];
     }
 
     /**

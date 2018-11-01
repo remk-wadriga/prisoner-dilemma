@@ -6,6 +6,7 @@ use App\Entity\Game;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class GameForm extends AbstractType
 {
@@ -32,6 +33,11 @@ class GameForm extends AbstractType
                 'empty_data' => $game !== null ? $game->getDescription() : '',
             ])
             ->add('resultsData')
+            ->add('rounds', IntegerType::class)
+            ->add('balesForWin', IntegerType::class)
+            ->add('balesForLoos', IntegerType::class)
+            ->add('balesForCooperation', IntegerType::class)
+            ->add('balesForDraw', IntegerType::class)
         ;
     }
 

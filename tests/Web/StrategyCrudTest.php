@@ -14,6 +14,51 @@ use Faker\Factory;
 
 class StrategyCrudTest extends AbstractApiTestCase
 {
+    public function testListAction()
+    {
+        // 1. Get User and login him
+        $this->logInAsUser();
+        $user = $this->user;
+
+        // 2. Send request
+        $response = $this->request('app_homepage');
+        // Check response status - mus be equals to 200
+        $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
+            sprintf('Wrong test "get strategies list" response format, status code mus be equal to %s, but it is not. It is: %s. The content is: %s',
+                Response::HTTP_OK, $response->getStatus(), $response->getContent()));
+        // Check response data: it must contains the array of users strategies
+        $data = $response->getData();
+        $responseStrategiesCount = count($data);
+        $userStrategiesCount = $user->getStrategies()->count();
+        $this->assertEquals($responseStrategiesCount, $userStrategiesCount,
+            sprintf('Test "get strategies list" is filed: response must contains the same count of elements, how user has strategies, it has %s count, but user has %s strategies',
+                $responseStrategiesCount, $userStrategiesCount));
+    }
+
+    public function testViewAction()
+    {
+        // 1. Login as user
+        $this->logInAsUser();
+
+        // 2. Get current users strategy and send request. But if user has no one strategies - we just have nothing to test yet
+        $strategy = $this->findStrategy();
+        if ($strategy === null) {
+            return;
+        }
+        $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
+        // 3. Check response
+        $this->checkIsCorrectStrategyParamsInResponse($response, 'show strategy');
+
+        // 3. Get some different users strategy and send request. But if no one strategy is found - we just have nothing to test yet
+        $strategy = $this->getNotUserStrategy();
+        if ($strategy === null) {
+            return;
+        }
+        $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
+        $this->checkNotOwnStrategyResponse($response, 'show another user strategy');
+
+    }
+
     public function testCreateAction()
     {
         // 1. Get User and login him
@@ -93,51 +138,6 @@ class StrategyCrudTest extends AbstractApiTestCase
         $strategy = $this->getNotUserStrategy();
         $response = $this->request(['strategy_update', ['id' => $strategy->getId()]], $data, 'PUT');
         $this->checkNotOwnStrategyResponse($response, 'update another user strategy');
-    }
-
-    public function testListAction()
-    {
-        // 1. Get User and login him
-        $this->logInAsUser();
-        $user = $this->user;
-
-        // 2. Send request
-        $response = $this->request('app_homepage');
-        // Check response status - mus be equals to 200
-        $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
-            sprintf('Wrong test "get strategies list" response format, status code mus be equal to %s, but it is not. It is: %s. The content is: %s',
-                Response::HTTP_OK, $response->getStatus(), $response->getContent()));
-        // Check response data: it must contains the array of users strategies
-        $data = $response->getData();
-        $responseStrategiesCount = count($data);
-        $userStrategiesCount = $user->getStrategies()->count();
-        $this->assertEquals($responseStrategiesCount, $userStrategiesCount,
-            sprintf('Test "get strategies list" is filed: response must contains the same count of elements, how user has strategies, it has %s count, but user has %s strategies',
-                $responseStrategiesCount, $userStrategiesCount));
-    }
-
-    public function testViewAction()
-    {
-        // 1. Login as user
-        $this->logInAsUser();
-
-        // 2. Get current users strategy and send request. But if user has no one strategies - we just have nothing to test yet
-        $strategy = $this->findStrategy();
-        if ($strategy === null) {
-            return;
-        }
-        $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
-        // 3. Check response
-        $this->checkIsCorrectStrategyParamsInResponse($response, 'show strategy');
-
-        // 3. Get some different users strategy and send request. But if no one strategy is found - we just have nothing to test yet
-        $strategy = $this->getNotUserStrategy();
-        if ($strategy === null) {
-            return;
-        }
-        $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
-        $this->checkNotOwnStrategyResponse($response, 'show another user strategy');
-
     }
     
     public function testGenerateRandomAction()

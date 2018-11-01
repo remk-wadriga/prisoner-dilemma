@@ -43,8 +43,6 @@ class Game
      */
     private $gameResults;
 
-    private $resultsData;
-
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
@@ -75,6 +73,12 @@ class Game
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
+
+    private $resultsData;
+
+    private $decisionsCount;
+
+    private $sum;
 
     public function __construct()
     {
@@ -125,12 +129,12 @@ class Game
     /**
      * @return Collection|GameResult[]
      */
-    public function getGameResults(): Collection
+    public function getResults(): Collection
     {
         return $this->gameResults;
     }
 
-    public function addGameResult(GameResult $gameResult): self
+    public function addResult(GameResult $gameResult): self
     {
         if (!$this->gameResults->contains($gameResult)) {
             $this->gameResults[] = $gameResult;
@@ -140,7 +144,7 @@ class Game
         return $this;
     }
 
-    public function removeGameResult(GameResult $gameResult): self
+    public function removeResult(GameResult $gameResult): self
     {
         if ($this->gameResults->contains($gameResult)) {
             $this->gameResults->removeElement($gameResult);
@@ -248,6 +252,37 @@ class Game
     {
         $this->user = $user;
 
+        return $this;
+    }
+
+    public function getDecisionsCount(): int
+    {
+        if ($this->decisionsCount !== null) {
+            return $this->decisionsCount;
+        }
+        return $this->decisionsCount = $this->getResults()->count();
+    }
+
+    public function setDecisionsCount(int $decisionsCount): self
+    {
+        $this->decisionsCount = $decisionsCount;
+        return $this;
+    }
+
+    public function getSum(): int
+    {
+        if ($this->sum !== null) {
+            return $this->sum;
+        }
+        foreach ($this->getResults() as $result) {
+            $this->sum += $result->getResult();
+        }
+        return $this->sum;
+    }
+
+    public function setSum(int $sum): self
+    {
+        $this->sum = $sum;
         return $this;
     }
 }

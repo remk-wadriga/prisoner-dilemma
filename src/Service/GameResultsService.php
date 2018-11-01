@@ -68,7 +68,7 @@ class GameResultsService extends AbstractService
     public function createGameResultsDataArray(Game $game): array
     {
         // 1. Check is game has results
-        if ($game->getGameResults()->count() === 0) {
+        if ($game->getResults()->count() === 0) {
             return [];
         }
 
@@ -76,7 +76,7 @@ class GameResultsService extends AbstractService
         $sum = 0;
         $totalResults = [];
         $individualResults = [];
-        foreach ($game->getGameResults() as $totalResult) {
+        foreach ($game->getResults() as $totalResult) {
             foreach ($totalResult->getIndividualGameResults() as $individualResult) {
                 $strategyID = $totalResult->getStrategy()->getId();
                 if (!isset($individualResults[$strategyID])) {
@@ -118,11 +118,11 @@ class GameResultsService extends AbstractService
      */
     private function checkGameResultElement(array $data)
     {
-        $baseMessage = 'Invalid data structure of "total" game data array. It\'s must have a "%s" key and it\'s mus be not empty %s';
+        $baseMessage = 'Invalid data structure of "total" game data array. It\'s must have a "%s" key and it\'s must be %s';
         if (!isset($data['id']) || (int)$data['id'] === 0) {
-            throw new GameServiceException(sprintf($baseMessage, 'id', 'integer'), GameServiceException::CODE_INVALID_PARAMS);
+            throw new GameServiceException(sprintf($baseMessage, 'id', 'not empty integer'), GameServiceException::CODE_INVALID_PARAMS);
         }
-        if (!isset($data['result']) || (int)$data['result'] === 0) {
+        if (!isset($data['result'])) {
             throw new GameServiceException(sprintf($baseMessage, 'result', 'integer'), GameServiceException::CODE_INVALID_PARAMS);
         }
     }
@@ -138,15 +138,15 @@ class GameResultsService extends AbstractService
      */
     private function checkGameIndividualResultElement(array $data)
     {
-        $baseMessage = 'Invalid structure of "individual" game data array. It\'s must have a "%s" key and it\'s mus be not empty %s';
-        if (!isset($data['result']) || (int)$data['result'] === 0) {
+        $baseMessage = 'Invalid structure of "individual" game data array. It\'s must have a "%s" key and it\'s mus be %s';
+        if (!isset($data['result'])) {
             throw new GameServiceException(sprintf($baseMessage, 'result', 'integer'), GameServiceException::CODE_INVALID_PARAMS);
         }
-        if (!isset($data['partnerResult']) || (int)$data['partnerResult'] === 0) {
+        if (!isset($data['partnerResult'])) {
             throw new GameServiceException(sprintf($baseMessage, 'partnerResult', 'integer'), GameServiceException::CODE_INVALID_PARAMS);
         }
         if (!isset($data['partnerID']) || (int)$data['partnerID'] === 0) {
-            throw new GameServiceException(sprintf($baseMessage, 'partnerID', 'integer'), GameServiceException::CODE_INVALID_PARAMS);
+            throw new GameServiceException(sprintf($baseMessage, 'partnerID', 'not empty integer'), GameServiceException::CODE_INVALID_PARAMS);
         }
     }
 }

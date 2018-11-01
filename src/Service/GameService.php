@@ -197,12 +197,12 @@ class GameService extends AbstractService
         }
 
         // Remove old results
-        foreach ($game->getGameResults() as $gameResult) {
+        foreach ($game->getResults() as $gameResult) {
             foreach ($gameResult->getIndividualGameResults() as $individualGameResult) {
                 $gameResult->removeIndividualGameResult($individualGameResult);
                 $this->entityManager->remove($individualGameResult);
             }
-            $game->removeGameResult($gameResult);
+            $game->removeResult($gameResult);
             $this->entityManager->remove($gameResult);
         }
 
@@ -239,7 +239,7 @@ class GameService extends AbstractService
             }
 
             // Add game result to game
-            $game->addGameResult($gameResult);
+            $game->addResult($gameResult);
         }
     }
 
