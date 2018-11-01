@@ -23,8 +23,14 @@ class ParamsTest extends AbstractApiTestCase
         $response = $this->request('params_game');
 
         // 3. Check response params
-        $params = ['rounds', 'balesForWin', 'balesForLoos', 'balesForCooperation', 'balesForDraw'];
-        $this->checkIsResponseContains($response, $params, 'Test "Check game params" failed.');
+        $params = [
+            ['rounds', 'integer'],
+            ['balesForWin', 'integer'],
+            ['balesForLoos', 'integer'],
+            ['balesForCooperation', 'integer'],
+            ['balesForDraw', 'integer'],
+        ];
+        $this->checkIsResponseContains($response, $params, 'Test "Check game params" is failed.');
     }
 
     public function testStrategyParams()
@@ -36,8 +42,14 @@ class ParamsTest extends AbstractApiTestCase
         $response = $this->request('params_strategy');
 
         // 3. Check response params
-        $params = ['maxRandomDecisionsCount', 'chanceOfExtendingBranch', 'randomDecisionChance', 'copyDecisionChance', 'acceptDecisionChance'];
-        $this->checkIsResponseContains($response, $params, 'Test "Check strategy params" failed.');
+        $params = [
+            ['maxRandomDecisionsCount', 'integer'],
+            ['chanceOfExtendingBranch', 'integer'],
+            ['randomDecisionChance', 'integer'],
+            ['copyDecisionChance', 'integer'],
+            ['acceptDecisionChance', 'integer'],
+        ];
+        $this->checkIsResponseContains($response, $params, 'Test "Check strategy params" is failed.');
     }
 
 
@@ -46,9 +58,22 @@ class ParamsTest extends AbstractApiTestCase
         $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
             sprintf('%s expected http response code is %s, %s given', $message, Response::HTTP_OK, $response->getStatus()));
 
+        $data = $response->getData();
+        $this->assertInternalType('array', $data,
+            sprintf('%s The response body must be an array, but it\'s not. It is %s', $message, $response->getContent()));
+
         foreach ($params as $key) {
-            $this->assertArrayHasKey($key, $response->getData(),
+            $type = null;
+            if (is_array($key)) {
+                $type = $key[1];
+                $key = $key[0];
+            }
+            $this->assertArrayHasKey($key, $data,
                 sprintf('%s Response not contains param "%s". Response is: "%s"', $message, $key, $response->getContent()));
+            if ($type !== null) {
+                $this->assertInternalType($type, $data[$key],
+                    sprintf('%s The response param "%s" must have type "%s", but it\'s not. It is %s', $message, $key, $type, $data[$key]));
+            }
         }
     }
 }
