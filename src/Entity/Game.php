@@ -260,6 +260,7 @@ class Game
         if ($this->decisionsCount !== null) {
             return $this->decisionsCount;
         }
+        // @TODO move this calculating to GameRepository.findAllOrderedByCreatedAtDesc function
         return $this->decisionsCount = $this->getResults()->count();
     }
 
@@ -274,6 +275,7 @@ class Game
         if ($this->sum !== null) {
             return $this->sum;
         }
+        // @TODO move this calculating to GameRepository.findAllOrderedByCreatedAtDesc function
         foreach ($this->getResults() as $result) {
             $this->sum += $result->getResult();
         }
