@@ -2,7 +2,6 @@
 
 <script>
     import SaveGameResults from '@/components/game/SaveGameResults'
-    import Api from '@/helpers/Api.js'
 
     export default {
         name: "GameResults",
@@ -83,12 +82,16 @@
                     data.resultsData[key] = this.results.results[key]
                 })
 
-                if (Object.keys(data.resultsData).length > 0 && data.name !== undefined && data.name !== null) {
-                    Api.methods.request('save_game_url', {game_form: data}, 'POST', response => {
-                        this.$router.push({name: 'game_view', params: {id: response.info.id}})
-                        this.$router.go(0)
-                    })
+                if (Object.keys(data.resultsData).length === 0) {
+                    this.$store.commit('addLogMessage', {type: 'danger', text: 'It\'s impossible to create game without results!'})
+                    return
                 }
+                if (!data.name) {
+                    this.$store.commit('addLogMessage', {type: 'danger', text: 'It\'s impossible to create game without name!'})
+                    return
+                }
+
+                this.$emit('saveGame', data)
             }
         },
         mounted() {

@@ -52,7 +52,7 @@ export default new Vuex.Store({
         setBreadcrumbs(state, breadcrumbs) {
             state.app.breadcrumbs = breadcrumbs
         },
-        addLogMessage(state, msg, liveTime = 7000) {
+        addLogMessage(state, msg, liveTime = 10000) {
             if (msg.id === undefined) {
                 index++;
                 msg.id = 'logger_message_' + index;

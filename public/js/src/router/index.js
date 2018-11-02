@@ -54,7 +54,7 @@ export default new Router({
             component: Game
         },
         {
-            path: '/game/start',
+            path: '/game',
             name: 'game_start',
             component: Game
         }

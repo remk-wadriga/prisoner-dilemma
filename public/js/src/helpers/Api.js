@@ -22,6 +22,8 @@ const Api = {
             'params_strategy_url': '/params/strategy',
             'params_game_url': '/params/game',
             'save_game_url': '/game',
+            'game_url': '/game/:id',
+            'game_results_url': '/game/:id/results'
         }
     },
     methods: {

@@ -3,6 +3,7 @@
 <script>
     import GameParams from '@/components/game/GameParams'
     import GameResults from '@/components/game/GameResults'
+    import Api from '@/helpers/Api.js'
 
     export default {
         name: "Game",
@@ -10,16 +11,55 @@
         data() {
             return {
                 game: null,
-                gameResults: null
+                gameResults: null,
+                gameParams: null,
+                showParams: false
             }
         },
         methods: {
-            setGameResults(data) {
+            setGameResults (data) {
                 this.gameResults = data
+            },
+            saveGame (data) {
+                Api.methods.request('save_game_url', {game_form: data}, 'POST', response => {
+                    this.$router.push({name: 'game_view', params: {id: response.info.id}})
+
+                    this.game = response.info
+                    this.gameParams = response.params
+
+                    this.$store.commit('setContentTitle', 'Game "' + this.game.name + '"')
+                })
             }
         },
         mounted() {
-            console.log(this.gameResults)
+            const id = this.$route.params.id
+
+            this.$store.commit('setPageTitle', '')
+            this.$store.commit('setContentTitle', this.game !== null ? this.game.name : 'Start game')
+            this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}, {title: 'Game', url: 'game_start'}])
+            this.$store.commit('setPageTopButtons', [])
+
+            if (id) {
+                let getResultsCallback = () => {
+                    Api.methods.request(['game_results_url', {id}], {}, 'GET', response => {
+                        this.gameResults = response
+                        this.showParams = true
+                    })
+                }
+
+                Api.methods.request(['game_url', {id}], {}, 'GET', response => {
+                    this.game = response.info
+                    this.gameParams = response.params
+                    this.$store.commit('setContentTitle', 'Game "' + this.game.name + '"')
+                    if (this.gameResults === null) {
+                        getResultsCallback()
+                    } else {
+                        this.showParams = true
+                    }
+                })
+            } else {
+                this.showParams = true
+            }
         }
     }
 </script>

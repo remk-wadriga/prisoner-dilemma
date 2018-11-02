@@ -22,6 +22,11 @@
                 isReady: false
             }
         },
+        props: {
+            game: Object,
+            gameParams: Object,
+            results: Object
+        },
         methods: {
             startGame() {
                 this.gameResults = null
@@ -31,48 +36,48 @@
 
                 Api.methods.request('start_game_url', this.params, 'POST', response => {
                     this.gameResults = response
-                })
-            }
-        },
-        watch: {
-            gameResults: {
-                handler: function() {
                     this.$emit('setGameResults', this.gameResults)
-                },
-                deep: true
+                })
             }
         },
         mounted() {
             this.strategies = this.$store.state.strategy.checked
 
-            this.$store.commit('setPageTitle', '')
-            this.$store.commit('setContentTitle', 'Start game')
-            this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}, {title: 'Game', url: 'game_start'}])
-            this.$store.commit('setPageTopButtons', [])
+            let initStrategiesCheckList = () => {
+                this.strategies.forEach(strategy => {
+                    this.checkedStrategiesIds.push(strategy.id)
+                    this.checkedStrategiesIdsOptions.push({
+                        value: strategy.id,
+                        text: strategy.name
+                    })
+                })
+            }
 
             let getPramsCallback = () => {
                 Api.methods.request('params_game_url', {}, 'GET', response => {
                     this.params = response
-
-                    this.strategies.forEach(strategy => {
-                        this.checkedStrategiesIds.push(strategy.id)
-                        this.checkedStrategiesIdsOptions.push({
-                            value: strategy.id,
-                            text: strategy.name
-                        })
-                    })
-
+                    initStrategiesCheckList()
                     this.isReady = true
                 })
+            }
+
+            if (this.gameParams !== null) {
+                this.params = this.gameParams
+            }
+            if (this.results !== null) {
+                console.log(this.results)
             }
 
             if (this.strategies.length === 0) {
                 Api.methods.request('app_homepage', {}, 'GET', response => {
                     this.strategies = response
-                    getPramsCallback()
+                    if (this.gameParams === null) {
+                        getPramsCallback()
+                    } else {
+                        initStrategiesCheckList()
+                        this.isReady = true
+                    }
                 })
-            } else {
-                getPramsCallback()
             }
         }
     }

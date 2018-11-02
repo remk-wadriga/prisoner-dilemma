@@ -81,5 +81,13 @@
         </b-button>
     </b-row>
 
-    <SaveGameResults v-bind:totalResults="score" v-bind:individualResults="individualResults" v-bind:onCloseCallback="onCloseCallback" v-if="saveGameResultsModalVisible" />
+    <SaveGameResults
+        v-bind:sum="sum"
+        v-bind:totalResults="score"
+        v-bind:individualResults="individualResults"
+        v-bind:winner="winner"
+        v-bind:looser="looser"
+        v-bind:onCloseCallback="onCloseCallback"
+        v-if="saveGameResultsModalVisible"
+    />
 </div>
