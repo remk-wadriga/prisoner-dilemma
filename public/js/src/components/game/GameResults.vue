@@ -96,11 +96,7 @@
         },
         mounted() {
             this.onCloseCallback = this.onCloseCallbackFunction
-
             if (this.results != null && this.results.results !== undefined) {
-                if (this.results.results.sum !== undefined) {
-                    this.sum = this.results.results.sum
-                }
                 if (this.results.results.total !== undefined) {
                     this.score = this.results.results.total
                     this.score
@@ -126,6 +122,9 @@
                         this.individualResults[id].sort((one, due) => one.result < due.result ? 1 : -1)
                     })
                     this.hasIndividualResults = Object.keys(this.individualResults).length > 0
+                }
+                if (this.results.results.sum !== undefined) {
+                    this.sum = this.results.results.sum
                 }
             }
         }

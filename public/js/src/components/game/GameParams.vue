@@ -65,7 +65,14 @@
                 this.params = this.gameParams
             }
             if (this.results !== null) {
-                console.log(this.results)
+                this.gameResults = this.results
+                this.results.results.total.forEach(res => {
+                    this.strategies.push({
+                        id: res.id,
+                        name: res.name
+                    })
+                })
+                this.$emit('setGameResults', this.gameResults)
             }
 
             if (this.strategies.length === 0) {
@@ -78,6 +85,13 @@
                         this.isReady = true
                     }
                 })
+            } else {
+                if (this.gameParams === null) {
+                    getPramsCallback()
+                } else {
+                    initStrategiesCheckList()
+                    this.isReady = true
+                }
             }
         }
     }

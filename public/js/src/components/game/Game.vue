@@ -13,7 +13,8 @@
                 game: null,
                 gameResults: null,
                 gameParams: null,
-                showParams: false
+                showParams: false,
+                showPage: true
             }
         },
         methods: {
@@ -21,14 +22,19 @@
                 this.gameResults = data
             },
             saveGame (data) {
-                Api.methods.request('save_game_url', {game_form: data}, 'POST', response => {
+                let cllback = response => {
                     this.$router.push({name: 'game_view', params: {id: response.info.id}})
 
                     this.game = response.info
                     this.gameParams = response.params
 
                     this.$store.commit('setContentTitle', 'Game "' + this.game.name + '"')
-                })
+                }
+                if (this.game === null) {
+                    Api.methods.request('save_game_url', {game_form: data}, 'POST', cllback)
+                } else {
+                    Api.methods.request(['game_url', {id: this.game.id}], {game_form: data}, 'PUT', cllback)
+                }
             }
         },
         mounted() {
@@ -43,6 +49,7 @@
                 let getResultsCallback = () => {
                     Api.methods.request(['game_results_url', {id}], {}, 'GET', response => {
                         this.gameResults = response
+                        this.gameResults.params = this.gameParams
                         this.showParams = true
                     })
                 }

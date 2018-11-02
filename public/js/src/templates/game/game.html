@@ -1,4 +1,4 @@
-<b-tabs id="game_page">
+<b-tabs id="game_page" v-if="showPage">
 
     <b-tab title="Params" v-if="showParams" :active="gameResults === null">
         <GameParams
