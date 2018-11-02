@@ -257,8 +257,26 @@ class Game
     }
 
 
-
     // Lifecycle Callbacks
 
+    /**
+     * @ORM\PrePersist
+     */
+    public function beforeCreate()
+    {
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new \DateTime());
+        }
+        if ($this->getUpdatedAt() === null) {
+            $this->setUpdatedAt(new \DateTime());
+        }
+    }
 
+    /**
+     * @ORM\PreUpdate
+     */
+    public function beforeUpdate()
+    {
+        $this->setUpdatedAt(new \DateTime());
+    }
 }
