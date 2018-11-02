@@ -5,8 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
-use phpDocumentor\Reflection\Types\This;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\GameRepository")
@@ -14,6 +13,8 @@ use phpDocumentor\Reflection\Types\This;
  */
 class Game
 {
+    use TimestampableEntity;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -30,13 +31,6 @@ class Game
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
-
-    /**
-     * @var \DateTime
-     * @Gedmo\Timestampable(on="create")
-     * @ORM\Column(type="datetime")
-     */
-    private $date;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\GameResult", mappedBy="game", orphanRemoval=true)
@@ -114,18 +108,6 @@ class Game
         return $this;
     }
 
-    public function getDate(): ?\DateTimeInterface
-    {
-        return $this->date;
-    }
-
-    public function setDate(\DateTimeInterface $date): self
-    {
-        $this->date = $date;
-
-        return $this;
-    }
-
     /**
      * @return Collection|GameResult[]
      */
@@ -167,20 +149,6 @@ class Game
     public function getResultsData(): ?array
     {
         return $this->resultsData;
-    }
-
-
-
-    // Lifecycle Callbacks
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function beforeCreate()
-    {
-        if ($this->getDate() === null) {
-            $this->setDate(new \DateTime());
-        }
     }
 
     public function getRounds(): ?int
@@ -287,4 +255,10 @@ class Game
         $this->sum = $sum;
         return $this;
     }
+
+
+
+    // Lifecycle Callbacks
+
+
 }

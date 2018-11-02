@@ -23,7 +23,7 @@ class GameRepository extends ServiceEntityRepository
     public function findAllOrderedByCreatedAtDesc(int $userID = null)
     {
         $queryBuilder = $this->createQueryBuilder('g')
-            ->orderBy('g.date', 'DESC')
+            ->orderBy('g.updatedAt', 'DESC')
         ;
 
         if ($userID !== null) {
