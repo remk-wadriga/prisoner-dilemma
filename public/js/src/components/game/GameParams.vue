@@ -34,6 +34,8 @@
                 this.params.strategiesIds = this.checkedStrategiesIds
                 this.params.writeIndividualResults = this.writeIndividualResults
 
+                this.$emit('setGameResults', null)
+
                 Api.methods.request('start_game_url', this.params, 'POST', response => {
                     this.gameResults = response
                     this.$emit('setGameResults', this.gameResults)

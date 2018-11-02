@@ -14,10 +14,18 @@
                 gameResults: null,
                 gameParams: null,
                 showParams: false,
-                showPage: true
+                tmp_results: null
             }
         },
         methods: {
+            rebuild () {
+                if (this.gameResults !== null) {
+                    this.tmp_results = this.gameResults
+                    this.gameResults = null
+                } else {
+                    this.gameResults = this.tmp_results
+                }
+            },
             setGameResults (data) {
                 this.gameResults = data
             },
