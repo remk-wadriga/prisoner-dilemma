@@ -54,6 +54,15 @@ class GameController extends ControllerAbstract
     }
 
     /**
+     * @Route("/game/{id}/results", name="game_results", methods={"GET"})
+     * @IsGranted("MANAGE", subject="game")
+     */
+    public function results(Game $game, GameResultsService $gameResultsService)
+    {
+        return $this->json($gameResultsService->createGameResultsDataArray($game));
+    }
+
+    /**
      * @Route("/games", name="game_list", methods={"GET"})
      */
     public function actionList()
