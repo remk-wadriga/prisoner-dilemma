@@ -1,7 +1,6 @@
 <template src="@/templates/strategy/list.html" />
 
 <script>
-    import Vue from 'vue'
     import Api from '@/helpers/Api'
     import DeleteStrategy from '@/components/strategy/Delete.vue'
     import StartGameModal from '@/components/game/StartModal.vue'

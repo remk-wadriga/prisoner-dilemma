@@ -20,6 +20,7 @@ const Api = {
             'create_random_strategy_url': '/strategy/random',
             'start_game_url': '/game/start',
             'params_strategy_url': '/params/strategy',
+            'games_list_url': '/games',
             'params_game_url': '/params/game',
             'save_game_url': '/game',
             'game_url': '/game/:id',

@@ -14,16 +14,12 @@ export default new Vuex.Store({
             contentTitle: '',
             leftMenuItems: [
                 {
-                    name: 'Item 1',
-                    url: '/url-somewhere-1',
+                    name: 'Strategies',
+                    url: '/',
                 },
                 {
-                    name: 'Item 2',
-                    url: '/url-somewhere-2',
-                },
-                {
-                    name: 'Item 3',
-                    url: '/url-somewhere-3',
+                    name: 'Games',
+                    url: '/games',
                 }
             ]
         },

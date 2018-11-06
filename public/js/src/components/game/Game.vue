@@ -50,7 +50,7 @@
 
             this.$store.commit('setPageTitle', '')
             this.$store.commit('setContentTitle', this.game !== null ? this.game.name : 'Start game')
-            this.$store.commit('setBreadcrumbs', [{title: 'Strategies', url: 'app_homepage'}, {title: 'Game', url: 'game_start'}])
+            this.$store.commit('setBreadcrumbs', [{title: 'Games', url: 'games_list'}, {title: 'Game', url: 'game_start'}])
             this.$store.commit('setPageTopButtons', [])
 
             if (id) {

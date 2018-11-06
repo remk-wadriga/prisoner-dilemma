@@ -1,0 +1,41 @@
+<b-col id="games_list_page">
+
+    <b-row>
+        <b-col md="4" class="my-2">
+            <b-form-group horizontal label="Per page" class="mb-0">
+                <b-form-select :options="[5, 10, 15, {value: 10000, text: 'All'}]" v-model="perPage" />
+            </b-form-group>
+        </b-col>
+    </b-row>
+
+    <b-row>
+        <b-col md="12" class="my-2">
+            <b-table
+                    striped hover
+                    stacked="md"
+                    :items="games"
+                    :fields="fields"
+                    :current-page="currentPage"
+                    :per-page="perPage"
+            >
+                <template slot="actions" slot-scope="row">
+                    <!-- We use @click.stop here to prevent a 'row-clicked' event from also happening -->
+                    <b-button :variant="viewBtnVar" size="sm" @click.stop="viewGame(row.item)" class="mr-1">
+                        View
+                    </b-button>
+                    <b-button :variant="deleteBtnVar" size="sm" @click.stop="openDeleteStrategyModal(row.item)" class="mr-1">
+                        Delete
+                    </b-button>
+                </template>
+            </b-table>
+        </b-col>
+
+    </b-row>
+
+    <b-row>
+        <b-col md="8" class="my-1">
+            <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
+        </b-col>
+    </b-row>
+
+</b-col>

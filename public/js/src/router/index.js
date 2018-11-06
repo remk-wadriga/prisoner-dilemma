@@ -8,6 +8,7 @@ import StrategyCreate from '@/components/strategy/Create'
 import StrategyView from '@/components/strategy/View'
 import StrategyUpdate from '@/components/strategy/Update'
 import Game from '@/components/game/Game'
+import GamesList from '@/components/game/List'
 
 Vue.use(Router)
 
@@ -57,6 +58,11 @@ export default new Router({
             path: '/game',
             name: 'game_start',
             component: Game
+        },
+        {
+            path: '/games',
+            name: 'games_list',
+            component: GamesList
         }
     ]
 })
