@@ -2,9 +2,11 @@
 
 <script>
     import Api from '@/helpers/Api'
+    import DeleteModal from '@/components/game/DeleteModal'
 
     export default {
         name: "List",
+        components: { DeleteModal },
         data() {
             return {
                 games: [],
@@ -32,11 +34,24 @@
                 currentPage: 1,
                 perPage: 10,
                 totalRows: 0,
+                selectedGame: null,
+                deleteGameVisible: false,
             }
         },
         methods: {
             viewGame(game) {
                 this.$router.push({name: 'game_view', params: {id: game.id}})
+            },
+            openDeleteGameModal(game) {
+                this.selectedGame = game
+                this.deleteGameVisible = true
+            },
+            onCloseDeleteModalCallback() {
+                Api.methods.request(['game_url', {id: this.selectedGame.id}], {}, 'DELETE', response => {
+                    this.selectedGame = null
+                    this.deleteGameVisible = false
+                    this.$router.go(0)
+                })
             }
         },
         mounted() {

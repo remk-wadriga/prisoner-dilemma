@@ -23,7 +23,7 @@
                     <b-button :variant="viewBtnVar" size="sm" @click.stop="viewGame(row.item)" class="mr-1">
                         View
                     </b-button>
-                    <b-button :variant="deleteBtnVar" size="sm" @click.stop="openDeleteStrategyModal(row.item)" class="mr-1">
+                    <b-button :variant="deleteBtnVar" size="sm" @click.stop="openDeleteGameModal(row.item)" class="mr-1">
                         Delete
                     </b-button>
                 </template>
@@ -37,5 +37,7 @@
             <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
         </b-col>
     </b-row>
+
+    <DeleteModal v-if="deleteGameVisible" v-bind:game="selectedGame" v-bind:onCloseCallbackFunction="onCloseDeleteModalCallback" />
 
 </b-col>
