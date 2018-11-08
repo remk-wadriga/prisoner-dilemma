@@ -65,6 +65,10 @@
                 Api.methods.request(['game_url', {id}], {}, 'GET', response => {
                     this.game = response.info
                     this.gameParams = response.params
+                    if (response.results !== undefined) {
+                        this.gameResults = response.results
+                        this.gameResults.params = this.gameParams
+                    }
                     this.$store.commit('setContentTitle', 'Game "' + this.game.name + '"')
                     if (this.gameResults === null) {
                         getResultsCallback()

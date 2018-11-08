@@ -66,8 +66,10 @@
             if (this.gameParams !== null) {
                 this.params = this.gameParams
             }
-            if (this.results !== null) {
+
+            if (this.results !== null && this.gameResults === null) {
                 this.gameResults = this.results
+                this.strategies = [];
                 this.results.results.total.forEach(res => {
                     this.strategies.push({
                         id: res.id,
