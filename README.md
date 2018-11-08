@@ -2,7 +2,7 @@
 
 PHP application based on <a href="https://github.com/symfony/symfony">Symfony 4</a> and <a href="https://github.com/vuejs/vue">Vue</a> frameworks.
 Created for check which behavior strategy is more effective.
-Now it can only making strategies CRUD, but in next releases we will add a competition component and statistics.
+Now it can make strategies and games but in next releases we will add a statistics.
 
 ## Installation
 
