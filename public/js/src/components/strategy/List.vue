@@ -103,7 +103,7 @@
             Api.methods.request('app_homepage', {}, 'GET', response => {
                 response.forEach(item => {
                     this.checkedStrategiesIds[item.id] = false
-                    item.shortDescription = item.description.substring(0, 150) + '...'
+                    item.shortDescription = item.description !== null ? item.description.substring(0, 150) + '...' : null
                     this.totalRows++
                 })
                 this.strategies = response
