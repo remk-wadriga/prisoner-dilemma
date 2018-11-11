@@ -236,6 +236,8 @@ export class TreeEditor {
 			return map;
 		}, {});
 
+		let legendButtonsOffset = 0;
+
 		const legend = this.svg
 			.append('g')
 			.attr('transform', `translate(50, 50)`)
@@ -253,7 +255,8 @@ export class TreeEditor {
 			.attr('class', 'legend')
 			.attr('transform', (d, index, legend) => {
 				const prevLegend = this.options.legend[index - 1];
-				const offset = prevLegend ? 8 * prevLegend.label.length + 40 : 0;
+				const offset = prevLegend ? legendButtonsOffset + 8 * prevLegend.label.length + 40 : 0;
+                legendButtonsOffset = offset
 				return `translate(${offset},0)`;
 				return `translate(${offset},0)`;
 			})
