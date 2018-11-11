@@ -24,9 +24,6 @@
             strategy: Object
         },
         methods: {
-            changeDecisionsData(data) {
-                this.decisionsData = data
-            },
             openGenerateRandomStrategyModal() {
                 // Set popup "onClose" callback function
                 GenerateRandomStrategy.computed.onCloseCallback = () => {
@@ -46,7 +43,7 @@
                         name: this.name,
                         description: this.description,
                         status: this.status,
-                        decisionsData: this.decisionsData,
+                        decisionsData: this.$refs.decisionForm.getDecisionsData(),
                     }
                 }
                 let method = '';
@@ -65,6 +62,7 @@
                     }
                     this.$router.go(0);
                 })
+
                 return false
             }
         },

@@ -1,5 +1,5 @@
 <template>
-    <div id="tree_editor_container"><button @click="saveData">SaveData</button></div>
+    <div id="tree_editor_container"></div>
 </template>
 
 <script>
@@ -19,16 +19,8 @@
             data: Object
         },
         methods: {
-            saveData() {
-                this.decisionsData = this.editor.getData()
-            }
-        },
-        watch: {
-            decisionsData: {
-                handler: function() {
-                    this.$emit('changeData', this.decisionsData);
-                },
-                deep: true
+            getData() {
+                return this.editor.getData()
             }
         },
         mounted() {

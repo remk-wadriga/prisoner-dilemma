@@ -39,24 +39,15 @@
                         {label: 'yes'},
                         {label: 'no'}
                     ]
-                },
-                changedDecisionsData: null
+                }
             }
         },
         props: {
             decisionsData: Object
         },
         methods: {
-            changeDecisionsData(data) {
-                this.changedDecisionsData = data
-            }
-        },
-        watch: {
-            changedDecisionsData: {
-                handler: function() {
-                    this.$emit('changeDecisionsData', this.changedDecisionsData);
-                },
-                deep: true
+            getDecisionsData() {
+                return this.$refs.treeEditor.getData()
             }
         }
     }

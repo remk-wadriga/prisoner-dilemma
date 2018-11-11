@@ -1,3 +1,3 @@
 <b-row id="decision_form">
-    <TreeEditor v-bind:options="decisionsOptions" v-bind:data="decisionsData" @changeData="changeDecisionsData($event)"  v-if="decisionsData" />
+    <TreeEditor v-bind:options="decisionsOptions" v-bind:data="decisionsData" ref="treeEditor"  v-if="decisionsData" />
 </b-row>

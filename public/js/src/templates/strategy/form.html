@@ -2,7 +2,7 @@
     <b-tabs>
         <b-tab title="Decisions" active>
             <b-button type="submit" variant="success" @click="openGenerateRandomStrategyModal">Generate random strategy</b-button>
-            <DecisionForm v-bind:decisionsData="decisionsData" @changeDecisionsData="changeDecisionsData($event)"  v-if="decisionsData" />
+            <DecisionForm v-bind:decisionsData="decisionsData" ref="decisionForm" v-if="decisionsData" />
         </b-tab>
 
         <b-tab title="Params">
