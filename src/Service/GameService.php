@@ -31,6 +31,9 @@ class GameService extends AbstractService
     private $balesForDraw = 0;
     private $individualResults = [];
 
+    private $writeGameProcess = false;
+    private $gameProcess = [];
+
     public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService, GameResultsService $gameResultsService)
     {
         parent::__construct($entityManager);
@@ -100,6 +103,9 @@ class GameService extends AbstractService
             $strategiesNames[$strategy['strategyID']] = $strategy['strategyName'];
         }
 
+        // Set param "writeGameProcess" to true to write all steps of the game process
+        $this->writeGameProcess = true;
+
         // Start a game!
         $results = $this->makeGameWithStrategiesRecursively($strategies, $writeIndividualResults);
 
@@ -129,6 +135,7 @@ class GameService extends AbstractService
             'strategiesIds' => $strategiesIds,
             'params' => $this->getParams(),
             'results' => $results,
+            'process' => $this->gameProcess,
         ]);
 
         // Return results
@@ -453,6 +460,7 @@ class GameService extends AbstractService
         $nextDecision1 = $answer2 === $yes ? $partnerSayYesNextDecision1 : $partnerSayNoNextDecision1;
         $nextDecision2 = $answer1 === $yes ? $partnerSayYesNextDecision2 : $partnerSayNoNextDecision2;
 
+
         // Next - increment round number and start next round
         $round++;
 
@@ -463,6 +471,24 @@ class GameService extends AbstractService
         }
         if (isset($nextResults[$strategy2ID])) {
             $results[$strategy2ID] += $nextResults[$strategy2ID];
+        }
+
+        // Write game process if it's need
+        if ($this->writeGameProcess) {
+            $processID = $strategy1ID . ':' . $strategy2ID;
+            if (!isset($this->gameProcess[$processID])) {
+                $this->gameProcess[$processID] = [];
+            }
+            $this->gameProcess[$processID][$round] = [
+                $strategy1ID => [
+                    'answer' => $answer1,
+                    'result' => $results[$strategy1ID],
+                ],
+                $strategy2ID => [
+                    'answer' => $answer2,
+                    'result' => $results[$strategy2ID],
+                ],
+            ];
         }
 
         // Return results
