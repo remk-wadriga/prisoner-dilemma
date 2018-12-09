@@ -243,6 +243,7 @@ class Game
         if ($this->sum !== null) {
             return $this->sum;
         }
+        $this->sum = 0;
         // @TODO move this calculating to GameRepository.findAllOrderedByCreatedAtDesc function
         foreach ($this->getResults() as $result) {
             $this->sum += $result->getResult();

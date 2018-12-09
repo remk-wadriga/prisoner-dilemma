@@ -17,7 +17,7 @@ class GameFixture extends AbstractFixture implements DependentFixtureInterface
 {
     protected function loadData(ObjectManager $manager)
     {
-        $this->createMany(Game::class, 20, function (Game $game, int $i) use ($manager) {
+        $this->createMany(Game::class, 30, function (Game $game, int $i) use ($manager) {
             /** @var \App\Entity\User $user */
             $user = $this->getRandomReference(User::class);
             $game

@@ -58,6 +58,8 @@
         },
         methods: {
             showIndividualResults (strategy) {
+                console.log(strategy.id)
+                console.log(this.individualResults)
                 if (this.individualResults[strategy.id] !== undefined) {
                     this.individualResultsStrategy = strategy
                     this.individualResult = this.individualResults[strategy.id]
