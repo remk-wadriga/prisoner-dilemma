@@ -50,7 +50,7 @@ class GameResultFixture extends AbstractFixture implements DependentFixtureInter
                 ->getQuery()
                 ->getResult();
             if (count($strategies) < 2) {
-                break;
+                continue;
             }
 
             foreach ($strategies as $index => $strategy) {
