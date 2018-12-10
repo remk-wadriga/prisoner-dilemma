@@ -51,7 +51,7 @@ class GameController extends ControllerAbstract
             'params' => $gameService->getParams(),
             'results' => $results,
         ]);
-    }-
+    }
 
     /**
      * @Route("/game/{id}/results", name="game_results", methods={"GET"})
