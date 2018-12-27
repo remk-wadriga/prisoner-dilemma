@@ -54,7 +54,9 @@
             }
         },
         props: {
-            results: Object
+            game: Object,
+            results: Object,
+            gameResultsChanged: Boolean
         },
         methods: {
             showIndividualResults (strategy) {

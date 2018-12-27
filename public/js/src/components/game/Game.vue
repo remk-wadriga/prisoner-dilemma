@@ -11,6 +11,7 @@
         data() {
             return {
                 game: null,
+                gameResultsChanged: false,
                 gameResults: null,
                 gameParams: null,
                 showParams: false,
@@ -29,6 +30,9 @@
             setGameResults (data) {
                 this.gameResults = data
             },
+            setGameResultsChanged () {
+                this.gameResultsChanged = true;
+            },
             saveGame (data) {
                 let cllback = response => {
                     this.$router.push({name: 'game_view', params: {id: response.info.id}})
@@ -38,7 +42,7 @@
 
                     this.$store.commit('setContentTitle', 'Game "' + this.game.name + '"')
                 }
-                if (this.game === null) {
+                if (this.game === null || this.gameResultsChanged) {
                     Api.methods.request('save_game_url', {game_form: data}, 'POST', cllback)
                 } else {
                     Api.methods.request(['game_url', {id: this.game.id}], {game_form: data}, 'PUT', cllback)
@@ -52,6 +56,8 @@
             this.$store.commit('setContentTitle', this.game !== null ? this.game.name : 'Start game')
             this.$store.commit('setBreadcrumbs', [{title: 'Games', url: 'games_list'}, {title: 'Game', url: 'game_start'}])
             this.$store.commit('setPageTopButtons', [])
+
+            this.gameResultsChanged = false
 
             if (id) {
                 let getResultsCallback = () => {

@@ -82,12 +82,14 @@
     </b-row>
 
     <SaveGameResults
+        v-bind:game="game"
         v-bind:sum="sum"
         v-bind:totalResults="score"
         v-bind:individualResults="individualResults"
         v-bind:winner="winner"
         v-bind:looser="looser"
         v-bind:onCloseCallback="onCloseCallback"
+        v-bind:gameResultsChanged="gameResultsChanged"
         v-if="saveGameResultsModalVisible"
     />
 </div>

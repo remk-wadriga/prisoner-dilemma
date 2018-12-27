@@ -39,6 +39,7 @@
                 Api.methods.request('start_game_url', this.params, 'POST', response => {
                     this.gameResults = response
                     this.$emit('setGameResults', this.gameResults)
+                    this.$emit('setGameResultsChanged')
                 })
             }
         },
