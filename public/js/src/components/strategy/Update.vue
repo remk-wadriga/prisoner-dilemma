@@ -25,7 +25,9 @@
                     {title: this.strategy.name, url: {name: 'strategy_view', params: {id}}},
                     {title: 'Update', url: {name: 'strategy_update', params: {id}}},
                 ])
-                this.$store.commit('setPageTopButtons', [])
+                this.$store.commit('setPageTopButtons', [
+                    {title: 'Show statistics', type: 'success', click: {url: {name: 'statistics_strategy', params: {id}}}}
+                ])
                 this.$store.commit('selectedStrategyId', id)
             })
         }

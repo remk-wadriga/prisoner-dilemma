@@ -24,7 +24,8 @@
                 ])
                 this.$store.commit('setPageTopButtons', [
                     {title: 'Update', type: 'primary', click: {url: {name: 'strategy_update', params: {id}}}},
-                    {title: 'Delete', type: 'danger', click: 'openDeleteStrategyModal'}
+                    {title: 'Delete', type: 'danger', click: 'openDeleteStrategyModal'},
+                    {title: 'Show statistics', type: 'success', click: {url: {name: 'statistics_strategy', params: {id}}}}
                 ])
                 this.$store.commit('selectedStrategyId', this.strategy.id)
             })
