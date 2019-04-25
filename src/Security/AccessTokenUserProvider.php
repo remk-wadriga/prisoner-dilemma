@@ -94,7 +94,7 @@ class AccessTokenUserProvider implements UserProviderInterface
      */
     public function createAccessToken(AccessTokenEntityInterface $user): AccessToken
     {
-        $manager = $this->doctrine->getEntityManager();
+        $manager = $this->doctrine->getManager();
         try {
             $manager->persist($user);
             $user
