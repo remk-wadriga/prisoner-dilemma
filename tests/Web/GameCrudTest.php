@@ -200,7 +200,7 @@ class GameCrudTest extends AbstractApiTestCase
         $game = null;
         // Check response status - mus be equals to 200
         $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
-            sprintf('Wrong test "%s" response, status code mus be equal to %s, but it is not. It is: %s. The content is: %s',
+            sprintf('Wrong test "%s" response, status code must be equal to %s, but it is not. It is: %s. The content is: %s',
                 $testKeysID, Response::HTTP_OK, $response->getStatus(), $response->getContent()));
 
         // Check is response data has all necessary params (and if it's has correct values)
@@ -566,7 +566,7 @@ class GameCrudTest extends AbstractApiTestCase
         if ($this->gameService !== null) {
             return $this->gameService;
         }
-        return $this->gameService = new GameService($this->entityManager, $this->getStrategyDecisionsService(), $this->getGameResultsService());
+        return $this->gameService = new GameService($this->entityManager, $this->getStrategyDecisionsService(), $this->getGameResultsService(), self::$kernel->getContainer());
     }
 
     private function getStrategyDecisionsService(): StrategyDecisionsService
@@ -574,7 +574,7 @@ class GameCrudTest extends AbstractApiTestCase
         if ($this->strategyDecisionsService !== null) {
             return $this->strategyDecisionsService;
         }
-        return $this->strategyDecisionsService = new StrategyDecisionsService($this->entityManager);
+        return $this->strategyDecisionsService = new StrategyDecisionsService($this->entityManager, self::$kernel->getContainer());
     }
 
     private function getGameResultsService(): GameResultsService
@@ -582,6 +582,6 @@ class GameCrudTest extends AbstractApiTestCase
         if ($this->gameResultsService !== null) {
             return $this->gameResultsService;
         }
-        return $this->gameResultsService = new GameResultsService($this->entityManager);
+        return $this->gameResultsService = new GameResultsService($this->entityManager, self::$kernel->getContainer());
     }
 }

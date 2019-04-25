@@ -71,7 +71,7 @@ class GameServiceTest extends BaseStrategyTestCase
         if ($this->gameService !== null) {
             return $this->gameService;
         }
-        return $this->gameService = new GameService($this->entityManager, $this->getStrategyDecisionsService(), $this->getGameResultsService());
+        return $this->gameService = new GameService($this->entityManager, $this->getStrategyDecisionsService(), $this->getGameResultsService(), self::$kernel->getContainer());
     }
 
     protected function getGameResultsService(): GameResultsService
@@ -79,6 +79,6 @@ class GameServiceTest extends BaseStrategyTestCase
         if ($this->gameResultsService !== null) {
             return $this->gameResultsService;
         }
-        return $this->gameResultsService = new GameResultsService($this->entityManager);
+        return $this->gameResultsService = new GameResultsService($this->entityManager, self::$kernel->getContainer());
     }
 }

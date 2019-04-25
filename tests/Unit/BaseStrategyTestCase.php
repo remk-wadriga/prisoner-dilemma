@@ -24,7 +24,7 @@ class BaseStrategyTestCase extends AbstractUnitTestCase
         if ($this->strategyService !== null) {
             return $this->strategyService;
         }
-        return $this->strategyService = new StrategyService($this->entityManager, $this->getStrategyDecisionsService());
+        return $this->strategyService = new StrategyService($this->entityManager, $this->getStrategyDecisionsService(), self::$kernel->getContainer());
     }
 
     protected function getStrategyDecisionsService(): StrategyDecisionsService
@@ -32,7 +32,7 @@ class BaseStrategyTestCase extends AbstractUnitTestCase
         if ($this->strategyDecisionsService !== null) {
             return $this->strategyDecisionsService;
         }
-        return $this->strategyDecisionsService = new StrategyDecisionsService($this->entityManager);
+        return $this->strategyDecisionsService = new StrategyDecisionsService($this->entityManager, self::$kernel->getContainer());
     }
 
     protected function calculateStrategyChildrenRecursively(Strategy $strategy, Decision $decision = null)
