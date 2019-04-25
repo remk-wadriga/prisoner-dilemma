@@ -5,7 +5,7 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: 'en'
-    frontend_date_time_format: 'Y-m-d H:i:s'
+    frontend_date_time_format: 'Y-m-d H:i'
 
 services:
     # default configuration for services in *this* file

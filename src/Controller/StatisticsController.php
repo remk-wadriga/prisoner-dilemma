@@ -9,7 +9,7 @@
 namespace App\Controller;
 
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\StatisticsService;
+use App\Service\Statistics\StrategyStatisticsService;
 use App\Entity\Strategy;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
@@ -19,11 +19,11 @@ class StatisticsController extends ControllerAbstract
      * @Route("/statistics/strategy/{id}", name="statistics_strategy", methods={"GET"})
      * @IsGranted("MANAGE", subject="strategy")
      */
-    public function strategyStatistics(Strategy $strategy)
+    public function strategyStatistics(Strategy $strategy, StrategyStatisticsService $strategyStatisticsService)
     {
         return $this->json([
             'strategy' => $this->strategyInfo($strategy),
-            'statistics' => [],
+            'statistics' => $strategyStatisticsService->getStatisticsInfo($strategy),
         ]);
     }
 

@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
 use App\Entity\Strategy;
 use App\Entity\Decision;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class StrategyService extends AbstractService
 {
@@ -20,9 +21,9 @@ class StrategyService extends AbstractService
     private $maxRandomDecisionsCount = 10;
     private $chanceOfExtendingBranch = 80;
 
-    public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService)
+    public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService, ContainerInterface $container)
     {
-        parent::__construct($entityManager);
+        parent::__construct($entityManager, $container);
         $this->decisionsService = $decisionsService;
     }
 

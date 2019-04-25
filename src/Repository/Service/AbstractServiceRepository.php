@@ -2,23 +2,18 @@
 /**
  * Created by PhpStorm.
  * User: Dmitry
- * Date: 20.09.2018
- * Time: 10:38
+ * Date: 25.04.2019
+ * Time: 16:38
  */
 
-namespace App\Service;
+namespace App\Repository\Service;
 
-use Faker\Factory;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Helpers\LoggerTrait;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-abstract class AbstractService
+class AbstractServiceRepository
 {
-    use LoggerTrait;
-
-    /** @var \Faker\Generator */
-    protected $faker;
     protected $entityManager;
     protected $container;
 
@@ -26,7 +21,22 @@ abstract class AbstractService
     {
         $this->entityManager = $entityManager;
         $this->container = $container;
-        $this->faker = Factory::create();
+    }
+
+    /**
+     * Creates a new QueryBuilder instance that is prepopulated for this entity name.
+     *
+     * @param string $alias
+     * @param string $from
+     * @param string $indexBy The index for the from.
+     *
+     * @return QueryBuilder
+     */
+    public function createQueryBuilder($alias, $from, $indexBy = null)
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->select($alias)
+            ->from($from, $alias, $indexBy);
     }
 
     protected function getParam($name)

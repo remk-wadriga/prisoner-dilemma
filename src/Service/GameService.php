@@ -16,6 +16,7 @@ use App\Entity\Strategy;
 use App\Entity\Decision;
 use App\Entity\User;
 use App\Entity\Types\Enum\IsEnabledEnum;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class GameService extends AbstractService
 {
@@ -34,9 +35,9 @@ class GameService extends AbstractService
     private $writeGameProcess = false;
     private $gameProcess = [];
 
-    public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService, GameResultsService $gameResultsService)
+    public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService, GameResultsService $gameResultsService, ContainerInterface $container)
     {
-        parent::__construct($entityManager);
+        parent::__construct($entityManager, $container);
         $this->decisionsService = $decisionsService;
         $this->gameResultsService = $gameResultsService;
     }
