@@ -14,7 +14,7 @@ use Faker\Factory;
 
 class StrategyCrudTest extends AbstractApiTestCase
 {
-    public function testListAction()
+    public function AtestListAction()
     {
         // 1. Get User and login him
         $this->logInAsUser();
@@ -35,7 +35,7 @@ class StrategyCrudTest extends AbstractApiTestCase
                 $responseStrategiesCount, $userStrategiesCount));
     }
 
-    public function testViewAction()
+    public function AtestViewAction()
     {
         // 1. Login as user
         $this->logInAsUser();
@@ -59,7 +59,7 @@ class StrategyCrudTest extends AbstractApiTestCase
 
     }
 
-    public function testCreateAction()
+    public function AtestCreateAction()
     {
         // 1. Get User and login him
         $this->logInAsUser();
@@ -88,11 +88,10 @@ class StrategyCrudTest extends AbstractApiTestCase
         $this->logInAsUser();
         $user = $this->user;
 
-        // 2. Get strategy and create new params for it. But if user has no one strategies - we just have nothing to test yet
+        // 2. Get strategy and create new params for it.
         $strategy = $this->findStrategy();
-        if ($strategy === null) {
-            return;
-        }
+        $this->assertNotEmpty($strategy, sprintf('User #%s has no strategies!', $user->getId()));
+
         // Remember old and new params
         $oldName = $strategy->getName();
         $oldDescription = $strategy->getDescription();

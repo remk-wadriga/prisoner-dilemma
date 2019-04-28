@@ -27,6 +27,7 @@ class StrategyForm extends AbstractType
 
         $nameOptions = [];
         $statusOptions = self::getOptionsForEnabledEnumType();
+
         if ($this->action === self::ACTION_UPDATE && $strategy !== null) {
             // Name is not required for "update" action - we can use current name
             $nameOptions['required'] = false;
@@ -55,10 +56,10 @@ class StrategyForm extends AbstractType
         $builder->get('decisionsData')
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $data = $event->getData();
-                $this->decisionsData = is_array($data) ? $data : [];
+                $this->decisionsData = is_array($data) ? $data : null;
             })
             ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($strategy) {
-                if ($strategy !== null) {
+                if ($strategy !== null && $this->decisionsData !== null) {
                     $strategy->setDecisionsData($this->decisionsData);
                 }
             })

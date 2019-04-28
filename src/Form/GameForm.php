@@ -53,10 +53,10 @@ class GameForm extends AbstractType
         $builder->get('resultsData')
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $data = $event->getData();
-                $this->resultsData = is_array($data) ? $data : [];
+                $this->resultsData = is_array($data) ? $data : null;
             })
             ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($game) {
-                if ($game !== null) {
+                if ($game !== null && $this->resultsData !== null) {
                     $game->setResultsData($this->resultsData);
                 }
             })

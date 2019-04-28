@@ -33,7 +33,8 @@ class StrategyTest extends AbstractApiTestCase
         $strategies = $strategyRepository->createQueryBuilder('s')
             ->andWhere('s.user = :user')
             ->andWhere('s.status = :status_enabled')
-            ->setMaxResults($faker->numberBetween(2, 7))
+            //->setMaxResults($faker->numberBetween(2, 7))
+            ->setMaxResults(2)
             ->setParameter('status_enabled', IsEnabledEnum::TYPE_ENABLED)
             ->setParameter('user', $this->user)
             ->getQuery()
@@ -49,6 +50,7 @@ class StrategyTest extends AbstractApiTestCase
         }
         // 3. Send "/game/start" without calculating individual results query and check the response result
         $response = $this->request('game_start', ['strategiesIds' => $strategiesIds, 'writeIndividualResults' => false], 'POST');
+        //dd([$strategiesIds, $response->getData()]);
         $this->checkStartGameResponse($response, false, count($strategiesIds));
 
         // 4. Send "/game/start" with calculating individual results query and check the response result
