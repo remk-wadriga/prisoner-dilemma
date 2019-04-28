@@ -599,7 +599,7 @@ class GameService extends AbstractService
     }
 
     /**
-     * Check game decision element - it must have "strategyID", "type" and "children" attributes
+     * Check game decision element - it must have these attributes:
      *      "id"  - integer (> 0)
      *      "strategyID" - integer (> 0)
      *      "type" - string (one of DecisionTypeEnum::getAvailableTypes())
