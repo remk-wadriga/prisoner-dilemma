@@ -25,15 +25,15 @@ class GameService extends AbstractService
     private $decisionsTreeForStrategies = [];
 
     // Game coefficients and attributes
-    private $roundsCount = 25;
-    private $balesForWin = 15;
-    private $balesForLoos = -10;
-    private $balesForCooperation = 5;
-    private $balesForDraw = 0;
+    private $roundsCount = 20;
+    private $balesForWin = 20;
+    private $balesForLoos = -20;
+    private $balesForCooperation = -1;
+    private $balesForDraw = -4;
     private $individualResults = [];
 
     private $writeGameProcess = false;
-    private $gameProcess = [];
+    public $gameProcess = [];
 
     public function __construct(EntityManagerInterface $entityManager, StrategyDecisionsService $decisionsService, GameResultsService $gameResultsService, ContainerInterface $container)
     {
@@ -279,9 +279,9 @@ class GameService extends AbstractService
         }
 
         // Make game with current strategy and everyone else
-        foreach ($strategies as $index => $nexStrategy) {
+        foreach ($strategies as $index => $nextStrategy) {
             // Get next strategy ID
-            $strategy2ID = $nexStrategy['strategyID'];
+            $strategy2ID = $nextStrategy['strategyID'];
 
             // Create statistic for next strategy
             if (!isset($results[$strategy2ID])) {
@@ -289,7 +289,7 @@ class GameService extends AbstractService
             }
 
             // Make game with these two strategies and sum the results
-            $currentResults = $this->makeGameWithTwoDecisionsRecursively($currentStrategy, $nexStrategy);
+            $currentResults = $this->makeGameWithTwoDecisionsRecursively($currentStrategy, $nextStrategy);
 
             // Sum results
             if (isset($currentResults[$strategy1ID])) {
@@ -302,8 +302,8 @@ class GameService extends AbstractService
             // Write couples of strategies results
             if ($writeIndividualResults) {
                 // Add results in individual of strategies results array
-                $this->writeCoupleResultsToIndividualStrategyResults($currentStrategy, $nexStrategy, $currentResults);
-                $this->writeCoupleResultsToIndividualStrategyResults($nexStrategy, $currentStrategy, $currentResults);
+                $this->writeCoupleResultsToIndividualStrategyResults($currentStrategy, $nextStrategy, $currentResults);
+                $this->writeCoupleResultsToIndividualStrategyResults($nextStrategy, $currentStrategy, $currentResults);
             }
         }
 
@@ -394,6 +394,24 @@ class GameService extends AbstractService
         $random = DecisionTypeEnum::TYPE_RANDOM;
         $copy = DecisionTypeEnum::TYPE_COPY;
 
+        // If this is first level decision - get second answer form children decisions
+        if (!empty($decision1['children']) && $decision1['level'] === 1 && $lastAnswer2 !== null) {
+            $children = $decision1['children'];
+            if ($lastAnswer2 == $yes) {
+                $decision1 = $children[0];
+            } else {
+                $decision1 = isset($children[1]) ? $children[1] : $children[0];
+            }
+        }
+        if (!empty($decision2['children']) && $decision2['level'] === 1 && $lastAnswer1 != null) {
+            $children = $decision2['children'];
+            if ($lastAnswer1 == $yes) {
+                $decision2 = $children[0];
+            } else {
+                $decision2 = isset($children[1]) ? $children[1] : $children[0];
+            }
+        }
+
         // If last answers are not set - that's means that it's first round, so "copy partner action" means just "make random decision"
         if ($lastAnswer1 === null) {
             $lastAnswer1 = $random;
@@ -410,6 +428,7 @@ class GameService extends AbstractService
         if ($answer1 === $copy) {
             $answer1 = $lastAnswer2;
         }
+
         if ($answer2 === $copy) {
             $answer2 = $lastAnswer1;
         }
@@ -435,7 +454,7 @@ class GameService extends AbstractService
         } elseif ($answer1 === $no && $answer2 === $yes) {
             $results[$strategy1ID] += $this->balesForWin;
             $results[$strategy2ID] += $this->balesForLoos;
-        // 4. First say "No" and second say "No" - it's draw
+        // 4. First say "No" and second say "No" - it's a draw
         } elseif ($answer1 === $no && $answer2 === $no) {
             $results[$strategy1ID] += $this->balesForDraw;
             $results[$strategy2ID] += $this->balesForDraw;
@@ -461,19 +480,6 @@ class GameService extends AbstractService
         $nextDecision1 = $answer2 === $yes ? $partnerSayYesNextDecision1 : $partnerSayNoNextDecision1;
         $nextDecision2 = $answer1 === $yes ? $partnerSayYesNextDecision2 : $partnerSayNoNextDecision2;
 
-
-        // Next - increment round number and start next round
-        $round++;
-
-        // Play next decisions and sum results fro each strategy - recursively
-        $nextResults = $this->makeGameWithTwoDecisionsRecursively($rootDecision1, $rootDecision2, $nextDecision1, $nextDecision2, $answer1, $answer2, $round);
-        if (isset($nextResults[$strategy1ID])) {
-            $results[$strategy1ID] += $nextResults[$strategy1ID];
-        }
-        if (isset($nextResults[$strategy2ID])) {
-            $results[$strategy2ID] += $nextResults[$strategy2ID];
-        }
-
         // Write game process if it's need
         if ($this->writeGameProcess) {
             $processID = $strategy1ID . ':' . $strategy2ID;
@@ -492,6 +498,18 @@ class GameService extends AbstractService
             ];
         }
 
+        // Next - increment round number and start next round
+        $round++;
+
+        // Play next decisions and sum results fro each strategy - recursively
+        $nextResults = $this->makeGameWithTwoDecisionsRecursively($rootDecision1, $rootDecision2, $nextDecision1, $nextDecision2, $answer1, $answer2, $round);
+        if (isset($nextResults[$strategy1ID])) {
+            $results[$strategy1ID] += $nextResults[$strategy1ID];
+        }
+        if (isset($nextResults[$strategy2ID])) {
+            $results[$strategy2ID] += $nextResults[$strategy2ID];
+        }
+
         // Return results
         return $results;
     }
@@ -499,14 +517,19 @@ class GameService extends AbstractService
     /**
      * @param Decision[] $decisions
      * @param array|null $stepElement
+     * @param int $level
      * @return Decision[]
      */
-    private function generateDecisionsTreeRecursively(array &$decisions, array &$stepElement = []): array
+    private function generateDecisionsTreeRecursively(array &$decisions, array &$stepElement = [], int $level = 0): array
     {
         // Stop condition - when no more decisions left
         if (empty($decisions)) {
             return [];
         }
+
+        // Increment decisions level
+        $level++;
+
         // Find root element - for first step
         if (empty($stepElement)) {
             foreach ($decisions as $index => $decision) {
@@ -518,6 +541,7 @@ class GameService extends AbstractService
                         'id' => $decision->getId(),
                         'parentID' => null,
                         'type' => $decision->getType(),
+                        'level' => $level,
                         'children' => [],
                     ];
                     break;
@@ -541,11 +565,13 @@ class GameService extends AbstractService
                     'id' => $decision->getId(),
                     'parentID' => $stepElement['id'],
                     'type' => $decision->getType(),
+                    'level' => $level + 1,
                     'children' => [],
                 ];
+
                 // Third - try to find two children for child element and add them to it (with recursively fulfilment "second-level" children)
                 for ($i = 0; $i < 2; $i++) {
-                    $secondLevelChild = $this->generateDecisionsTreeRecursively($decisions, $child);
+                    $secondLevelChild = $this->generateDecisionsTreeRecursively($decisions, $child, $level);
                     if (!empty($secondLevelChild) && $secondLevelChild['parentID'] == $child['id']) {
                         $child['children'][] = $secondLevelChild;
                     }
@@ -605,6 +631,14 @@ class GameService extends AbstractService
                  '"' . implode('", "', DecisionTypeEnum::getAvailableTypes()) . '"',
                     (string)$decision['type']
                 ),
+                GameServiceException::CODE_INVALID_PARAMS);
+        }
+        if (!isset($decision['level'])) {
+            throw new GameServiceException('Every game decision must have a "level" attribute', GameServiceException::CODE_INVALID_PARAMS);
+        }
+        if (gettype($decision['level']) !== 'integer') {
+            throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "level" attribute, It must be an integer, but "%s" given',
+                $decision['id'], $decision['level']),
                 GameServiceException::CODE_INVALID_PARAMS);
         }
         if (!isset($decision['children'])) {

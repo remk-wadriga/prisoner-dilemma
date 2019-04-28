@@ -50,13 +50,49 @@ class GameServiceTest extends BaseStrategyTestCase
             sprintf('Test "GameService.createDecisionsTreeByStrategiesIds" is filed: data for strategies #[%s] is empty',
                 implode(',', $strategiesIds)));
 
-        // 5. Calculate actual decisions count
+        // 5. Check all strategies data required params and calculate actual decisions count
         $actualDecisionsCount = 0;
         foreach ($strategiesData as $data) {
+            $this->assertArrayHasKey('strategyID', $data,
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data must have an "strategyID" key');
+            $this->assertArrayHasKey('id', $data,
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data must have an "id" key');
+            $this->assertArrayHasKey('parentID', $data,
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data must have an "parentID" key');
             $this->assertArrayHasKey('type', $data,
-                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data mus have an "type" key');
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data must have an "type" key');
+            $this->assertArrayHasKey('level', $data,
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data must have an "level" key');
             $this->assertArrayHasKey('children', $data,
-                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data mus have an "children" key');
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: all strategy data must have an "children" key');
+
+            $this->assertInternalType('integer', $data['strategyID'], sprintf(
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: pram "strategyID" must have an "integer" type, but "%s" given',
+                gettype($data['strategyID'])
+            ));
+            $this->assertInternalType('integer', $data['id'], sprintf(
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: pram "id" must have an "integer" type, but "%s" given',
+                gettype($data['id'])
+            ));
+            if (!is_null($data['parentID'])) {
+                $this->assertInternalType('integer', $data['parentID'], sprintf(
+                    'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: pram "parentID" must have an "integer" type, but "%s" given',
+                    gettype($data['parentID'])
+                ));
+            }
+            $this->assertInternalType('string', $data['type'], sprintf(
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: pram "type" must have an "string" type, but "%s" given',
+                gettype($data['type'])
+            ));
+            $this->assertInternalType('integer', $data['level'], sprintf(
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: pram "level" must have an "integer" type, but "%s" given',
+                gettype($data['level'])
+            ));
+            $this->assertInternalType('array', $data['children'], sprintf(
+                'Test "GameService.createDecisionsTreeByStrategiesIds" is filed: pram "children" must have an "array" type, but "%s" given',
+                gettype($data['children'])
+            ));
+
             $actualDecisionsCount += $this->calculateDecisionsDataChildrenRecursively($data);
         }
 

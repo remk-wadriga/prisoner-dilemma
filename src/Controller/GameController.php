@@ -9,6 +9,7 @@
 namespace App\Controller;
 
 use App\Entity\Game;
+use App\Entity\Strategy;
 use App\Service\GameResultsService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
