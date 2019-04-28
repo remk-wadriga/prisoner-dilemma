@@ -219,7 +219,6 @@ class GameService extends AbstractService
             return;
         }
 
-
         // If we are here, we have a new game results and should create objects and create structure
         $resultsData = $game->getResultsData();
         $this->checkGameResultsData($resultsData);
@@ -428,7 +427,6 @@ class GameService extends AbstractService
         if ($answer1 === $copy) {
             $answer1 = $lastAnswer2;
         }
-
         if ($answer2 === $copy) {
             $answer2 = $lastAnswer1;
         }
@@ -441,7 +439,7 @@ class GameService extends AbstractService
             $answer2 = $this->faker->boolean ? $yes : $no;
         }
 
-        // So, check who won
+        // So, let's check who won
         // 1. First say "Yes", second say "No" - second won
         if ($answer1 === $yes && $answer2 === $no) {
             $results[$strategy1ID] += $this->balesForLoos;
@@ -602,9 +600,11 @@ class GameService extends AbstractService
 
     /**
      * Check game decision element - it must have "strategyID", "type" and "children" attributes
-     * "strategyID" - integer (> 0)
-     * "type" - string (one of DecisionTypeEnum::getAvailableTypes())
-     * "children" - array
+     *      "id"  - integer (> 0)
+     *      "strategyID" - integer (> 0)
+     *      "type" - string (one of DecisionTypeEnum::getAvailableTypes())
+     *      "level" - integer (> 0)
+     *      "children" - array
      *
      * @param array $decision
      * @throws GameServiceException
@@ -614,16 +614,34 @@ class GameService extends AbstractService
         if (!isset($decision['id'])) {
             throw new GameServiceException('Every game decision must have a "id" attribute', GameServiceException::CODE_INVALID_PARAMS);
         }
+        if (gettype($decision['id']) !== 'integer') {
+            throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "id" attribute, It must be an integer, but "%s" given',
+                $decision['id'], gettype($decision['id'])),
+                GameServiceException::CODE_INVALID_PARAMS);
+        }
+        if ($decision['id'] === 0) {
+            throw new GameServiceException('Decision id can not be equals to 0', GameServiceException::CODE_INVALID_PARAMS);
+        }
+
         if (!isset($decision['strategyID'])) {
             throw new GameServiceException('Every game decision must have a "strategyID" attribute', GameServiceException::CODE_INVALID_PARAMS);
         }
-        if ((int)$decision['strategyID'] === 0) {
-            throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "strategyID" attribute, It must be an integer (> 0), but "%s" given',
-                $decision['id'], $decision['strategyID']),
+        if (gettype($decision['strategyID']) !== 'integer') {
+            throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "strategyID" attribute, It must be an integer, but "%s" given',
+                $decision['id'], gettype($decision['strategyID'])),
                 GameServiceException::CODE_INVALID_PARAMS);
         }
+        if ($decision['strategyID'] === 0) {
+            throw new GameServiceException('Strategy id can not be equals to 0', GameServiceException::CODE_INVALID_PARAMS);
+        }
+
         if (!isset($decision['type'])) {
             throw new GameServiceException('Every game decision must have a "type" attribute', GameServiceException::CODE_INVALID_PARAMS);
+        }
+        if (gettype($decision['type']) !== 'string') {
+            throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "type" attribute, It must be a string, but "%s" given',
+                $decision['id'], gettype($decision['type'])),
+                GameServiceException::CODE_INVALID_PARAMS);
         }
         if (!in_array((string)$decision['type'], DecisionTypeEnum::getAvailableTypes())) {
             throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "type" attribute, It must be one of [%s], but "%s" given',
@@ -633,20 +651,25 @@ class GameService extends AbstractService
                 ),
                 GameServiceException::CODE_INVALID_PARAMS);
         }
+
         if (!isset($decision['level'])) {
             throw new GameServiceException('Every game decision must have a "level" attribute', GameServiceException::CODE_INVALID_PARAMS);
         }
         if (gettype($decision['level']) !== 'integer') {
             throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "level" attribute, It must be an integer, but "%s" given',
-                $decision['id'], $decision['level']),
+                $decision['id'], gettype($decision['level'])),
                 GameServiceException::CODE_INVALID_PARAMS);
         }
+        if ($decision['level'] === 0) {
+            throw new GameServiceException('Decision level can not be equals to 0', GameServiceException::CODE_INVALID_PARAMS);
+        }
+
         if (!isset($decision['children'])) {
             throw new GameServiceException('Every game decision must have a "children" attribute', GameServiceException::CODE_INVALID_PARAMS);
         }
-        if (!is_array($decision['children'])) {
+        if (gettype($decision['children']) !== 'array') {
             throw new GameServiceException(sprintf('Game decision #%s has an incorrect value of "children" attribute, It must be an array, but "%s" given',
-                $decision['id'], (string)$decision['children']),
+                $decision['id'], gettype($decision['children'])),
                 GameServiceException::CODE_INVALID_PARAMS);
         }
     }
