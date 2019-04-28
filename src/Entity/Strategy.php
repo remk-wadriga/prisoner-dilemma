@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use App\Entity\Traits\IsEnabledEntity;
+use App\Validator;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\StrategyRepository")
@@ -45,6 +46,9 @@ class Strategy
      */
     private $decisions;
 
+    /**
+     * @Validator\Type(message="Param decisionsData must be an array", type="array")
+     */
     private $decisionsData;
 
     /**

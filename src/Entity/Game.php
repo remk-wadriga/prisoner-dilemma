@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use App\Validator;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\GameRepository")
@@ -68,6 +69,9 @@ class Game
      */
     private $user;
 
+    /**
+     * @Validator\Type(message="Param resultsData must be an array", type="array")
+     */
     private $resultsData;
 
     private $decisionsCount;

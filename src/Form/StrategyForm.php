@@ -3,14 +3,18 @@
 namespace App\Form;
 
 use App\Entity\Strategy;
-use App\Form\Type\JsonType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 class StrategyForm extends AbstractType
 {
+    private $decisionsData;
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
@@ -39,7 +43,25 @@ class StrategyForm extends AbstractType
                 'empty_data' => $strategy !== null ? $strategy->getDescription() : '',
             ])
             ->add('status', ChoiceType::class, $statusOptions)
-            ->add('decisionsData')
+            //->add('decisionsData')
+            ->add('decisionsData', FormType::class, [
+                'required' => false,
+                'allow_extra_fields' => true,
+                'inherit_data' => true,
+            ])
+        ;
+
+        // @todo: find a normal way to fix this problem (the validation error)!
+        $builder->get('decisionsData')
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+                $data = $event->getData();
+                $this->decisionsData = is_array($data) ? $data : [];
+            })
+            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($strategy) {
+                if ($strategy !== null) {
+                    $strategy->setDecisionsData($this->decisionsData);
+                }
+            })
         ;
     }
 
