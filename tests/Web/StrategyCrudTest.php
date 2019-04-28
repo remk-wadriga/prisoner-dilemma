@@ -14,7 +14,7 @@ use Faker\Factory;
 
 class StrategyCrudTest extends AbstractApiTestCase
 {
-    public function AtestListAction()
+    public function testListAction()
     {
         // 1. Get User and login him
         $this->logInAsUser();
@@ -35,7 +35,7 @@ class StrategyCrudTest extends AbstractApiTestCase
                 $responseStrategiesCount, $userStrategiesCount));
     }
 
-    public function AtestViewAction()
+    public function testViewAction()
     {
         // 1. Login as user
         $this->logInAsUser();
@@ -59,7 +59,7 @@ class StrategyCrudTest extends AbstractApiTestCase
 
     }
 
-    public function AtestCreateAction()
+    public function testCreateAction()
     {
         // 1. Get User and login him
         $this->logInAsUser();
