@@ -7,14 +7,11 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
+use App\Form\Type\ArrayType;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class GameForm extends AbstractType
 {
-    private $resultsData;
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
@@ -42,24 +39,15 @@ class GameForm extends AbstractType
             ->add('balesForLoos', IntegerType::class)
             ->add('balesForCooperation', IntegerType::class)
             ->add('balesForDraw', IntegerType::class)
-            ->add('resultsData', FormType::class , [
-                'required' => false,
-                'allow_extra_fields' => true,
-                'inherit_data' => true,
+            ->add('resultsData', ArrayType::class , [
+                'constraints' => [
+                    new Assert\Collection([
+                        'sum' => new Assert\Type('integer'),
+                        'total' => new Assert\Type('array'),
+                        'individual' => new Assert\Type('array'),
+                    ])
+                ],
             ])
-        ;
-
-        // @todo: find a normal way to fix this problem (the validation error)!
-        $builder->get('resultsData')
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-                $data = $event->getData();
-                $this->resultsData = is_array($data) ? $data : null;
-            })
-            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($game) {
-                if ($game !== null && $this->resultsData !== null) {
-                    $game->setResultsData($this->resultsData);
-                }
-            })
         ;
     }
 

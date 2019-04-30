@@ -69,9 +69,6 @@ class Game
      */
     private $user;
 
-    /**
-     * @Validator\Type(message="Param resultsData must be an array", type="array")
-     */
     private $resultsData;
 
     private $decisionsCount;

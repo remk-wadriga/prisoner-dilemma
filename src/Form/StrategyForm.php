@@ -3,18 +3,19 @@
 namespace App\Form;
 
 use App\Entity\Strategy;
+use Symfony\Component\Form\Exception\UnexpectedTypeException;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
+use App\Form\Type\ArrayType;
+use Symfony\Component\Form\DataMapperInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\Types\Enum\DecisionTypeEnum;
 
-class StrategyForm extends AbstractType
+class StrategyForm extends AbstractType implements DataMapperInterface
 {
-    private $decisionsData;
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         parent::buildForm($builder, $options);
@@ -44,25 +45,14 @@ class StrategyForm extends AbstractType
                 'empty_data' => $strategy !== null ? $strategy->getDescription() : '',
             ])
             ->add('status', ChoiceType::class, $statusOptions)
-            //->add('decisionsData')
-            ->add('decisionsData', FormType::class, [
-                'required' => false,
-                'allow_extra_fields' => true,
-                'inherit_data' => true,
+            ->add('decisionsData', ArrayType::class, [
+                'constraints' => [
+                    new Assert\Collection([
+                        'type' => new Assert\Choice(DecisionTypeEnum::getAvailableTypes()),
+                        'children' => new Assert\Type('array'),
+                    ])
+                ],
             ])
-        ;
-
-        // @todo: find a normal way to fix this problem (the validation error)!
-        $builder->get('decisionsData')
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-                $data = $event->getData();
-                $this->decisionsData = is_array($data) ? $data : null;
-            })
-            ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) use ($strategy) {
-                if ($strategy !== null && $this->decisionsData !== null) {
-                    $strategy->setDecisionsData($this->decisionsData);
-                }
-            })
         ;
     }
 
@@ -72,4 +62,43 @@ class StrategyForm extends AbstractType
             'data_class' => Strategy::class,
         ]);
     }
+
+    public function mapDataToForms($data, $forms)
+    {
+        if (!$data instanceof Strategy) {
+            throw new UnexpectedTypeException($data, Strategy::class);
+        }
+
+        /** @var FormInterface[] $forms */
+        $forms = iterator_to_array($forms);
+
+        $forms['name']->setData($data->getName());
+        $forms['description']->setData($data->getDescription());
+        $forms['status']->setData($data->getStatus());
+        $decisionsData = $forms['decisionsData']->getData();
+        if (is_array($decisionsData)) {
+            $forms['decisionsData']->setData($decisionsData);
+        }
+    }
+
+    public function mapFormsToData($forms, &$data)
+    {
+        if (!$data instanceof Strategy) {
+            throw new UnexpectedTypeException($data, Strategy::class);
+        }
+
+        /** @var FormInterface[] $forms */
+        $forms = iterator_to_array($forms);
+
+        $data->setName($forms['name']->getData());
+        $data->setDescription($forms['description']->getData());
+        $data->setStatus($forms['status']->getData());
+        $decisionsData = $forms['decisionsData']->getData();
+        dd($decisionsData);
+        if (is_array($decisionsData)) {
+            $data->setDecisionsData($decisionsData);
+        }
+    }
+
+
 }

@@ -14,6 +14,7 @@ use App\Form\StrategyForm;
 use App\Service\StrategyDecisionsService;
 use App\Service\StrategyService;
 use App\Exception\HttpException;
+use Mcfedr\JsonFormBundle\Exception\InvalidFormHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
