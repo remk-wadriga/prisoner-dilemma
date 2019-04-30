@@ -4,6 +4,7 @@
 
 import Api from '@/helpers/Api'
 import user from '@/entityes/User'
+import store from '@/store'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Logger from '@/components/Logger'
 import LetMenu from '@/components/LeftMenu'
@@ -33,6 +34,9 @@ export default {
     computed: {
         pageTitle() {
             return this.$store.state.app.pageTitle
+        },
+        pageTopTitles() {
+            return this.$store.state.app.pageTopTitles
         }
     }
 }

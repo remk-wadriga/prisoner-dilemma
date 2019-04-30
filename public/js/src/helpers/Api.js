@@ -74,6 +74,9 @@ const Api = {
                 requestParams.body = data
             }
 
+            // Log message
+            store.commit('addPageTopTitle', url + '?access_token=' + user.methods.getAccessToken())
+
             // Remember last request params
             if (urlName !== 'security_login' && urlName !== 'security_renew_token') {
                 lastRequestParams = {url, requestParams, successCallback, errorCallback}
