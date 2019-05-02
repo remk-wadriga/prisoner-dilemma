@@ -1,10 +1,10 @@
-<template src="@/templates/statistics/statistics-strategy.html" />
+<template src="@/templates/statistics/strategy-statistics.html" />
 
 <script>
     import Api from '@/helpers/Api.js'
 
     export default {
-        name: "StatisticsStrategy",
+        name: "StrategyStatistics",
         data() {
             return {
                 strategy: null,
@@ -17,7 +17,7 @@
         mounted() {
             const id = this.$route.params.id
 
-            Api.methods.request(['statistics_strategy_url', {id}], {}, 'GET', response => {
+            Api.methods.request(['strategy_statistics_url', {id}], {}, 'GET', response => {
                 this.strategy = response.strategy
                 this.statistics = response.statistics
 
@@ -25,7 +25,7 @@
                 this.$store.commit('setBreadcrumbs', [
                     {title: 'Strategies', url: 'app_homepage'},
                     {title: this.strategy.name, url: {name: 'strategy_view', params: {id}}},
-                    {title: 'Strategy statistics', url: {name: 'statistics_strategy', params: {id}}}
+                    {title: 'Strategy statistics', url: {name: 'strategy_statistics', params: {id}}}
                 ])
                 this.$store.commit('setPageTopButtons', [])
 

@@ -9,7 +9,7 @@ import StrategyView from '@/components/strategy/View'
 import StrategyUpdate from '@/components/strategy/Update'
 import Game from '@/components/game/Game'
 import GamesList from '@/components/game/List'
-import StatisticsStrategy from '@/components/statistics/StatisticsStrategy'
+import StrategyStatistics from '@/components/statistics/StrategyStatistics'
 
 Vue.use(Router)
 
@@ -66,9 +66,9 @@ export default new Router({
             component: GamesList
         },
         {
-            path: '/statistics/strategy/:id',
-            name: 'statistics_strategy',
-            component: StatisticsStrategy
+            path: '/strategy-statistics/:id',
+            name: 'strategy_statistics',
+            component: StrategyStatistics
         }
     ]
 })

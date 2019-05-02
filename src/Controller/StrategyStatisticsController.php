@@ -13,10 +13,10 @@ use App\Service\Statistics\StrategyStatisticsService;
 use App\Entity\Strategy;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
-class StatisticsController extends ControllerAbstract
+class StrategyStatisticsController extends ControllerAbstract
 {
     /**
-     * @Route("/statistics/strategy/{id}", name="statistics_strategy", methods={"GET"})
+     * @Route("/strategy-statistics/{id}", name="statistics_strategy", methods={"GET"})
      * @IsGranted("MANAGE", subject="strategy")
      */
     public function strategyStatistics(Strategy $strategy, StrategyStatisticsService $strategyStatisticsService)

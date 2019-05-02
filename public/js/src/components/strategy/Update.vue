@@ -26,7 +26,7 @@
                     {title: 'Update', url: {name: 'strategy_update', params: {id}}},
                 ])
                 this.$store.commit('setPageTopButtons', [
-                    {title: 'Show statistics', type: 'success', click: {url: {name: 'statistics_strategy', params: {id}}}}
+                    {title: 'Show statistics', type: 'success', click: {url: {name: 'strategy_statistics', params: {id}}}}
                 ])
                 this.$store.commit('selectedStrategyId', id)
             })
