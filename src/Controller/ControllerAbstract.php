@@ -16,13 +16,14 @@ use Mcfedr\JsonFormBundle\Exception\MissingFormHttpException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class ControllerAbstract
+ * @package App\Controller
+ *
+ * @method User getUser
+ */
 abstract class ControllerAbstract extends JsonController
 {
-    public function getUser(): User
-    {
-        return parent::getUser();
-    }
-
     public function formatDateTime(?\DateTimeInterface $date, string $format = null): string
     {
         if ($format === null && $this->container->hasParameter('frontend_date_time_format')) {
