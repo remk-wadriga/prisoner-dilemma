@@ -36,7 +36,15 @@ export default {
             return this.$store.state.app.pageTitle
         },
         pageTopTitles() {
-            return this.$store.state.app.pageTopTitles
+            let titles = []
+            let i = 0
+            this.$store.state.app.pageTopTitles.forEach(title => {
+                titles.push({
+                    id: 'page_title_' + i++,
+                    text: title
+                })
+            })
+            return titles
         }
     }
 }

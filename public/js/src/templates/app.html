@@ -49,8 +49,8 @@
         <b-row>
             <logger/>
         </b-row>
-        <b-row v-for="title in pageTopTitles">
-            <p>{{ title }}</p>
+        <b-row v-for="title in pageTopTitles" :key="title.id">
+            <p>{{ title.text }}</p>
         </b-row>
         <hr>
         <b-row>
