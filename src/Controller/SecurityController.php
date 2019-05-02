@@ -18,11 +18,11 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class SecurityController extends ControllerAbstract
 {
-    private $usrProvider;
+    private $userProvider;
 
     public function __construct(AccessTokenUserProvider $userProvider)
     {
-        $this->usrProvider = $userProvider;
+        $this->userProvider = $userProvider;
     }
 
     /**
@@ -30,7 +30,7 @@ class SecurityController extends ControllerAbstract
      */
     public function login(Request $request)
     {
-        return $this->json($this->usrProvider->loginUser($request)->toApi());
+        return $this->json($this->userProvider->loginUser($request)->toApi());
     }
 
     /**
@@ -41,7 +41,7 @@ class SecurityController extends ControllerAbstract
         // 1. Get current user
         $user = $authenticator->getCurrentUser();
         // 2. Logout user
-        $this->usrProvider->logoutUser($user);
+        $this->userProvider->logoutUser($user);
         // 3. Say "OK"
         return $this->json('OK');
     }
@@ -57,7 +57,7 @@ class SecurityController extends ControllerAbstract
     /**
      * @Route("/registration", name="security_registration", methods={"POST"})
      */
-    public function registration(Request $request, UserPasswordEncoderInterface $passwordEncoder, AccessTokenUserProvider $userProvider)
+    public function registration(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
         // Create form and handle data
         $user = new User();
@@ -71,6 +71,6 @@ class SecurityController extends ControllerAbstract
         $em->flush();
 
         // Return new user access token
-        return $this->json($userProvider->getAccessTokenForUser($user)->toApi());
+        return $this->json($this->userProvider->getAccessTokenForUser($user)->toApi());
     }
 }
