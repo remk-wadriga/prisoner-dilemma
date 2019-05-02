@@ -23,7 +23,7 @@ class StrategyStatisticsController extends ControllerAbstract
     {
         return $this->json([
             'strategy' => $this->strategyInfo($strategy),
-            'statistics' => $strategyStatisticsService->getStatisticsInfo($strategy),
+            'statistics' => $strategyStatisticsService->getStatisticsByRoundsCount($strategy),
         ]);
     }
 

@@ -6,6 +6,11 @@
 parameters:
     locale: 'en'
     frontend_date_time_format: 'Y-m-d H:i'
+    frontend_date_format: 'Y-m-d'
+    frontend_time_format: 'H:i'
+    backend_date_time_format: 'Y-m-d H:i:s'
+    backend_date_format: 'Y-m-d'
+    backend_time_format: 'H:i:s'
 
 services:
     # default configuration for services in *this* file

@@ -35,4 +35,40 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
 
         return $results;
     }
+
+    /**
+     * Get strategy dependency of average bales from game rounds
+     *
+     * Request:
+     *   SELECT
+     *       SUM(gr.result) / COUNT(gr.strategy_id) AS bales,
+     *       COUNT(gr.id) AS gamesCount,
+     *       g.rounds AS roundsCount
+     *   FROM `game_result` gr
+     *   INNER JOIN game g ON g.id = gr.game_id
+     *   WHERE gr.strategy_id = 6
+     *   GROUP BY roundsCount
+     *   ORDER BY roundsCount ASC
+     *
+     * @param Strategy $strategy
+     *
+     * @return array
+     */
+    public function getStatisticsByRoundsCount(Strategy $strategy)
+    {
+        $query = $this->createQueryBuilder('gr', GameResult::class)
+            ->select([
+                'SUM(gr.result) / COUNT(gr.strategy) AS bales',
+                'COUNT(gr) AS gamesCount',
+                'g.rounds AS roundsCount',
+            ])
+            ->innerJoin('gr.game', 'g')
+            ->andWhere('gr.strategy = :strategy')
+            ->setParameter('strategy', $strategy)
+            ->orderBy('roundsCount', 'ASC')
+            ->groupBy('roundsCount')
+        ;
+
+        return $query->getQuery()->getArrayResult();
+    }
 }

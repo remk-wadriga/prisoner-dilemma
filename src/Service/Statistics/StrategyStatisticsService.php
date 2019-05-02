@@ -10,6 +10,7 @@ namespace App\Service\Statistics;
 
 use App\Entity\Strategy;
 use App\Repository\Service\StrategyStatisticsRepository;
+use App\Service\FormatterService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -17,15 +18,24 @@ class StrategyStatisticsService extends AbstractStatisticsService
 {
     protected $repository;
 
-    public function __construct(EntityManagerInterface $entityManager, StrategyStatisticsRepository $repository, ContainerInterface $container)
+    public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container, StrategyStatisticsRepository $repository, FormatterService $formatter)
     {
-        parent::__construct($entityManager, $container);
+        parent::__construct($entityManager, $container, $formatter);
 
         $this->repository = $repository;
     }
 
-    public function getStatisticsInfo(Strategy $strategy)
+    public function getStatisticsByRoundsCount(Strategy $strategy)
     {
-        return $this->repository->getStrategyGamesResults($strategy);
+        // Get statistics results
+        $results = $this->repository->getStatisticsByRoundsCount($strategy);
+
+        // Format statistics values and return formatted results
+        return array_map(function ($result) {
+            return array_merge($result, [
+                'bales' => $this->formatter->toFloat($result['bales']),
+                'gamesCount' => $this->formatter->toInt($result['gamesCount']),
+            ]);
+        }, $results);
     }
 }

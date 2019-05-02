@@ -9,8 +9,18 @@
 namespace App\Service\Statistics;
 
 use App\Service\AbstractService;
+use App\Service\FormatterService;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class AbstractStatisticsService extends AbstractService
 {
+    protected $formatter;
 
+    public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container, FormatterService $formatter)
+    {
+        parent::__construct($entityManager, $container);
+
+        $this->formatter = $formatter;
+    }
 }

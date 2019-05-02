@@ -90,5 +90,7 @@
 </script>
 
 <style scoped>
-
+    #game_page {
+        min-width: 70%;
+    }
 </style>
