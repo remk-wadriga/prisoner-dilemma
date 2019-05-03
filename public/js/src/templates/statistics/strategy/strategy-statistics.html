@@ -1,4 +1,9 @@
-<b-tabs v-if="strategy !== null" id="strategy_statistics" class="min-width-eighty-presents">
+<b-tabs
+    v-if="strategy !== null"
+    id="strategy_statistics"
+    class="min-width-eighty-presents"
+    :lazy="lazyLoad"
+>
 
     <b-tab title="By dates">
         <StrategyStatisticsByDates

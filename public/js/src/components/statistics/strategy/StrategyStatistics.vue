@@ -11,7 +11,7 @@
         data() {
             return {
                 strategy: null,
-                statistics: null
+                lazyLoad: true
             }
         },
         methods: {

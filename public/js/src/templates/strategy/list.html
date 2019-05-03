@@ -68,6 +68,9 @@
                     <b-button :variant="deleteBtnVar" size="sm" @click.stop="openDeleteStrategyModal(row.item)" class="mr-1">
                         Delete
                     </b-button>
+                    <b-button size="sm" @click.stop="showStrategyStatistics(row.item.id)" class="mr-1">
+                        Show statistics
+                    </b-button>
                 </template>
             </b-table>
         </b-col>

@@ -41,6 +41,9 @@
                     this.gameParams = response.params
 
                     this.$store.commit('setContentTitle', 'Game "' + this.game.name + '"')
+
+                    // Clear all statistics cash
+                    this.$store.commit('setStatistics', null)
                 }
                 if (this.game === null || this.gameResultsChanged) {
                     Api.methods.request('save_game_url', {game_form: data}, 'POST', cllback)

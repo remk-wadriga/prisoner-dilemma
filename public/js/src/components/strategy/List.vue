@@ -51,7 +51,7 @@
         },
         methods: {
             selectedStrategy(id) {
-                this.$router.push({name: 'strategy_view', params: {id: id}})
+                this.$router.push({name: 'strategy_view', params: {id}})
             },
             updateStrategy(strategy) {
                 this.$store.commit('selectedStrategyId', strategy.id)
@@ -71,6 +71,9 @@
                 }
                 // Now delete popup is visible
                 this.deleteStrategyVisible = true
+            },
+            showStrategyStatistics(id) {
+                this.$router.push({name: 'strategy_statistics', params: {id}})
             },
             onFiltered(filteredItems) {
                 // Trigger pagination to update the number of buttons/pages due to filtering

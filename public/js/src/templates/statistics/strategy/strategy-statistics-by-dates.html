@@ -1,5 +1,5 @@
-<b-col v-if="strategy !== null" id="strategy_statistics_by_dates">
+<b-col v-if="isReady" id="strategy_statistics_by_dates">
     <b-row>
-        <h5>Strategy <b>{{strategy.name}}</b> statistics by dates</h5>
+        <p>{{ statistics }}</p>
     </b-row>
 </b-col>

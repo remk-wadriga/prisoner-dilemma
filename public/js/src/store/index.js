@@ -34,7 +34,8 @@ export default new Vuex.Store({
         strategy: {
             selectedId: null,
             checked: []
-        }
+        },
+        statistics: {}
     },
     mutations: {
         setPageTitle(state, title) {
@@ -80,6 +81,13 @@ export default new Vuex.Store({
         },
         setCheckedStrategies(state, strategies) {
             state.strategy.checked = strategies
+        },
+        setStatistics(state, stats) {
+            if (stats === null) {
+                state.statistics = {}
+            } else {
+                state.statistics[stats.id] = stats.data
+            }
         }
     }
 })
