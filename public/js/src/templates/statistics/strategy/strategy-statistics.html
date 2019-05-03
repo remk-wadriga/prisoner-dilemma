@@ -1,0 +1,15 @@
+<b-tabs v-if="strategy !== null" id="strategy_statistics" class="min-width-eighty-presents">
+
+    <b-tab title="By dates">
+        <StrategyStatisticsByDates
+            v-bind:strategy="strategy"
+        />
+    </b-tab>
+
+    <b-tab title="By rounds count">
+        <StrategyStatisticsByRoundsCount
+            v-bind:strategy="strategy"
+        />
+    </b-tab>
+
+</b-tabs>

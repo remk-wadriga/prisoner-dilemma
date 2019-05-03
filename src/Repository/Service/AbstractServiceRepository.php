@@ -41,7 +41,7 @@ class AbstractServiceRepository
 
     protected function getParam($name)
     {
-        return $this->container->hasParameter($name) ? $this->container->getParameter($name) : null;
+        return $this->container->hasParameter($name) ? str_replace('0/0', '%', $this->container->getParameter($name)) : null;
     }
 
     protected function getFrontendDateTimeFormat()

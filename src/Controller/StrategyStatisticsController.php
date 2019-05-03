@@ -15,39 +15,28 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class StrategyStatisticsController extends ControllerAbstract
 {
-    /**
-     * @Route("/strategy-statistics/{id}", name="statistics_strategy", methods={"GET"})
-     * @IsGranted("MANAGE", subject="strategy")
-     */
-    public function strategyStatistics(Strategy $strategy, StrategyStatisticsService $strategyStatisticsService)
+    private $statisticsService;
+
+    public function __construct(StrategyStatisticsService $strategyStatisticsService)
     {
-        return $this->json([
-            'strategy' => $this->strategyInfo($strategy),
-            'statistics' => $strategyStatisticsService->getStatisticsByRoundsCount($strategy),
-        ]);
+        $this->statisticsService = $strategyStatisticsService;
     }
 
-
-    protected function strategyInfo(Strategy $strategy, array $additionalFields = []): array
+    /**
+     * @Route("/strategy/{id}/statistics-by-dates", name="strategy_statistics_by_dates", methods={"GET"})
+     * @IsGranted("MANAGE", subject="strategy")
+     */
+    public function byDates(Strategy $strategy)
     {
-        $params = [
-            'id' => $strategy->getId(),
-            'name' => $strategy->getName(),
-            'description' => $strategy->getDescription(),
-            'status' => $strategy->getStatus(),
-        ];
+        return $this->json($this->statisticsService->getStatisticsByDates($strategy));
+    }
 
-        foreach ($additionalFields as $index => $field) {
-            if (is_array($field)) {
-                $params[$index] = $field;
-            } else {
-                $getter = 'get' . ucfirst($field);
-                if (method_exists($strategy, $getter)) {
-                    $params[$field] = $strategy->$getter();
-                }
-            }
-        }
-
-        return $params;
+    /**
+     * @Route("/strategy/{id}/statistics-by-rounds-count", name="strategy_statistics_by_rounds_count", methods={"GET"})
+     * @IsGranted("MANAGE", subject="strategy")
+     */
+    public function byRoundsCount(Strategy $strategy)
+    {
+        return $this->json($this->statisticsService->getStatisticsByRoundsCount($strategy));
     }
 }

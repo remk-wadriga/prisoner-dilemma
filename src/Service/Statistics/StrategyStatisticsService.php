@@ -25,6 +25,20 @@ class StrategyStatisticsService extends AbstractStatisticsService
         $this->repository = $repository;
     }
 
+    public function getStatisticsByDates(Strategy $strategy)
+    {
+        // Get statistics results
+        $results = $this->repository->getStatisticsByDates($strategy);
+
+        // Format statistics values and return formatted results
+        return array_map(function ($result) {
+            return array_merge($result, [
+                'bales' => $this->formatter->toFloat($result['bales']),
+                'gamesCount' => $this->formatter->toInt($result['gamesCount']),
+            ]);
+        }, $results);
+    }
+
     public function getStatisticsByRoundsCount(Strategy $strategy)
     {
         // Get statistics results

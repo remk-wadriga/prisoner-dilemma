@@ -1,4 +1,4 @@
-<b-row id="game_params_page" v-if="isReady">
+<b-row id="game_params_page" v-if="isReady" class="min-width-eighty-presents">
     <b-col md="4" class="my-2">
         <h3>Game params:</h3>
 
@@ -71,7 +71,7 @@
         </div>
     </b-col>
 
-    <b-col md="4" class="my-2">
+    <b-col md="4" class="my-2" v-if="game !== null">
         <div class="d-block text-left">
             <h3>Description:</h3>
             <b-textarea

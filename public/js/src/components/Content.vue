@@ -15,5 +15,10 @@
 </script>
 
 <style scoped>
-
+    .min-width-eighty-presents {
+        min-width: 80%;
+    }
+    .min-width-seventy-presents {
+        min-width: 70%;
+    }
 </style>

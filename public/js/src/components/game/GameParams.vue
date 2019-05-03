@@ -103,7 +103,5 @@
 </script>
 
 <style scoped>
-    #game_params_page {
-        width: 80%;
-    }
+
 </style>

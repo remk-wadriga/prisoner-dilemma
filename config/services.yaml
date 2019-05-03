@@ -11,6 +11,9 @@ parameters:
     backend_date_time_format: 'Y-m-d H:i:s'
     backend_date_format: 'Y-m-d'
     backend_time_format: 'H:i:s'
+    database_date_time_format: '0/0Y-0/0m-0/0d 0/0H:0/0i:0/0S'
+    database_date_format: '0/0Y-0/0m-0/0d'
+    database_time_format: '0/0H:0/0i:0/0S'
 
 services:
     # default configuration for services in *this* file

@@ -9,7 +9,7 @@ import StrategyView from '@/components/strategy/View'
 import StrategyUpdate from '@/components/strategy/Update'
 import Game from '@/components/game/Game'
 import GamesList from '@/components/game/List'
-import StrategyStatistics from '@/components/statistics/StrategyStatistics'
+import StrategyStatistics from '@/components/statistics/strategy/StrategyStatistics'
 
 Vue.use(Router)
 

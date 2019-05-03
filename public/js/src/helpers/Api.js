@@ -25,7 +25,8 @@ const Api = {
             'save_game_url': '/game',
             'game_url': '/game/:id',
             'game_results_url': '/game/:id/results',
-            'strategy_statistics_url': '/strategy-statistics/:id'
+            'strategy_statistics_by_dates_url': '/strategy/:id/statistics-by-dates',
+            'strategy_statistics_by_rounds_count_url': '/strategy/:id/statistics-by-rounds-count'
         }
     },
     methods: {
