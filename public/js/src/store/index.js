@@ -10,7 +10,6 @@ export default new Vuex.Store({
         app: {
             pageTitle: '',
             pageTopButtons: [],
-            pageTopTitles: [],
             breadcrumbs: [],
             contentTitle: '',
             leftMenuItems: [
@@ -46,12 +45,6 @@ export default new Vuex.Store({
                 btn.click = JSON.stringify(btn.click)
             })
             state.app.pageTopButtons = buttons
-        },
-        addPageTopTitle(state, title) {
-            if (state.app.pageTopTitles.length > 2) {
-                state.app.pageTopTitles.shift()
-            }
-            state.app.pageTopTitles.push(title)
         },
         setBreadcrumbs(state, breadcrumbs) {
             state.app.breadcrumbs = breadcrumbs

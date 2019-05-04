@@ -41,8 +41,8 @@
                     }
                 ]
 
-                this.chartTooltipLabelCallback = (item) => {
-                    return 'Bales: ' + bales[item.index] + ' Games count: ' + gamesCount[item.index]
+                this.chartTooltipLabelCallback = item => {
+                    return 'Bales: ' + bales[item.index] + '; Games count: ' + gamesCount[item.index]
                 }
 
                 this.isReady = true

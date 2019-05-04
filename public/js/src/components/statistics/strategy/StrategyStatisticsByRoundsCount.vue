@@ -41,11 +41,11 @@
                     }
                 ]
 
-                this.chartTooltipTitleCallback = (item) => {
+                this.chartTooltipTitleCallback = item => {
                     return 'Rounds: ' + this.chartLabels[item[0].index]
                 }
-                this.chartTooltipLabelCallback = (item) => {
-                    return 'Bales: ' + bales[item.index] + ' Games count: ' + gamesCount[item.index]
+                this.chartTooltipLabelCallback = item => {
+                    return 'Bales: ' + bales[item.index] + '; Games count: ' + gamesCount[item.index]
                 }
 
                 this.isReady = true

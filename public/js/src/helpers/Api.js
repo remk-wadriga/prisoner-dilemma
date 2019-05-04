@@ -8,6 +8,8 @@ var lastRequestParams = null;
 const Api = {
     data: {
         baseUrl: Config.api.baseUrl,
+        responseHeaders: null,
+        requestUrls: [],
         routes: {
             'app_homepage': '/',
             'security_login': '/login',
@@ -75,15 +77,17 @@ const Api = {
                 requestParams.body = data
             }
 
-            // Log message
-            store.commit('addPageTopTitle', url + '?access_token=' + user.methods.getAccessToken())
+            // Remember ths request urls
+            this.requestUrls = url + '?access_token=' + user.methods.getAccessToken();
 
             // Remember last request params
             if (urlName !== 'security_login' && urlName !== 'security_renew_token') {
                 lastRequestParams = {url, requestParams, successCallback, errorCallback}
             }
+
             // Send request
             fetch(url, requestParams)
+            .then(response => { this.responseHeaders = response.headers; return response })
             .then(response => headers['Content-Type'] === 'application/json' ? response.json() : response)
             .then(response => {
                 // Process response
@@ -96,6 +100,7 @@ const Api = {
         },
         requestSuccess(response, callback) {
             callback(response)
+            this.processResponse()
         },
         requestFailed(error, callback) {
             if (error.code !== undefined && error.message !== undefined) {
@@ -104,6 +109,9 @@ const Api = {
                 if (callback(error) === false) {
                     return;
                 }
+
+                // Process response
+                this.processResponse(error)
 
                 // Error code "1001" means that access token is invalid, so, let`s logout user and go to login page!
                 if (error.code === 1001) {
@@ -151,6 +159,21 @@ const Api = {
                     store.commit('addLogMessage', {type: 'danger', text: error.message})
                 }
             }
+        },
+        processResponse(response) {
+            if (Config.params.env !== 'DEV') {
+                return;
+            }
+
+            //store.commit('setPageLog', this.requestUrls)
+            // store.commit('addLogMessage', {type: 'danger', text: 'Access token is expired, try to login again'})
+
+            // X-Debug-Token-Link
+            // x-debug-token-link
+            console.log(this.responseHeaders.has('x-debug-token-link'))
+            this.responseHeaders.forEach((header, index) => {
+                //console.log(index + ': ' + header)
+            })
         }
     }
 };
