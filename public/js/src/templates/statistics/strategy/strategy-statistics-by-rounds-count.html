@@ -1,5 +1,13 @@
-<b-col v-if="isReady" id="strategy_statistics_by_rounds_count">
+<b-col v-if="isReady" id="strategy_statistics_by_rounds_count" class="width-seventy-presents">
     <b-row>
-        <p>{{ statistics }}</p>
+        <div class="chart-container">
+            <LineChart
+                    :labels="chartLabels"
+                    :data="chartData"
+                    :options="chartOptions"
+                    :tooltipTitleCallback="chartTooltipTitleCallback"
+                    :tooltipLabelCallback="chartTooltipLabelCallback"
+            />
+        </div>
     </b-row>
 </b-col>

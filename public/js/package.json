@@ -16,6 +16,7 @@
   "dependencies": {
     "bootstrap": "^4.1.3",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "chart.js": "^2.8.0",
     "d3": "^5.7.0",
     "gojs": "^1.8.29",
     "moment": "^2.23.0",
@@ -23,6 +24,7 @@
     "prettier": "^1.12.1",
     "sass-loader": "^7.1.0",
     "vue": "^2.5.2",
+    "vue-chartjs": "^3.4.2",
     "vue-diagrams": "0.0.1-development",
     "vue-localstorage": "^0.6.2",
     "vue-orgchart": "^1.1.7",

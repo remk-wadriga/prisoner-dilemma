@@ -7,3 +7,27 @@
 button {
     cursor: pointer;
 }
+.min-width-eighty-presents {
+    min-width: 80%;
+}
+.min-width-seventy-presents {
+    min-width: 70%;
+}
+.min-width-sixty-presents {
+    min-width: 60%;
+}
+.min-width-fifty-presents {
+    min-width: 50%;
+}
+.width-eighty-presents {
+    width: 80%;
+}
+.width-seventy-presents {
+    width: 70%;
+}
+.width-sixty-presents {
+    width: 60%;
+}
+.width-fifty-presents {
+    width: 50%;
+}

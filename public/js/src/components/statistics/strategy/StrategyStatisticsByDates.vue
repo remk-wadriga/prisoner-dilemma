@@ -2,53 +2,67 @@
 
 <script>
     import Api from '@/helpers/Api.js'
+    import LineChart from '@/components/charts/LineChart'
 
     export default {
         name: "StrategyStatisticsByDates",
         props: {
             strategy: Object
         },
+        components: { LineChart },
         data() {
             return {
-                isReady: false
+                isReady: false,
+                statistics: null,
+                chartLabels: [],
+                chartData: [],
+                chartOptions: null,
+                chartTooltipTitleCallback: null,
+                chartTooltipLabelCallback: null
             }
         },
         methods: {
-            getStatistics(callback, setIsReady = false) {
-                let statisticsID = 'strategyStatisticsByDates_' + this.strategy.id
-                let statistics = this.$store.state.statistics[statisticsID]
-                if (statistics === undefined || statistics === null) {
-                    Api.methods.request(['strategy_statistics_by_dates_url', {id: this.strategy.id}], {}, 'GET', response => {
-                        this.$store.commit('setStatistics', {id: statisticsID, data: response})
-                        if (callback !== undefined && callback !== null) {
-                            callback(response)
-                        }
-                        if (setIsReady) {
-                            this.isReady = true
-                        }
-                    })
-                } else {
-                    if (setIsReady) {
-                        this.isReady = true
+            init (statistics) {
+                this.statistics = statistics
+
+                let bales = []
+                let gamesCount = []
+
+                this.statistics.forEach(data => {
+                    this.chartLabels.push(data.gameDate)
+                    bales.push(data.bales)
+                    gamesCount.push(data.gamesCount)
+                })
+
+                this.chartData = [
+                    {
+                        label: 'Bales',
+                        data: bales
                     }
-                    if (callback !== undefined && callback !== null) {
-                        callback(statistics)
-                    }
+                ]
+
+                this.chartTooltipLabelCallback = (item) => {
+                    return 'Bales: ' + bales[item.index] + ' Games count: ' + gamesCount[item.index]
                 }
-                return statistics ? statistics : [];
-            }
-        },
-        computed: {
-            statistics() {
-                return this.getStatistics()
+
+                this.isReady = true
             }
         },
         mounted() {
-            return this.getStatistics(null, true)
+            let statisticsID = 'strategyStatisticsByDates_' + this.strategy.id
+            let statistics = this.$store.state.statistics[statisticsID]
+
+            if (statistics) {
+                this.init(statistics)
+            } else {
+                Api.methods.request(['strategy_statistics_by_dates_url', {id: this.strategy.id}], {}, 'GET', response => {
+                    this.$store.commit('setStatistics', {id: statisticsID, data: response})
+                    this.init(response)
+                })
+            }
         }
     }
 </script>
 
 <style scoped>
-
 </style>

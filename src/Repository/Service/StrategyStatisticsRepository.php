@@ -40,7 +40,7 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
             ->groupBy('gameDate')
-            ->orderBy('gameDate', 'DESC')
+            ->orderBy('gameDate', 'ASC')
         ;
 
         return $query->getQuery()->getArrayResult();
