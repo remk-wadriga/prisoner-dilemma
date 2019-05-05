@@ -1,0 +1,29 @@
+<b-col class="margin-left-fifty-px margin-top-thirty-px">
+
+    <h5>Requests</h5>
+    <b-row class="padding-left-twenty-px">
+        <p v-for="msg in messages" :key="msg.id">
+            <a :href="lastMessage.debugUrl" target="_blank">{{ msg.requestUrl }}</a>
+        </p>
+    </b-row>
+
+
+    <div v-if="lastMessage.debugUrl">
+        <h5>Last request</h5>
+        <b-row class="padding-left-twenty-px">
+            <b-button v-b-toggle.collapse_container variant="primary">Debug panel</b-button>
+        </b-row>
+
+        <b-row class="padding-left-twenty-px">
+            <b-collapse id="collapse_container" class="width-eighty-presents">
+                <iframe
+                        width="100%"
+                        height="600px"
+                        :src="lastMessage.debugUrl" frameborder="0"
+                >
+                </iframe>
+            </b-collapse>
+        </b-row>
+    </div>
+
+</b-col>

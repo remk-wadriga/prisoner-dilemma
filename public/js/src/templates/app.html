@@ -59,11 +59,15 @@
         <h4>{{pageTitle}}</h4>
         <hr>
         <b-row>
-            <logger/>
+            <Logger />
         </b-row>
         <hr>
         <b-row>
             <router-view/>
         </b-row>
     </b-container>
+
+    <v-footer>
+        <Debugger />
+    </v-footer>
 </div>

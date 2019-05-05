@@ -9,7 +9,7 @@ const Api = {
     data: {
         baseUrl: Config.api.baseUrl,
         responseHeaders: null,
-        requestUrls: [],
+        requestUrl: null,
         routes: {
             'app_homepage': '/',
             'security_login': '/login',
@@ -78,7 +78,7 @@ const Api = {
             }
 
             // Remember ths request urls
-            this.requestUrls = url + '?access_token=' + user.methods.getAccessToken();
+            this.requestUrl = method + ' ' + url + '?access_token=' + user.methods.getAccessToken();
 
             // Remember last request params
             if (urlName !== 'security_login' && urlName !== 'security_renew_token') {
@@ -165,14 +165,11 @@ const Api = {
                 return;
             }
 
-            //store.commit('setPageLog', this.requestUrls)
-            // store.commit('addLogMessage', {type: 'danger', text: 'Access token is expired, try to login again'})
-
-            // X-Debug-Token-Link
-            // x-debug-token-link
-            console.log(this.responseHeaders.has('x-debug-token-link'))
-            this.responseHeaders.forEach((header, index) => {
-                //console.log(index + ': ' + header)
+            store.commit('addDebugMessage', {
+                requestUrl: this.requestUrl,
+                debugToken: this.responseHeaders.get('x-debug-token'),
+                debugPanelUrl: Api.data.baseUrl + '/_wdt/' + this.responseHeaders.get('x-debug-token'),
+                debugUrl: this.responseHeaders.get('x-debug-token-link')
             })
         }
     }

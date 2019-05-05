@@ -7,6 +7,7 @@
 button {
     cursor: pointer;
 }
+
 .min-width-eighty-presents {
     min-width: 80%;
 }
@@ -30,4 +31,79 @@ button {
 }
 .width-fifty-presents {
     width: 50%;
+}
+
+.margin-left-ten-px {
+    margin-left: 10px;
+}
+.margin-left-twenty-px {
+    margin-left: 20px;
+}
+.margin-left-thirty-px {
+    margin-left: 30px;
+}
+.margin-left-forty-px {
+    margin-left: 40px;
+}
+.margin-left-fifty-px {
+    margin-left: 50px;
+}
+.margin-left-sixty-px {
+    margin-left: 60px;
+}
+.margin-left-seventy-px {
+    margin-left: 70px;
+}
+.margin-left-eighty-px {
+    margin-left: 80px;
+}
+
+.margin-top-ten-px {
+    margin-top: 10px;
+}
+.margin-top-twenty-px {
+    margin-top: 20px;
+}
+.margin-top-thirty-px {
+    margin-top: 30px;
+}
+.margin-top-forty-px {
+    margin-top: 40px;
+}
+.margin-top-fifty-px {
+    margin-top: 50px;
+}
+.margin-top-sixty-px {
+    margin-top: 60px;
+}
+.margin-top-seventy-px {
+    margin-top: 70px;
+}
+.margin-top-eighty-px {
+    margin-top: 80px;
+}
+
+.padding-left-ten-px {
+    padding-left: 10px;
+}
+.padding-left-twenty-px {
+    padding-left: 20px;
+}
+.padding-left-thirty-px {
+    padding-left: 30px;
+}
+.padding-left-forty-px {
+    padding-left: 40px;
+}
+.padding-left-fifty-px {
+    padding-left: 50px;
+}
+.padding-left-sixty-px {
+    padding-left: 60px;
+}
+.padding-left-seventy-px {
+    padding-left: 70px;
+}
+.padding-left-eighty-px {
+    padding-left: 80px;
 }

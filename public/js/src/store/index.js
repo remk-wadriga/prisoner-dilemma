@@ -24,11 +24,10 @@ export default new Vuex.Store({
             ]
         },
         logger: {
-            messages: [
-                /*{id: 'msg_1', type: 'danger', text: 'Danger text'},
-                {id: 'msg_2', type: 'info', text: 'Info text'},
-                {id: 'msg_3', type: 'success', text: 'Success text'}*/
-            ]
+            messages: []
+        },
+        debugger: {
+            messages: []
         },
         strategy: {
             selectedId: null,
@@ -63,6 +62,23 @@ export default new Vuex.Store({
             state.logger.messages.forEach((msg, i) => {
                 if (msg.id === id) {
                     state.logger.messages.splice(i, 1)
+                }
+            })
+        },
+        addDebugMessage(state, msg) {
+            if (msg.id === undefined) {
+                index++;
+                msg.id = 'debugger_message_' + index;
+            }
+            if (state.debugger.messages.length >= 3) {
+                state.debugger.messages.splice(0, 1)
+            }
+            state.debugger.messages.push(msg)
+        },
+        deleteDebugMessage(state, id) {
+            state.debugger.messages.forEach((msg, i) => {
+                if (msg.id === id) {
+                    state.debugger.messages.splice(i, 1)
                 }
             })
         },

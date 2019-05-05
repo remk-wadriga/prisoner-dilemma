@@ -4,9 +4,9 @@
 
 import Api from '@/helpers/Api'
 import user from '@/entityes/User'
-import store from '@/store'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import Logger from '@/components/Logger'
+import Debugger from '@/components/Debugger'
 import LetMenu from '@/components/LeftMenu'
 import Content from '@/components/Content'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -14,7 +14,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 export default {
     name: 'App',
-    components: { Logger, Breadcrumbs, LetMenu, Content },
+    components: { Logger, Debugger, Breadcrumbs, LetMenu, Content },
     data() {
         return {
             user: user
