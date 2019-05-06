@@ -8,7 +8,7 @@
     </b-row>
 
 
-    <div v-if="lastMessage.debugUrl">
+    <div v-if="lastMessage && lastMessage.debugUrl">
         <h5>Last request</h5>
         <b-row class="padding-left-twenty-px">
             <b-button v-b-toggle.collapse_container variant="primary">Debug panel</b-button>
