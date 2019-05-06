@@ -6,7 +6,9 @@
         props: {
             labels: Array,
             data: Array,
-            options: Object
+            options: Object,
+            tooltipTitleCallback: Function,
+            tooltipLabelCallback: Function
         },
         data () {
             return {
@@ -23,6 +25,20 @@
             }
             if (!this.data) {
                 this.data = []
+            }
+
+            if (this.tooltipTitleCallback || this.tooltipLabelCallback) {
+                if (options.tooltips === undefined) {
+                    options.tooltips = {
+                        callbacks: {}
+                    }
+                }
+                if (this.tooltipTitleCallback) {
+                    options.tooltips.callbacks.title = this.tooltipTitleCallback
+                }
+                if (this.tooltipLabelCallback) {
+                    options.tooltips.callbacks.label = this.tooltipLabelCallback
+                }
             }
 
             this.data.forEach(data => {

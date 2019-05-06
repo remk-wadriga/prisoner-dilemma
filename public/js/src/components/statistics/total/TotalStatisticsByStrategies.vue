@@ -2,11 +2,11 @@
 
 <script>
     import Api from '@/helpers/Api.js'
-    import LineChart from '@/components/charts/LineChart'
+    import BarChart from '@/components/charts/BarChart'
 
     export default {
         name: "TotalStatisticsByStrategies",
-        components: { LineChart },
+        components: { BarChart },
         data() {
             return {
                 isReady: false,
