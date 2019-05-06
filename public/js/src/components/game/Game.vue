@@ -84,6 +84,10 @@
                     } else {
                         this.showParams = true
                     }
+
+                    this.$store.commit('setPageTopButtons', [
+                        {title: 'Show statistics', type: 'success', click: {url: {name: 'game_statistics', params: {id}}}}
+                    ])
                 })
             } else {
                 this.showParams = true

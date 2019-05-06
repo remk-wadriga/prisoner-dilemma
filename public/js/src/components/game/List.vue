@@ -52,6 +52,9 @@
                     this.deleteGameVisible = false
                     this.$router.go(0)
                 })
+            },
+            showGameStatistics(id) {
+                this.$router.push({name: 'game_statistics', params: {id}})
             }
         },
         mounted() {

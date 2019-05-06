@@ -22,7 +22,14 @@ class GameStatisticsService extends AbstractStatisticsService
 
     public function getStatisticsByStrategies(Game $game)
     {
-        $result = $this->repository->getStatisticsByStrategies($game);
-        dd($result);
+        // Get statistics results
+        $results = $this->repository->getStatisticsByStrategies($game);
+
+        // Format statistics values and return formatted results
+        return array_map(function ($result) {
+            return array_merge($result, [
+                'bales' => $this->formatter->toFloat($result['bales']),
+            ]);
+        }, $results);
     }
 }

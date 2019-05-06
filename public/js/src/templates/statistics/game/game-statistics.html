@@ -1,0 +1,14 @@
+<b-tabs
+    v-if="game"
+    id="game_statistics"
+    class="min-width-eighty-presents"
+    :lazy="lazyLoad"
+>
+
+    <b-tab title="By strategies">
+        <GameStatisticsByStrategies
+            v-bind:game="game"
+        />
+    </b-tab>
+
+</b-tabs>

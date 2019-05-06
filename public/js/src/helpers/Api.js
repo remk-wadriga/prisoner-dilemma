@@ -28,7 +28,8 @@ const Api = {
             'game_url': '/game/:id',
             'game_results_url': '/game/:id/results',
             'strategy_statistics_by_dates_url': '/strategy/:id/statistics-by-dates',
-            'strategy_statistics_by_rounds_count_url': '/strategy/:id/statistics-by-rounds-count'
+            'strategy_statistics_by_rounds_count_url': '/strategy/:id/statistics-by-rounds-count',
+            'game_statistics_by_strategies_url': '/game/:id/statistics-by-strategies',
         }
     },
     methods: {

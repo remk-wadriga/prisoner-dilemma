@@ -26,6 +26,9 @@
                     <b-button :variant="deleteBtnVar" size="sm" @click.stop="openDeleteGameModal(row.item)" class="mr-1">
                         Delete
                     </b-button>
+                    <b-button @click.stop="showGameStatistics(row.item.id)" size="sm" class="mr-1">
+                        Show statistics
+                    </b-button>
                 </template>
             </b-table>
         </b-col>
