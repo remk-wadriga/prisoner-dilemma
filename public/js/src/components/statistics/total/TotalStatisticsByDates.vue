@@ -26,6 +26,7 @@
                 statistics.forEach(data => {
                     this.chartLabels.push(data.gameDate)
                     bales.push(data.bales)
+                    gamesCount.push(data.gamesCount)
                     roundsCount.push(data.roundsCount)
                 })
 
