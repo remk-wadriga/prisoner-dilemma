@@ -44,6 +44,10 @@
 
                     // Clear all statistics cash
                     this.$store.commit('setStatistics', null)
+
+                    this.$store.commit('setPageTopButtons', [
+                        {title: 'Show statistics', type: 'success', click: {url: {name: 'game_statistics', params: {id: response.info.id}}}}
+                    ])
                 }
                 if (this.game === null || this.gameResultsChanged) {
                     Api.methods.request('save_game_url', {game_form: data}, 'POST', cllback)
