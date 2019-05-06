@@ -9,6 +9,7 @@ import StrategyView from '@/components/strategy/View'
 import StrategyUpdate from '@/components/strategy/Update'
 import Game from '@/components/game/Game'
 import GamesList from '@/components/game/List'
+import TotalStatistics from '@/components/statistics/total/TotalStatistics'
 import StrategyStatistics from '@/components/statistics/strategy/StrategyStatistics'
 import GameStatistics from '@/components/statistics/game/GameStatistics'
 
@@ -65,6 +66,11 @@ export default new Router({
             path: '/games',
             name: 'games_list',
             component: GamesList
+        },
+        {
+            path: '/total-statistics',
+            name: 'total_statistics',
+            component: TotalStatistics
         },
         {
             path: '/strategy-statistics/:id',

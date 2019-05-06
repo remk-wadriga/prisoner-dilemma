@@ -1,0 +1,13 @@
+<b-col v-if="isReady" id="total_statistics_by_strategies" class="width-seventy-presents">
+    <b-row>
+        <div class="chart-container">
+            <LineChart
+                :labels="chartLabels"
+                :data="chartData"
+                :options="chartOptions"
+                :tooltipTitleCallback="chartTooltipTitleCallback"
+                :tooltipLabelCallback="chartTooltipLabelCallback"
+            />
+        </div>
+    </b-row>
+</b-col>

@@ -15,11 +15,15 @@ export default new Vuex.Store({
             leftMenuItems: [
                 {
                     name: 'Strategies',
-                    url: '/',
+                    url: '/'
                 },
                 {
                     name: 'Games',
-                    url: '/games',
+                    url: '/games'
+                },
+                {
+                    name: 'Statistics',
+                    url: '/total-statistics'
                 }
             ]
         },

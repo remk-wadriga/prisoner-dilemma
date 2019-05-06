@@ -1,0 +1,18 @@
+<b-tabs
+    id="total_statistics"
+    class="min-width-eighty-presents"
+    :lazy="lazyLoad"
+>
+    <b-tab title="By dates">
+        <TotalStatisticsByDates />
+    </b-tab>
+
+    <b-tab title="By strategies">
+        <TotalStatisticsByStrategies />
+    </b-tab>
+
+    <b-tab title="By rounds count">
+        <TotalStatisticsByRoundsCount />
+    </b-tab>
+
+</b-tabs>
