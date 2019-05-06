@@ -1,7 +1,10 @@
 <b-col v-if="isReady" id="game_statistics_by_strategies" class="width-seventy-presents">
     <b-row>
         <div class="chart-container">
-            STATS
+            <BarChart
+                :labels="chartLabels"
+                :data="chartData"
+            />
         </div>
     </b-row>
 </b-col>

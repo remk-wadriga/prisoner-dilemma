@@ -2,22 +2,39 @@
 
 <script>
     import Api from '@/helpers/Api.js'
+    import BarChart from '@/components/charts/BarChart'
 
     export default {
         name: "GameStatisticsByStrategies",
         props: {
             game: Object
         },
-        components: {  },
+        components: { BarChart },
         data() {
             return {
                 isReady: false,
-                statistics: null
+                statistics: null,
+                chartLabels: [],
+                chartData: []
             }
         },
         methods: {
             init (statistics) {
                 this.statistics = statistics
+
+                let bales = []
+
+                this.statistics.forEach(data => {
+                    this.chartLabels.push(data.strategy)
+                    bales.push(data.bales)
+                })
+
+                this.chartData = [
+                    {
+                        label: 'Bales',
+                        data: bales
+                    }
+                ]
 
                 this.isReady = true
             }
