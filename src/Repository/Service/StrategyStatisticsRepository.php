@@ -18,7 +18,7 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
      *
      * Request:
         SELECT
-            SUM(gr.result) / COUNT(gr.game_id) AS bales,
+            SUM(gr.result) / SUM(g.rounds) AS bales,
             COUNT(gr.game_id) AS gamesCount,
             DATE_FORMAT(g.created_at, '%Y-%m-%d') AS gameDate
         FROM `game_result` gr
@@ -35,7 +35,7 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
     {
         $query = $this->createGameResultsJoinedGameQueryBuilder($strategy)
             ->select([
-                'SUM(gr.result) / COUNT(gr.game) AS bales',
+                'SUM(gr.result) / SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
@@ -51,7 +51,7 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
      *
      * Request:
         SELECT
-            SUM(gr.result) / COUNT(gr.game_id) AS bales,
+            SUM(gr.result) / SUM(g.rounds) AS bales,
             COUNT(gr.game_id) AS gamesCount,
             g.rounds AS roundsCount
         FROM `game_result` gr
@@ -68,7 +68,7 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
     {
         $query = $this->createGameResultsJoinedGameQueryBuilder($strategy)
             ->select([
-                'SUM(gr.result) / COUNT(gr.game) AS bales',
+                'SUM(gr.result) / SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
                 'g.rounds AS roundsCount',
             ])
