@@ -15,12 +15,11 @@ class GameStatisticsRepository extends AbstractServiceRepository
      * Request:
         SELECT
             s.name AS strategy,
-            SUM(gr.result) / g.rounds AS bales
+            gr.result AS bales
         FROM game_result gr
         INNER JOIN game g ON g.id = gr.game_id
         INNER JOIN strategy s ON s.id = gr.strategy_id
         WHERE gr.game_id = 173
-        GROUP BY strategy
         ORDER BY bales DESC
      *
      * @param Game $game
@@ -31,9 +30,8 @@ class GameStatisticsRepository extends AbstractServiceRepository
         $query = $this->createGameResultsJoinedGameAndStrategyQueryBuilder($game)
             ->select([
                 's.name AS strategy',
-                'SUM(gr.result) / g.rounds AS bales'
+                'gr.result AS bales'
             ])
-            ->groupBy('strategy')
             ->orderBy('bales', 'DESC');
 
         return $query->getQuery()->getArrayResult();

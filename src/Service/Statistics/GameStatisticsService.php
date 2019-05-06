@@ -28,7 +28,7 @@ class GameStatisticsService extends AbstractStatisticsService
         // Format statistics values and return formatted results
         return array_map(function ($result) {
             return array_merge($result, [
-                'bales' => $this->formatter->toFloat($result['bales']),
+                'bales' => $this->formatter->toInt($result['bales']),
             ]);
         }, $results);
     }
