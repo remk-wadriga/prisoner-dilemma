@@ -39,24 +39,25 @@ class StrategyCrudTest extends AbstractApiTestCase
     {
         // 1. Login as user
         $this->logInAsUser();
+        $user = $this->user;
 
-        // 2. Get current users strategy and send request. But if user has no one strategies - we just have nothing to test yet
+        // 2. Get current users strategy and send request.
         $strategy = $this->findStrategy();
-        if ($strategy === null) {
-            return;
-        }
+        $this->assertNotEmpty($strategy, sprintf('User #%s has no strategies!', $user->getId()));
+
+        // 3. Send response
         $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
-        // 3. Check response
+
+        // 4. Check response
         $this->checkIsCorrectStrategyParamsInResponse($response, 'show strategy');
 
-        // 3. Get some different users strategy and send request. But if no one strategy is found - we just have nothing to test yet
+        // 5. Get some different users strategy and send request. But if no one strategy is found - we just have nothing to test yet
         $strategy = $this->getNotUserStrategy();
         if ($strategy === null) {
             return;
         }
         $response = $this->request(['strategy_show', ['id' => $strategy->getId()]]);
         $this->checkNotOwnStrategyResponse($response, 'show another user strategy');
-
     }
 
     public function testCreateAction()
