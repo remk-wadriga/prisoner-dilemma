@@ -22,6 +22,8 @@ class GameRepository extends ServiceEntityRepository
     public function findAllOrderedByCreatedAtDesc(int $userID = null)
     {
         $queryBuilder = $this->createQueryBuilder('g')
+            ->addSelect('gr')
+            ->leftJoin('g.gameResults', 'gr')
             ->orderBy('g.updatedAt', 'DESC')
         ;
 
