@@ -12,7 +12,11 @@
         },
         data () {
             return {
-
+                borderColors: ['#FC2525', '#05CBE1'],
+                backgroundColors: [
+                    ['rgba(255, 0,0, 0.5)', 'rgba(255, 0, 0, 0.25)', 'rgba(255, 0, 0, 0)'],
+                    ['rgba(0, 231, 255, 0.9)', 'rgba(0, 231, 255, 0.25)', 'rgba(0, 231, 255, 0)']
+                ]
             }
         },
         mounted () {
@@ -41,9 +45,16 @@
                 }
             }
 
+            let borderColorIndex = 0
+            let backgroundColorIndex = 0
             this.data.forEach(data => {
-                if (data.backgroundColor === undefined) {
-                    data.backgroundColor = '#FC2525'
+                if (data.borderColor === undefined) {
+                    let borderColor = this.borderColors[borderColorIndex++]
+                    if (borderColor === undefined) {
+                        borderColorIndex = 0
+                        borderColor = this.borderColors[borderColorIndex++]
+                    }
+                    data.borderColor = borderColor
                 }
                 if (data.pointBackgroundColor === undefined) {
                     data.pointBackgroundColor = 'white'
@@ -52,7 +63,20 @@
                     data.borderWidth = 1
                 }
                 if (data.pointBorderColor === undefined) {
-                    data.pointBorderColor = '#05CBE1'
+                    data.pointBorderColor = 'white'
+                }
+                if (data.backgroundColor === undefined) {
+                    let backgroundColors = this.backgroundColors[backgroundColorIndex++]
+                    if (backgroundColors === undefined) {
+                        backgroundColorIndex = 0
+                        backgroundColors = this.backgroundColors[backgroundColorIndex++]
+                    }
+
+                    let gradient = this.$refs.canvas.getContext('2d').createLinearGradient(0, 0, 0, 450)
+                    gradient.addColorStop(0, backgroundColors[0])
+                    gradient.addColorStop(0.5, backgroundColors[1])
+                    gradient.addColorStop(1, backgroundColors[2])
+                    data.backgroundColor = gradient
                 }
             })
 
