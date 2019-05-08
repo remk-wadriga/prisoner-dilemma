@@ -9,6 +9,8 @@
 namespace App\Tests\Web;
 
 use App\Entity\Game;
+use App\Entity\GameResult;
+use App\Entity\IndividualGameResult;
 use App\Entity\Strategy;
 use App\Entity\Types\Enum\IsEnabledEnum;
 use App\Exception\HttpException;
@@ -30,7 +32,7 @@ class GameCrudTest extends AbstractApiTestCase
     /** @var GameResultsService */
     private $gameResultsService;
 
-    public function testListAction()
+    public function AAtestListAction()
     {
         // Login as default user
         $this->logInAsUser();
@@ -50,7 +52,7 @@ class GameCrudTest extends AbstractApiTestCase
         }
     }
 
-    public function testViewAction()
+    public function AAtestViewAction()
     {
         // 1. Login as default user
         $this->logInAsUser();
@@ -78,7 +80,7 @@ class GameCrudTest extends AbstractApiTestCase
         $this->checkStrategyRequestResponse($response, 'Show different user game action', Response::HTTP_FORBIDDEN, HttpException::CODE_ACCESS_DENIED, 'access denied');
     }
 
-    public function testCreateAction()
+    public function AAtestCreateAction()
     {
         // 1. Login as default user
         $this->logInAsUser();
@@ -117,14 +119,15 @@ class GameCrudTest extends AbstractApiTestCase
 
     public function testUpdateAction()
     {
+        $testKeysID = 'test_update_game_action';
+        
         // 1. Login as default user
         $this->logInAsUser();
+        $user = $this->user;
 
         // 2. Find a game
         $game = $this->findGame($this->user->getId());
-        if ($game === null) {
-            return;
-        }
+        $this->assertNotEmpty($game, sprintf('User #%s has no games!', $user->getId()));
 
         // 3. Get some strategies Ids and game params for game and remember it
         $faker = Factory::create();
@@ -140,33 +143,95 @@ class GameCrudTest extends AbstractApiTestCase
         $balesForDraw = $faker->numberBetween(5, 25);
 
         // 4. Play game to get real game results
-        $gameResults = $this->getGameService()->runGame($this->user, $strategiesIDs, $rounds, $balesForWin, $balesForLoos, $balesForCooperation, $balesForDraw);
+        $gameResults = $this->getGameService()->runGame($user, $strategiesIDs, $rounds, $balesForWin, $balesForLoos, $balesForCooperation, $balesForDraw);
 
         // 5. Create game params
         $gameParams = $this->createGameParams($strategiesIDs, $gameResults, $name, $description, $rounds, $balesForWin, $balesForLoos, $balesForCooperation, $balesForDraw);
 
-        // 6. Try to create new game
+        // 6. Try to update game
         $response = $this->request(['game_update', ['id' => $game->getId()]], $gameParams, 'PUT');
-        $game = $this->checkIsCorrectGameParamsInResponse($response, 'Updating a new game', $gameResults['sum'], $name, $description, $rounds, $balesForWin, $balesForLoos, $balesForCooperation, $balesForDraw, $this->user);
-        $this->assertNotNull($game, 'Testing "create a new game" is failed: where is my game?..');
+        $game = $this->checkIsCorrectGameParamsInResponse($response, $testKeysID, $gameResults['sum'], $name, $description, $rounds, $balesForWin, $balesForLoos, $balesForCooperation, $balesForDraw, $this->user);
 
         // 7. Check is correct game results
-        $this->checkIsCorrectGameResults($game, $strategiesCount, $gameResults, 'Updating a new game');
+        $this->checkIsCorrectGameResults($game, $strategiesCount, $gameResults, $testKeysID);
 
-        // 8. Try to get strategy by incorrect ID
+        // 8. Remember game params
+        $oldName = $game->getName();
+        $oldDescription = $game->getDescription();
+        $oldRoundsCount = $game->getRounds();
+        $oldBalesForWin = $game->getBalesForWin();
+        $oldResultsCount = $this->calculateGameResultsCount($game);
+        $oldResultsSum = $this->calculateGameSesultsSum($game);
+        $oldIndividualResultsCount = $this->calculateGameIndividualResultsCount($game);
+        $oldIndividualResultsSum = $this->calculateGameIndividualResultsSum($game);
+
+        // 9. Try to update game name
+        $newName = $faker->name;
+        $defaultGameParams = [
+            'rounds' => $game->getRounds(),
+            'balesForWin' => $game->getBalesForWin(),
+            'balesForLoos' => $game->getBalesForLoos(),
+            'balesForCooperation' => $game->getBalesForCooperation(),
+            'balesForDraw' => $game->getBalesForDraw(),
+        ];
+        $gameParams = ['game_form' => array_merge($defaultGameParams, ['name' => $newName])];
+        $response = $this->request(['game_update', ['id' => $game->getId()]], $gameParams, 'PUT');
+        $game = $this->checkIsCorrectGameParamsInResponse($response, $testKeysID, null, $newName);
+        $this->assertEquals($newName, $game->getName(), sprintf('Test "%s" failed. Incorrect game #%s name. Game name must be "%s" but "%s" given', $testKeysID, $game->getId(), $newName, $game->getName()));
+        $this->assertNotEquals($game->getName(), $oldName, sprintf('Test "%s" failed. Incorrect game #%s name. Game name must be changed to "%s", but it\'s steel "%s"', $testKeysID, $game->getId(), $game->getName(), $oldName));
+
+        // 10. Try to update game description
+        $newDescription = $faker->text;
+        $gameParams = ['game_form' => array_merge($defaultGameParams, ['name' => $newName, 'description' => $newDescription])];
+        $response = $this->request(['game_update', ['id' => $game->getId()]], $gameParams, 'PUT');
+        $game = $this->checkIsCorrectGameParamsInResponse($response, $testKeysID, null, null, $newDescription);
+        $this->assertEquals($newDescription, $game->getDescription(), sprintf('Test "%s" failed. Incorrect game #%s description. Game description must be "%s" but "%s" given', $testKeysID, $game->getId(), $newDescription, $game->getDescription()));
+        $this->assertNotEquals($game->getDescription(), $oldDescription, sprintf('Test "%s" failed. Incorrect game #%s name. Game name must be changed to "%s", but it\'s steel "%s"', $testKeysID, $game->getId(), $game->getDescription(), $oldDescription));
+
+        // 11. Try to update game rounds count
+        $newRoundsCount = $oldRoundsCount + $faker->numberBetween(1, 10);
+        $gameParams = ['game_form' => array_merge($defaultGameParams, ['name' => $newName, 'rounds' => $newRoundsCount])];
+        $response = $this->request(['game_update', ['id' => $game->getId()]], $gameParams, 'PUT');
+        $game = $this->checkIsCorrectGameParamsInResponse($response, $testKeysID, null, null, null, $newRoundsCount);
+        $this->assertEquals($newRoundsCount, $game->getRounds(), sprintf('Test "%s" failed. Incorrect game #%s roundsCount. Game roundsCount must be %s but %s given', $testKeysID, $game->getId(), $newRoundsCount, $game->getRounds()));
+        $this->assertNotEquals($game->getRounds(), $oldRoundsCount, sprintf('Test "%s" failed. Incorrect game #%s roundsCount. Game roundsCount must be changed to %s, but it\'s steel %s', $testKeysID, $game->getId(), $game->getRounds(), $oldRoundsCount));
+
+        // 12. Try to update game bales for win
+        $newBalesForWin = $oldBalesForWin + $faker->numberBetween(1, 10);
+        $gameParams = ['game_form' => array_merge($defaultGameParams, ['name' => $newName, 'balesForWin' => $newBalesForWin])];
+        $response = $this->request(['game_update', ['id' => $game->getId()]], $gameParams, 'PUT');
+        $game = $this->checkIsCorrectGameParamsInResponse($response, $testKeysID, null, null, null, null, $newBalesForWin);
+        $this->assertEquals($newBalesForWin, $game->getBalesForWin(), sprintf('Test "%s" failed. Incorrect game #%s roundsCount. Game roundsCount must be %s but %s given', $testKeysID, $game->getId(), $newBalesForWin, $game->getBalesForWin()));
+        $this->assertNotEquals($game->getBalesForWin(), $oldBalesForWin, sprintf('Test "%s" failed. Incorrect game #%s roundsCount. Game roundsCount must be changed to %s, but it\'s steel %s', $testKeysID, $game->getId(), $game->getBalesForWin(), $oldBalesForWin));
+
+        // 9. Try to get game by incorrect ID
         $response = $this->request(['game_show', ['id' => 'some_incorrect_id']]);
         $this->checkStrategyRequestResponse($response, 'Updating game by incorrect ID action', Response::HTTP_NOT_FOUND, HttpException::CODE_NOT_FOUND, 'not found');
 
-        // 9. Find another user game and try to get it by request
-        $game = $this->findNotUserGame($this->user->getId());
-        if ($game === null) {
-            return;
+        // 10. Find another user game and try to get it by request
+        $notUserGame = $this->findNotUserGame($this->user->getId());
+        if ($notUserGame !== null) {
+            $response = $this->request(['game_show', ['id' => $notUserGame->getId()]]);
+            $this->checkStrategyRequestResponse($response, 'Updating different user\'s game action', Response::HTTP_FORBIDDEN, HttpException::CODE_ACCESS_DENIED, 'access denied');
         }
-        $response = $this->request(['game_show', ['id' => $game->getId()]]);
-        $this->checkStrategyRequestResponse($response, 'Updating different user\'s game action', Response::HTTP_FORBIDDEN, HttpException::CODE_ACCESS_DENIED, 'access denied');
+
+        // 11. Check is game has the same decisions and individual decisions counts
+        $newResultsCount = $this->calculateGameResultsCount($game);
+        $newResultsSum = $this->calculateGameSesultsSum($game);
+        $newIndividualResultsCount = $this->calculateGameIndividualResultsCount($game);
+        $newIndividualResultsSum = $this->calculateGameIndividualResultsSum($game);
+
+        $this->assertEquals($oldResultsCount, $newResultsCount, sprintf('Test %s failed. Game #%s results count is changed after updating. Old value is %s, new value is %s',
+            $testKeysID, $game->getId(), $oldResultsCount, $newResultsCount));
+        $this->assertEquals($oldResultsSum, $newResultsSum, sprintf('Test %s failed. Game #%s results sum is changed after updating. Old value is %s, new value is %s',
+            $testKeysID, $game->getId(), $oldResultsSum, $newResultsSum));
+        $this->assertEquals($oldIndividualResultsCount, $newIndividualResultsCount, sprintf('Test %s failed. Game #%s individual results count is changed after updating. Old value is %s, new value is %s',
+            $testKeysID, $game->getId(), $oldIndividualResultsCount, $newIndividualResultsCount));
+        $this->assertEquals($oldIndividualResultsSum, $newIndividualResultsSum, sprintf('Test %s failed. Game #%s individual results sum is changed after updating. Old value is %s, new value is %s',
+            $testKeysID, $game->getId(), $oldIndividualResultsSum, $newIndividualResultsSum));
     }
 
-    public function testDeleteAction()
+    public function AAtestDeleteAction()
     {
         // 1. Login as default user
         $this->logInAsUser();
@@ -195,9 +260,8 @@ class GameCrudTest extends AbstractApiTestCase
     }
 
 
-    private function checkIsCorrectGameParamsInResponse(ApiResponse $response, string $testKeysID, int $sum = null, string $name = null, string $description = null, int $rounds = null, int $balesForWin = null, int $balesForLoos = null, int $balesForCooperation = null, int $balesForDraw = null, User $user = null): ?Game
+    private function checkIsCorrectGameParamsInResponse(ApiResponse $response, string $testKeysID, int $sum = null, string $name = null, string $description = null, int $rounds = null, int $balesForWin = null, int $balesForLoos = null, int $balesForCooperation = null, int $balesForDraw = null, User $user = null): Game
     {
-        $game = null;
         // Check response status - mus be equals to 200
         $this->assertEquals(Response::HTTP_OK, $response->getStatus(),
             sprintf('Wrong test "%s" response, status code must be equal to %s, but it is not. It is: %s. The content is: %s',
@@ -242,10 +306,13 @@ class GameCrudTest extends AbstractApiTestCase
             $this->assertEquals($params['balesForDraw'], $balesForDraw, sprintf($mustBeEqualsMessage, 'balesForDraw', $balesForDraw, $params['balesForDraw']));
         }
 
+        // Find this game
+        $game = $this->entityManager->getRepository(Game::class)->findOneBy(['id' => $info['id']]);
+        $this->assertNotEmpty($game, sprintf('Test "%s" failed. Can not fund game by ID %s', $testKeysID, $info['id']));
+        $this->entityManager->refresh($game);
+
         // Check dependencies between user and this game
         if ($user !== null) {
-            // Find this game
-            $game = $this->entityManager->getRepository(Game::class)->find($info['id']);
             $this->assertNotNull($game, sprintf('Test "%s" is failed. Can`t find the game #%s in DB', $testKeysID, $info['id']));
             // Check is strategy has user
             $this->assertNotNull($game->getUser(), sprintf('Test "%s" is failed. Game #%s has no user', $testKeysID, $info['id']));
@@ -458,6 +525,64 @@ class GameCrudTest extends AbstractApiTestCase
         }
     }
 
+
+    private function calculateGameResultsCount(Game $game)
+    {
+        return $this->entityManager->getRepository(GameResult::class)
+            ->createQueryBuilder('gr')
+            ->select('COUNT(gr)')
+            ->andWhere('gr.game = :game')
+            ->setParameter('game', $game)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function calculateGameSesultsSum(Game $game)
+    {
+        return $this->entityManager->getRepository(GameResult::class)
+            ->createQueryBuilder('gr')
+            ->select('SUM(gr.result)')
+            ->andWhere('gr.game = :game')
+            ->setParameter('game', $game)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function calculateGameIndividualResultsCount(Game $game)
+    {
+        $resultsIDsQuery = $this->entityManager->getRepository(GameResult::class)
+            ->createQueryBuilder('gr')
+            ->select('gr.id')
+            ->andWhere('gr.game = :game')
+            ->setParameter('game', $game);
+        $resultsIDs = array_map(function ($res) { return intval($res['id']); }, $resultsIDsQuery->getQuery()->getScalarResult());
+
+        return $this->entityManager->getRepository(IndividualGameResult::class)
+            ->createQueryBuilder('igr')
+            ->select('COUNT(igr)')
+            ->andWhere('igr.gameResult IN (:game_results_ids)')
+            ->setParameter('game_results_ids', $resultsIDs)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    private function calculateGameIndividualResultsSum(Game $game)
+    {
+        $resultsIDsQuery = $this->entityManager->getRepository(GameResult::class)
+            ->createQueryBuilder('gr')
+            ->select('gr.id')
+            ->andWhere('gr.game = :game')
+            ->setParameter('game', $game);
+        $resultsIDs = array_map(function ($res) { return intval($res['id']); }, $resultsIDsQuery->getQuery()->getScalarResult());
+
+        return $this->entityManager->getRepository(IndividualGameResult::class)
+            ->createQueryBuilder('igr')
+            ->select('SUM(igr.result)')
+            ->andWhere('igr.gameResult IN (:game_results_ids)')
+            ->setParameter('game_results_ids', $resultsIDs)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 
     private function createGameParams(array $strategiesIDs = [], array $gameResults = [], string $name = null, string $description = null, int $rounds = null, int $balesForWin = null, int $balesForLoos = null, int $balesForCooperation = null, int $balesForDraw = null): array
     {

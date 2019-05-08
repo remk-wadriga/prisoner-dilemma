@@ -85,6 +85,8 @@ class StrategyCrudTest extends AbstractApiTestCase
 
     public function testUpdateAction()
     {
+        $testKeysID = 'test_update_strategy_action';
+        
         // 1. Get User and login him
         $this->logInAsUser();
         $user = $this->user;
@@ -97,6 +99,7 @@ class StrategyCrudTest extends AbstractApiTestCase
         $oldName = $strategy->getName();
         $oldDescription = $strategy->getDescription();
         $oldStatus = $strategy->getStatus();
+        $oldDecisionsCount = $this->calculateStrategyDecisionsCount($strategy);
         $faker = Factory::create();
         $newName = $faker->text(17);
         $newDescription = $faker->text;
@@ -135,9 +138,16 @@ class StrategyCrudTest extends AbstractApiTestCase
                 Response::HTTP_OK, $response->getStatus(), $response->getContent()));
 
         // 8. Get some different users strategy and try to update it
-        $strategy = $this->getNotUserStrategy();
-        $response = $this->request(['strategy_update', ['id' => $strategy->getId()]], $data, 'PUT');
-        $this->checkNotOwnStrategyResponse($response, 'update another user strategy');
+        $notUserStrategy = $this->getNotUserStrategy();
+        if ($notUserStrategy !== null) {
+            $response = $this->request(['strategy_update', ['id' => $notUserStrategy->getId()]], $data, 'PUT');
+            $this->checkNotOwnStrategyResponse($response, $testKeysID);
+        }
+        
+        // 9. Check is strategy has the same decisions count
+        $newDecisionsCount = $this->calculateStrategyDecisionsCount($strategy);
+        $this->assertEquals($oldDecisionsCount, $newDecisionsCount, sprintf('Test %s failed. Strategy #%s decisions count is changed after updating. Old value is %s, new value is %s',
+            $testKeysID, $strategy->getId(), $oldDecisionsCount, $newDecisionsCount));
     }
     
     public function testGenerateRandomAction()
@@ -220,6 +230,18 @@ class StrategyCrudTest extends AbstractApiTestCase
         }
         $response = $this->request(['strategy_delete', ['id' => $strategy->getId()]], [], 'DELETE');
         $this->checkNotOwnStrategyResponse($response, 'delete not own strategy');
+    }
+
+
+    private function calculateStrategyDecisionsCount(Strategy $strategy)
+    {
+        return $this->entityManager->getRepository(Decision::class)
+            ->createQueryBuilder('d')
+            ->select('COUNT(d)')
+            ->andWhere('d.strategy = :strategy')
+            ->setParameter('strategy', $strategy)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     private function createStrategyDataArray(string $name = null, string $description = null, string $status = null)
