@@ -26,4 +26,13 @@ class GameStatisticsController extends ControllerAbstract
     {
         return $this->json($this->statisticsService->getStatisticsByStrategies($game));
     }
+
+    /**
+     * @Route("/game/{id}/statistics-by-dates", name="game_statistics_by_dates", methods={"GET"})
+     * @IsGranted("MANAGE", subject="game")
+     */
+    public function byDates(Game $game)
+    {
+        return $this->json($this->statisticsService->getStatisticsByDates($game));
+    }
 }

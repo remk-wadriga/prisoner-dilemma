@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Game;
 use App\Entity\GameResult;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -19,32 +20,49 @@ class GameResultRepository extends ServiceEntityRepository
         parent::__construct($registry, GameResult::class);
     }
 
-//    /**
-//     * @return GameResult[] Returns an array of GameResult objects
-//     */
-    /*
-    public function findByExampleField($value)
+    public function findGameBestResult(Game $game)
     {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('g.id', 'ASC')
-            ->setMaxResults(10)
+        $maxResult = $this->createGameResultQueryBuilder($game)
+            ->select('MAX(gr.result)')
             ->getQuery()
-            ->getResult()
+            ->getSingleScalarResult()
         ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?GameResult
+        return $this->findGameResultStrategyByResult($game, intval($maxResult));
+    }
+
+    public function findGameWorseResult(Game $game)
     {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.exampleField = :val')
-            ->setParameter('val', $value)
+        $minResult = $this->createGameResultQueryBuilder($game)
+            ->select('MIN(gr.result)')
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getSingleScalarResult();
+        return $this->findGameResultStrategyByResult($game, intval($minResult));
+    }
+
+
+    private function findGameResultStrategyByResult(Game $game, int $result): array
+    {
+        $query = $this->createQueryBuilder('gr')
+            ->select([
+                's.name AS strategy',
+                'gr.result AS bales',
+            ])
+            ->innerJoin('gr.strategy', 's')
+            ->andWhere('gr.game = :game')
+            ->andWhere('gr.result = :result')
+            ->setParameters(['game' => $game, 'result' => $result])
+            ->setMaxResults(1)
+        ;
+
+        return $query->getQuery()->getSingleResult();
+    }
+
+    private function createGameResultQueryBuilder(Game $game)
+    {
+        return $this->createQueryBuilder('gr')
+            ->andWhere('gr.game = :game')
+            ->setParameter('game', $game)
         ;
     }
-    */
 }

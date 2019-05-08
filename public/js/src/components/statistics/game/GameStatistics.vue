@@ -3,10 +3,11 @@
 <script>
     import Api from '@/helpers/Api.js'
     import GameStatisticsByStrategies from '@/components/statistics/game/GameStatisticsByStrategies'
+    import GameStatisticsByDates from '@/components/statistics/game/GameStatisticsByDates'
 
     export default {
         name: "GameStatistics",
-        components: { GameStatisticsByStrategies },
+        components: { GameStatisticsByStrategies, GameStatisticsByDates },
         data() {
             return {
                 game: null,

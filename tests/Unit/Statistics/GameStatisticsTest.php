@@ -51,6 +51,72 @@ class GameStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $game->getId(), $bales, $dbStatisticsBales));
     }
 
+    public function testStatisticsByDates()
+    {
+        $testKeysID = 'game_statistics_by_dates';
+
+        // 1. Find random game with games statistics
+        $game = $this->getRandomGame();
+
+        // 2. Get game statistics
+        $statistics = $this->getStatisticsService()->getStatisticsByDates($game);
+
+        // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
+        $this->checkStatisticsData($statistics, $testKeysID, [
+            'bales' => 'integer',
+            'roundsCount' => 'integer',
+            'gameDate' => 'string',
+            'winner' => 'array',
+            'loser' => 'array',
+        ]);
+
+        // 4. Get statistics data from DB
+        $statsQuery = $this->entityManager->createQueryBuilder()
+            ->select([
+                'SUM(gr.result) AS bales',
+                'g.rounds AS roundsCount',
+            ])
+            ->from(GameResult::class, 'gr')
+            ->innerJoin('gr.game', 'g')
+            ->andWhere('gr.game = :game')
+            ->setParameter('game', $game)
+        ;
+        $dbStatistics = $statsQuery->getQuery()->getSingleResult();
+        $dbStatistics['bales'] = $this->getFormatterService()->toInt($dbStatistics['bales']);
+        $dbStatistics['roundsCount'] = $this->getFormatterService()->toInt($dbStatistics['roundsCount']);
+
+        // 5. Calculate game that was returned from function
+        $bales = 0;
+        $roundsCount = 0;
+        $winners = [];
+        $losers = [];
+        foreach ($statistics as $stats) {
+            $bales += $stats['bales'];
+            $roundsCount += $stats['roundsCount'];
+            $winners[] = $stats['winner'];
+            $losers[] = $stats['loser'];
+        }
+
+        // 6. Check is statistics calculated by service equal to statistics from DB
+        $this->assertEquals($bales, $dbStatistics['bales'], sprintf('Test keys "%s" failed. Statistics for #%s game "bales" must have %s value but %s given',
+            $testKeysID, $game->getId(), $bales, $dbStatistics['bales']));
+        $this->assertEquals($roundsCount, $dbStatistics['roundsCount'], sprintf('Test keys "%s" failed. Statistics for #%s game "roundsCount" must have %s value but %s given',
+            $testKeysID, $game->getId(), $bales, $dbStatistics['roundsCount']));
+
+        // 7. Check loser and winner of game
+        $this->checkStatisticsData($winners, $testKeysID, ['strategy' => 'string', 'bales' => 'integer']);
+        $this->checkStatisticsData($losers, $testKeysID, ['strategy' => 'string', 'bales' => 'integer']);
+
+        // 6. Check is loser and winner have correct values
+        $gameResultsRepository = $this->entityManager->getRepository(GameResult::class);
+        $dbGameWinner = $gameResultsRepository->findGameBestResult($game);
+        $dbGameLoser = $gameResultsRepository->findGameWorseResult($game);
+        $this->assertEquals($dbGameWinner, $winners[0], sprintf('Test keys "%s" failed. Statistics returns an incorrect winner. Winner of game #%s must be %s, but %s given',
+            $testKeysID, $game->getId(), json_encode($dbGameWinner), json_encode($winners[0])));
+        $this->assertEquals($dbGameLoser, $losers[0], sprintf('Test keys "%s" failed. Statistics returns an incorrect winner. Winner of game #%s must be %s, but %s given',
+            $testKeysID, $game->getId(), json_encode($dbGameLoser), json_encode($losers[0])));
+    }
+
 
     protected function getRandomGame(): Game
     {
