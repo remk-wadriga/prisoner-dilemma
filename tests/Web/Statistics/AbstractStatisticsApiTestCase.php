@@ -24,6 +24,15 @@ class AbstractStatisticsApiTestCase extends AbstractApiTestCase
                 $testKeysID, gettype($stats), $jsonData));
 
             foreach ($params as $attr => $type) {
+                if (is_array($type)) {
+                    $type1 = $type[0];
+                    $type2 = $type[1];
+                    $type = $type1;
+                    if (isset($stats[$attr]) && gettype($stats[$attr]) === $type2) {
+                        settype($stats[$attr], $type1);
+                    }
+                }
+
                 $this->assertArrayHasKey($attr, $stats, sprintf('Wrong test "%s" response. Each response data item have the "%s" param, but it\'s not. Data: %s',
                     $testKeysID, $attr, $jsonData));
                 $this->assertInternalType($type, $stats[$attr], sprintf('Wrong test "%s" response. Each response data.%s item must be a %s, but "%s" given. Data: %s',

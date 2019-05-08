@@ -50,6 +50,33 @@ class TotalStatisticsService extends AbstractStatisticsService
         }, $results);
     }
 
+    public function getStatisticsByGames(User $user)
+    {
+        // Get statistics results
+        $results = $this->repository->getStatisticsByGames($user);
+
+        // Format statistics values and return formatted results
+        return array_map(function ($result) {
+            $winner = [
+                'strategy' => $result['bestResultStrategy'],
+                'bales' => $this->formatter->toFloat($result['bestResultBales'] / $result['roundsCount']),
+            ];
+            $loser = [
+                'strategy' => $result['worseResultStrategy'],
+                'bales' => $this->formatter->toFloat($result['worseResultBales'] / $result['roundsCount']),
+            ];
+            unset($result['bestResultStrategy'], $result['bestResultBales'], $result['worseResultStrategy'], $result['worseResultBales']);
+
+            return array_merge($result, [
+                'totalBales' => $this->formatter->toInt($result['totalBales']),
+                'bales' => $this->formatter->toFloat($result['totalBales'] / $result['roundsCount']),
+                'roundsCount' => $this->formatter->toInt($result['roundsCount']),
+                'winner' => $winner,
+                'loser' => $loser,
+            ]);
+        }, $results);
+    }
+
     public function getStatisticsByRoundsCount(User $user)
     {
         // Get statistics results

@@ -101,7 +101,7 @@ class GameStatisticsTest extends AbstractStatisticsUnitTestCase
         $this->assertEquals($bales, $dbStatistics['bales'], sprintf('Test keys "%s" failed. Statistics for #%s game "bales" must have %s value but %s given',
             $testKeysID, $game->getId(), $bales, $dbStatistics['bales']));
         $this->assertEquals($roundsCount, $dbStatistics['roundsCount'], sprintf('Test keys "%s" failed. Statistics for #%s game "roundsCount" must have %s value but %s given',
-            $testKeysID, $game->getId(), $bales, $dbStatistics['roundsCount']));
+            $testKeysID, $game->getId(), $roundsCount, $dbStatistics['roundsCount']));
 
         // 7. Check loser and winner of game
         $this->checkStatisticsData($winners, $testKeysID, ['strategy' => 'string', 'bales' => 'integer']);

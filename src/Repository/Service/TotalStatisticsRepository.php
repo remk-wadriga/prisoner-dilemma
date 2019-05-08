@@ -80,6 +80,72 @@ class TotalStatisticsRepository extends AbstractServiceRepository
     }
 
     /**
+     * Get dependency of bales and games count from date
+     *
+     * Request:
+        SELECT
+            g.name AS game,
+            DATE_FORMAT(g.created_at, '%Y-%m-%d') AS gameDate,
+            SUM(gr.result) AS totalBales,
+            g.rounds AS roundsCount,
+            (SELECT MAX(gr1.result) FROM game_result gr1 WHERE gr1.game_id = gr.game_id) AS bestResultBales,
+            (SELECT s2.name FROM game_result gr2 INNER JOIN strategy s2 ON s2.id = gr2.strategy_id WHERE gr2.game_id = gr.game_id AND gr2.result = bestResultBales LIMIT 1) AS bestResultStrategy,
+            (SELECT MIN(gr3.result) FROM game_result gr3 WHERE gr3.game_id = gr.game_id) AS worseResultBales,
+            (SELECT s4.name FROM game_result gr4 INNER JOIN strategy s4 ON s4.id = gr4.strategy_id WHERE gr4.game_id = gr.game_id AND gr4.result = worseResultBales LIMIT 1) AS worseResultStrategy
+        FROM game_result gr
+        INNER JOIN game g ON g.id = gr.game_id
+        INNER JOIN strategy s ON s.id = gr.strategy_id
+        WHERE g.user_id = :user_id
+        GROUP BY game, gameDate
+        ORDER BY gameDate ASC
+     *
+     * @param User $user
+     *
+     * @return array
+     */
+    public function getStatisticsByGames(User $user)
+    {
+        $bestResultBalesQueryBuilder = $this->createQueryBuilder('gr1', GameResult::class)
+            ->select('MAX(gr1.result)')
+            ->andWhere('gr1.game = gr.game')
+        ;
+        $bestResultStrategyQueryBuilder = $this->createQueryBuilder('gr2', GameResult::class)
+            ->select('s2.name')
+            ->innerJoin('gr2.strategy', 's2')
+            ->andWhere('gr2.game = gr.game')
+            ->andWhere('gr2.result = bestResultBales')
+        ;
+        $worseResultBalesQueryBuilder = $this->createQueryBuilder('gr3', GameResult::class)
+            ->select('MIN(gr3.result)')
+            ->andWhere('gr3.game = gr.game')
+        ;
+        $worseResultStrategyQueryBuilder = $this->createQueryBuilder('gr4', GameResult::class)
+            ->select('s4.name')
+            ->innerJoin('gr4.strategy', 's4')
+            ->andWhere('gr4.game = gr.game')
+            ->andWhere('gr4.result = worseResultBales')
+        ;
+
+        $query = $this->createGameResultsJoinedGameQueryBuilder($user)
+            ->select([
+                'g.name AS game',
+                sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
+                'SUM(gr.result) AS totalBales',
+                'g.rounds AS roundsCount',
+                sprintf('FIRST(%s) AS bestResultBales', $bestResultBalesQueryBuilder->getDQL()),
+                sprintf('FIRST(%s) AS bestResultStrategy', $bestResultStrategyQueryBuilder->getDQL()),
+                sprintf('FIRST(%s) AS worseResultBales', $worseResultBalesQueryBuilder->getDQL()),
+                sprintf('FIRST(%s) AS worseResultStrategy', $worseResultStrategyQueryBuilder->getDQL()),
+            ])
+            ->groupBy('game')
+            ->addGroupBy('gameDate')
+            ->orderBy('gameDate', 'ASC')
+        ;
+
+        return $query->getQuery()->getArrayResult();
+    }
+
+    /**
      * Get dependency of average bales and games count from rounds count
      *
      * Request:

@@ -1,0 +1,13 @@
+<b-col v-if="isReady" id="total_statistics_by_games" class="width-seventy-presents">
+    <b-row>
+        <div class="chart-container">
+            <BarChart
+                :labels="chartLabels"
+                :data="chartData"
+                :options="chartOptions"
+                :tooltipTitleCallback="chartTooltipTitleCallback"
+                :tooltipLabelCallback="chartTooltipLabelCallback"
+            />
+        </div>
+    </b-row>
+</b-col>

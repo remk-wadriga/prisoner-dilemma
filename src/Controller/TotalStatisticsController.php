@@ -31,6 +31,14 @@ class TotalStatisticsController extends ControllerAbstract
     }
 
     /**
+     * @Route("/total-statistics-by-games", name="total_statistics_by_games", methods={"GET"})
+     */
+    public function byGames()
+    {
+        return $this->json($this->statisticsService->getStatisticsByGames($this->getUser()));
+    }
+
+    /**
      * @Route("/total-statistics-by-rounds-count", name="total_statistics_by_rounds_count", methods={"GET"})
      */
     public function byRoundsCount()

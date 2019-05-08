@@ -61,7 +61,7 @@ class StrategyStatisticsTest extends AbstractStatisticsApiTestCase
         // 4. Get strategy statistics and check it
         $response = $this->request(['strategy_statistics_by_rounds_count', ['id' => $strategy->getId()]]);
         $this->checkStatisticsResponse($response, $testKeysID, [
-            'bales' => 'double',
+            'bales' => ['double', 'integer'],
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
         ]);

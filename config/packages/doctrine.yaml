@@ -30,3 +30,4 @@ doctrine:
         dql:
             datetime_functions:
                 DATE_FORMAT: App\Doctrine\DQL\DateFormatFunction
+                FIRST: App\Doctrine\DQL\FirstResultFunction

@@ -3,11 +3,12 @@
 <script>
     import TotalStatisticsByDates from '@/components/statistics/total/TotalStatisticsByDates'
     import TotalStatisticsByStrategies from '@/components/statistics/total/TotalStatisticsByStrategies'
+    import TotalStatisticsByGames from '@/components/statistics/total/TotalStatisticsByGames'
     import TotalStatisticsByRoundsCount from '@/components/statistics/total/TotalStatisticsByRoundsCount'
 
     export default {
         name: "TotalStatistics",
-        components: { TotalStatisticsByDates, TotalStatisticsByStrategies, TotalStatisticsByRoundsCount },
+        components: { TotalStatisticsByDates, TotalStatisticsByStrategies, TotalStatisticsByGames, TotalStatisticsByRoundsCount },
         data() {
             return {
                 lazyLoad: true
