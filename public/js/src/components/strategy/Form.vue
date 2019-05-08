@@ -38,12 +38,17 @@
                 this.generateStrategyVisible = true
             },
             submitStrategyFrom() {
+                let decisionsData = this.$refs.decisionForm.getDecisionsData()
+                if (decisionsData.children === undefined) {
+                    decisionsData.children = []
+                }
+
                 const data = {
                     strategy_form: {
                         name: this.name,
                         description: this.description,
                         status: this.status,
-                        decisionsData: this.$refs.decisionForm.getDecisionsData(),
+                        decisionsData: decisionsData,
                     }
                 }
                 let method = '';
