@@ -32,7 +32,7 @@ class GameCrudTest extends AbstractApiTestCase
     /** @var GameResultsService */
     private $gameResultsService;
 
-    public function AAtestListAction()
+    public function testListAction()
     {
         // Login as default user
         $this->logInAsUser();
@@ -52,7 +52,7 @@ class GameCrudTest extends AbstractApiTestCase
         }
     }
 
-    public function AAtestViewAction()
+    public function testViewAction()
     {
         // 1. Login as default user
         $this->logInAsUser();
@@ -80,7 +80,7 @@ class GameCrudTest extends AbstractApiTestCase
         $this->checkStrategyRequestResponse($response, 'Show different user game action', Response::HTTP_FORBIDDEN, HttpException::CODE_ACCESS_DENIED, 'access denied');
     }
 
-    public function AAtestCreateAction()
+    public function testCreateAction()
     {
         // 1. Login as default user
         $this->logInAsUser();
@@ -231,7 +231,7 @@ class GameCrudTest extends AbstractApiTestCase
             $testKeysID, $game->getId(), $oldIndividualResultsSum, $newIndividualResultsSum));
     }
 
-    public function AAtestDeleteAction()
+    public function testDeleteAction()
     {
         // 1. Login as default user
         $this->logInAsUser();
