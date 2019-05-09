@@ -11,9 +11,9 @@ use Faker\Factory;
 
 class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 {
-    protected $statisticsService;
-    protected $repository;
-    protected $randomUser;
+    private $statisticsService;
+    private $repository;
+    private $randomUser;
 
     public function testStatisticsDatesParams()
     {
@@ -56,13 +56,126 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 
     public function testStatisticsByDates()
     {
-        $testKeysID = 'total_statistics_by_dates';
+        // 1. Check statistics without dates range
+        $this->checkStatisticsByDates('total_statistics_by_dates');
+
+        // 2. Check statistics with dates range
+        $this->checkStatisticsByDates('total_statistics_by_dates_with_dates_range', $this->getRandomDatesPeriod());
+    }
+
+    public function testStatisticsByStrategies()
+    {
+        // 1. Check statistics without dates range
+        $this->checkStatisticsByStrategies('total_statistics_by_strategies');
+
+        // 2. Check statistics with dates range
+        $this->checkStatisticsByStrategies('total_statistics_by_strategies_with_dates_range', $this->getRandomDatesPeriod());
+    }
+
+    public function testStatisticsByRoundsCount()
+    {
+        // 1 Check statistics without dates range
+        $this->checkStatisticsByRoundsCount('total_statistics_by_rounds_count');
+
+        // 2. Check statistics with dates range
+        $this->checkStatisticsByRoundsCount('total_statistics_by_rounds_count_with_dates_range', $this->getRandomDatesPeriod());
+    }
+
+    public function testStatisticsByGames()
+    {
+        // 1. Check statistics without dates range
+        $this->checkStatisticsByGames('total_statistics_by_games');
+
+        // 2. Check statistics with dates range
+        $this->checkStatisticsByGames('total_statistics_by_games_with_dates_range', $this->getRandomDatesPeriod());
+    }
+
+
+    private function getRandomUser(): User
+    {
+        if ($this->randomUser !== null) {
+            return $this->randomUser;
+        }
+        $userRepository = $this->entityManager->getRepository(User::class);
+        $gameResultRepository = $this->entityManager->getRepository(GameResult::class);
+
+        $strategiesIDsQuery = $gameResultRepository->createQueryBuilder('gr')
+            ->select('u.id')
+            ->innerJoin('gr.strategy', 's')
+            ->innerJoin('s.user', 'u')
+            ->setMaxResults(100)
+        ;
+
+        $ids = array_map(function ($result) { return intval($result['id']); }, $strategiesIDsQuery->getQuery()->getScalarResult());
+        $faker = Factory::create();
+        $id = $faker->randomElement($ids);
+
+        return $this->randomUser = $userRepository->findOneBy(['id' => $id]);
+    }
+
+    private function getStatisticsService(): TotalStatisticsService
+    {
+        if ($this->statisticsService !== null) {
+            return $this->statisticsService;
+        }
+
+        return $this->statisticsService = new TotalStatisticsService($this->entityManager, self::$kernel->getContainer(), $this->getRepository(), $this->getFormatterService());
+    }
+
+    private function getRepository(): TotalStatisticsRepository
+    {
+        if ($this->repository !== null) {
+            return $this->repository;
+        }
+
+        return $this->repository = new TotalStatisticsRepository($this->entityManager, self::$kernel->getContainer());
+    }
+
+    private function getRandomDatesPeriod()
+    {
+        $dates = $this->getStatisticsService()->getFirstAndLastGamesDates($this->getRandomUser());
+        $faker = Factory::create();
+        $dates['toDate'] = (new \DateTime($dates['end']))
+            ->modify(sprintf('-%s days', $faker->numberBetween(0, 5)))
+            ->format($this->getParam('backend_date_format'));
+        $dates['fromDate'] = (new \DateTime($dates['toDate']))
+            ->modify(sprintf('-%s days', $faker->numberBetween(1, 10)))
+            ->format($this->getParam('backend_date_format'));
+        unset($dates['start'], $dates['end']);
+        return $dates;
+    }
+
+    private function createStatsQueryBuilderWithJoinedGameFilteredByDates(User $user, array $datesRange)
+    {
+        $statsQuery = $this->entityManager->createQueryBuilder()
+            ->from(GameResult::class, 'gr')
+            ->innerJoin('gr.game', 'g')
+            ->andWhere('g.user = :user')
+        ;
+
+        $parameters = ['user' => $user];
+
+        if (!empty($datesRange)) {
+            $statsQuery->andWhere('g.createdAt > :from_date AND g.createdAt < :to_date');
+            $parameters['from_date'] = new \DateTime($datesRange['fromDate']);
+            $parameters['to_date'] = (new \DateTime($datesRange['toDate']))->modify('1 days');
+        }
+
+        $statsQuery->setParameters($parameters);
+
+        return $statsQuery;
+    }
+
+
+    private function checkStatisticsByDates($testKeysID, array $datesRange = [])
+    {
         $formatter = $this->getFormatterService();
 
         // 1. Get random user
         $user = $this->getRandomUser();
 
         // 2. Get statistics
+        $this->getStatisticsService()->filters = $datesRange;
         $statistics = $this->getStatisticsService()->getStatisticsByDates($user);
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
@@ -74,17 +187,13 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         ]);
 
         // 4. Get statistics data from DB
-        $statsQuery = $this->entityManager->createQueryBuilder()
+        $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
                 'SUM(g.rounds) AS roundsCount',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
-            ->from(GameResult::class, 'gr')
-            ->innerJoin('gr.game', 'g')
-            ->andWhere('g.user = :user')
-            ->setParameter('user', $user)
             ->groupBy('gameDate')
         ;
 
@@ -118,15 +227,15 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
     }
 
-    public function testStatisticsByStrategies()
+    private function checkStatisticsByStrategies($testKeysID, array $datesRange = [])
     {
-        $testKeysID = 'total_statistics_by_strategies';
         $formatter = $this->getFormatterService();
 
         // 1. Get random user
         $user = $this->getRandomUser();
 
         // 2. Get statistics
+        $this->getStatisticsService()->filters = $datesRange;
         $statistics = $this->getStatisticsService()->getStatisticsByStrategies($user);
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
@@ -138,18 +247,14 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         ]);
 
         // 4. Get statistics data from DB
-        $statsQuery = $this->entityManager->createQueryBuilder()
+        $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
             ->select([
                 's.name AS strategy',
                 'COUNT(gr.game) AS gamesCount',
                 'SUM(g.rounds) AS roundsCount',
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
             ])
-            ->from(GameResult::class, 'gr')
-            ->innerJoin('gr.game', 'g')
             ->innerJoin('gr.strategy', 's')
-            ->andWhere('g.user = :user')
-            ->setParameter('user', $user)
             ->groupBy('strategy')
         ;
 
@@ -183,15 +288,15 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
     }
 
-    public function testStatisticsByRoundsCount()
+    private function checkStatisticsByRoundsCount($testKeysID, array $datesRange = [])
     {
-        $testKeysID = 'total_statistics_by_rounds_count';
         $formatter = $this->getFormatterService();
 
         // 1. Get random user
         $user = $this->getRandomUser();
 
         // 2. Get statistics
+        $this->getStatisticsService()->filters = $datesRange;
         $statistics = $this->getStatisticsService()->getStatisticsByRoundsCount($user);
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
@@ -202,16 +307,12 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         ]);
 
         // 4. Get statistics data from DB
-        $statsQuery = $this->entityManager->createQueryBuilder()
+        $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
                 'g.rounds AS roundsCount',
             ])
-            ->from(GameResult::class, 'gr')
-            ->innerJoin('gr.game', 'g')
-            ->andWhere('g.user = :user')
-            ->setParameter('user', $user)
             ->groupBy('roundsCount')
         ;
 
@@ -245,15 +346,15 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
     }
 
-    public function testStatisticsByGames()
+    private function checkStatisticsByGames($testKeysID, array $datesRange = [])
     {
-        $testKeysID = 'total_statistics_by_games';
         $formatter = $this->getFormatterService();
 
         // 1. Get random user
         $user = $this->getRandomUser();
 
         // 2. Get statistics
+        $this->getStatisticsService()->filters = $datesRange;
         $statistics = $this->getStatisticsService()->getStatisticsByGames($user);
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
@@ -268,7 +369,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         ]);
 
         // 4. Get statistics data from DB
-        $statsQuery = $this->entityManager->createQueryBuilder()
+        $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
             ->select([
                 'g.id AS gameID',
                 'g.name AS game',
@@ -277,10 +378,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
                 'SUM(gr.result) / g.rounds AS bales',
                 'g.rounds AS roundsCount',
             ])
-            ->from(GameResult::class, 'gr')
-            ->innerJoin('gr.game', 'g')
-            ->andWhere('g.user = :user')
-            ->setParameter('user', $user)
             ->groupBy('gameID')
             ->addGroupBy('game')
             ->addGroupBy('gameDate')
@@ -362,46 +459,5 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $this->assertEquals($dbGameLoser, $stats['loser'], sprintf('Test keys "%s" failed. Statistics returns an incorrect winner. Winner of game #%s must be %s, but %s given',
                 $testKeysID, $game->getId(), json_encode($dbGameLoser), json_encode($stats['loser'])));
         }
-    }
-
-
-    protected function getRandomUser(): User
-    {
-        if ($this->randomUser !== null) {
-            return $this->randomUser;
-        }
-        $userRepository = $this->entityManager->getRepository(User::class);
-        $gameResultRepository = $this->entityManager->getRepository(GameResult::class);
-
-        $strategiesIDsQuery = $gameResultRepository->createQueryBuilder('gr')
-            ->select('u.id')
-            ->innerJoin('gr.strategy', 's')
-            ->innerJoin('s.user', 'u')
-            ->setMaxResults(100)
-        ;
-
-        $ids = array_map(function ($result) { return intval($result['id']); }, $strategiesIDsQuery->getQuery()->getScalarResult());
-        $faker = Factory::create();
-        $id = $faker->randomElement($ids);
-
-        return $this->randomUser = $userRepository->findOneBy(['id' => $id]);
-    }
-
-    protected function getStatisticsService(): TotalStatisticsService
-    {
-        if ($this->statisticsService !== null) {
-            return $this->statisticsService;
-        }
-
-        return $this->statisticsService = new TotalStatisticsService($this->entityManager, self::$kernel->getContainer(), $this->getRepository(), $this->getFormatterService());
-    }
-
-    protected function getRepository(): TotalStatisticsRepository
-    {
-        if ($this->repository !== null) {
-            return $this->repository;
-        }
-
-        return $this->repository = new TotalStatisticsRepository($this->entityManager, self::$kernel->getContainer());
     }
 }

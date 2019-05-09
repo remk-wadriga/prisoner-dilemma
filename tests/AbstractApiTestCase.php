@@ -231,4 +231,13 @@ class AbstractApiTestCase extends WebTestCase
         $this->tokenExpiredAt = null;
         $this->user = null;
     }
+
+    protected function getParam($name)
+    {
+        $container = self::$kernel->getContainer();
+        if (!$container->hasParameter($name)) {
+            return null;
+        }
+        return str_replace('0/0', '%', $container->getParameter($name));
+    }
 }
