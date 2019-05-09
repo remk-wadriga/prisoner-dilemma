@@ -37,6 +37,15 @@ class AbstractUnitTestCase extends KernelTestCase
         $this->faker = Factory::create();
     }
 
+    protected function getParam($name)
+    {
+        $container = self::$kernel->getContainer();
+        if (!$container->hasParameter($name)) {
+            return null;
+        }
+        return str_replace('0/0', '%', $container->getParameter($name));
+    }
+
     public function getUser(): User
     {
         if ($this->user !== null) {

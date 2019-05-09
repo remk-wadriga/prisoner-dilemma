@@ -12,7 +12,7 @@ class DecisionFixture extends AbstractFixture implements DependentFixtureInterfa
 {
     protected function loadData(ObjectManager $manager)
     {
-        $this->createMany(Decision::class, 700, function (Decision $decision, int $i) use ($manager) {
+        $this->createMany(Decision::class, 1000, function (Decision $decision, int $i) use ($manager) {
             $decision->setType($this->faker->randomElement(DecisionTypeEnum::getAvailableTypes()));
 
             /** @var \App\Entity\Strategy $strategy */

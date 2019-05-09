@@ -17,7 +17,7 @@ class GameFixture extends AbstractFixture implements DependentFixtureInterface
 {
     protected function loadData(ObjectManager $manager)
     {
-        $this->createMany(Game::class, 30, function (Game $game, int $i) use ($manager) {
+        $this->createMany(Game::class, 150, function (Game $game, int $i) use ($manager) {
             /** @var \App\Entity\User $user */
             $user = $this->getRandomReference(User::class);
             $game
@@ -26,8 +26,9 @@ class GameFixture extends AbstractFixture implements DependentFixtureInterface
                 ->setRounds($this->faker->numberBetween(5, 30))
                 ->setBalesForWin($this->faker->numberBetween(5, 40))
                 ->setBalesForLoos($this->faker->numberBetween(-20, 0))
-                ->setBalesForCooperation($this->faker->numberBetween(0, 15))
-                ->setBalesForDraw($this->faker->numberBetween(5, 20))
+                ->setBalesForCooperation($this->faker->numberBetween(-5, 5))
+                ->setBalesForDraw($this->faker->numberBetween(-10, 1))
+                ->setCreatedAt($this->faker->dateTimeBetween('-30 days'))
                 ->setUser($user)
             ;
         });

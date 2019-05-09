@@ -17,6 +17,7 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
     public function testStatisticsByDates()
     {
         $testKeysID = 'strategy_statistics_by_dates';
+        $formatter = $this->getFormatterService();
 
         // 1. Find random strategy with games statistics
         $strategy = $this->getRandomStrategy();
@@ -36,15 +37,22 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
+                sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
             ->from(GameResult::class, 'gr')
             ->innerJoin('gr.game', 'g')
             ->andWhere('gr.strategy = :strategy')
             ->setParameter('strategy', $strategy)
+            ->groupBy('gameDate')
         ;
-        $dbStatistics = $statsQuery->getQuery()->getSingleResult();
-        $dbStatistics['bales'] = $this->getFormatterService()->toFloat($dbStatistics['bales']);
-        $dbStatistics['gamesCount'] = $this->getFormatterService()->toInt($dbStatistics['gamesCount']);
+        $dbStatistics = [
+            'bales' => 0,
+            'gamesCount' => 0,
+        ];
+        foreach ($statsQuery->getQuery()->getArrayResult() as $result) {
+            $dbStatistics['bales'] += $formatter->toFloat($result['bales']);
+            $dbStatistics['gamesCount'] += $formatter->toFloat($result['gamesCount']);
+        }
 
         // 5. Calculate statistics that was returned from function
         $bales = 0;

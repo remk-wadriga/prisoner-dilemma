@@ -38,7 +38,7 @@ class GameResultFixture extends AbstractFixture implements DependentFixtureInter
         foreach ($games as $game) {
             $strategiesCount = $manager->getRepository(Strategy::class)->count(['user' => $game->getUser()]);
 
-            $limit = $this->faker->numberBetween(2, 7);
+            $limit = $this->faker->numberBetween(2, 10);
 
             /** @var Strategy[] $strategies */
             $strategies = $manager->getRepository(Strategy::class)

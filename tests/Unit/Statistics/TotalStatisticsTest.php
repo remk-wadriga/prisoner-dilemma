@@ -79,7 +79,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
                 'SUM(g.rounds) AS roundsCount',
-                'g.createdAt AS gameDate',
+                sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
             ->from(GameResult::class, 'gr')
             ->innerJoin('gr.game', 'g')
