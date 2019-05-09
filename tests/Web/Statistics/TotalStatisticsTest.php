@@ -34,7 +34,7 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
             'strategy' => 'string',
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
-            'bales' => 'double',
+            'bales' => ['double', 'integer'],
         ]);
     }
 
@@ -51,7 +51,7 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
             'game' => 'string',
             'gameDate' => 'string',
             'totalBales' => 'integer',
-            'bales' => 'double',
+            'bales' => ['double', 'integer'],
             'roundsCount' => 'integer',
             'winner' => 'array',
             'loser' => 'array',

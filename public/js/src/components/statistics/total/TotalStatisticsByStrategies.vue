@@ -17,11 +17,20 @@
                 chartTooltipLabelCallback: null
             }
         },
+        props: {
+            selectedDates: Object
+        },
+        watch: {
+            selectedDates() {
+                this.refreshData()
+            }
+        },
         methods: {
             init (statistics) {
                 let bales = []
                 let gamesCount = []
                 let roundsCount = []
+                this.chartLabels = []
 
                 statistics.forEach(data => {
                     this.chartLabels.push(data.strategy)
@@ -45,19 +54,25 @@
                 }
 
                 this.isReady = true
+            },
+            refreshData() {
+                let params = {}
+                if (this.selectedDates) {
+                    params.fromDate = this.selectedDates.start
+                    params.toDate = this.selectedDates.end
+                }
+                Api.methods.request(['total_statistics_by_strategies_url', params], {}, 'GET', response => {
+                    this.$store.commit('setStatistics', {id: 'totalStatisticsByStrategies', data: response})
+                    this.init(response)
+                })
             }
         },
         mounted() {
-            let statisticsID = 'totalStatisticsByStrategies'
-            let statistics = this.$store.state.statistics[statisticsID]
-
+            let statistics = this.$store.state.statistics['totalStatisticsByStrategies']
             if (statistics) {
                 this.init(statistics)
             } else {
-                Api.methods.request('total_statistics_by_strategies_url', {}, 'GET', response => {
-                    this.$store.commit('setStatistics', {id: statisticsID, data: response})
-                    this.init(response)
-                })
+                this.refreshData()
             }
         }
     }

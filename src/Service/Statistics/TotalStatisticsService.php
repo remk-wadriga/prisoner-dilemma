@@ -11,6 +11,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class TotalStatisticsService extends AbstractStatisticsService
 {
+    public $statisticsDatesPeriod = '1 day';
+
+    public $filters = [];
+
     protected $repository;
 
     public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container, TotalStatisticsRepository $repository, FormatterService $formatter)
@@ -20,10 +24,24 @@ class TotalStatisticsService extends AbstractStatisticsService
         $this->repository = $repository;
     }
 
+    public function getFirstAndLastGamesDates(User $user): ?array
+    {
+        $dates = $this->repository->getFirstAndLastGamesDates($user);
+        $format = $this->getParam('backend_date_time_format');
+        if (empty($dates['end'])) {
+            return null;
+        }
+
+        return [
+            'start' => (new \DateTime($dates['end']))->modify('-' . $this->statisticsDatesPeriod)->format($format),
+            'end' => (new \DateTime($dates['end']))->format($format),
+        ];
+    }
+
     public function getStatisticsByDates(User $user)
     {
         // Get statistics results
-        $results = $this->repository->getStatisticsByDates($user);
+        $results = $this->repository->getStatisticsByDates($user, $this->filters);
 
         // Format statistics values and return formatted results
         return array_map(function ($result) {
@@ -38,7 +56,7 @@ class TotalStatisticsService extends AbstractStatisticsService
     public function getStatisticsByStrategies(User $user)
     {
         // Get statistics results
-        $results = $this->repository->getStatisticsByStrategies($user);
+        $results = $this->repository->getStatisticsByStrategies($user, $this->filters);
 
         // Format statistics values and return formatted results
         return array_map(function ($result) {
@@ -53,7 +71,7 @@ class TotalStatisticsService extends AbstractStatisticsService
     public function getStatisticsByGames(User $user)
     {
         // Get statistics results
-        $results = $this->repository->getStatisticsByGames($user);
+        $results = $this->repository->getStatisticsByGames($user, $this->filters);
 
         // Format statistics values and return formatted results
         return array_map(function ($result) {
@@ -80,7 +98,7 @@ class TotalStatisticsService extends AbstractStatisticsService
     public function getStatisticsByRoundsCount(User $user)
     {
         // Get statistics results
-        $results = $this->repository->getStatisticsByRoundsCount($user);
+        $results = $this->repository->getStatisticsByRoundsCount($user, $this->filters);
 
         // Format statistics values and return formatted results
         return array_map(function ($result) {

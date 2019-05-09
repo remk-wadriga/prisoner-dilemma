@@ -28,6 +28,7 @@
     "vue-diagrams": "0.0.1-development",
     "vue-localstorage": "^0.6.2",
     "vue-orgchart": "^1.1.7",
+    "vue-rangedate-picker": "^1.0.0",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },

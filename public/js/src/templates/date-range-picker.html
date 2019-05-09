@@ -1,0 +1,21 @@
+<div id="date_range_picker" class="column" v-if="isReady">
+    <div class="card">
+        <p class="title is-4">Range Date</p>
+        <p class="subtitle is-6">Start Date : {{ startDate }}</p>
+        <p class="subtitle is-6">End Date : {{ endDate }}</p>
+
+        <div class="card-content">
+            <div class="daterange-wrapper">
+                <VueRangePicker
+                    @selected="onDateSelected"
+                    i18n="EN"
+                    :format="format"
+                    :startActiveYear="startActiveYear"
+                    :startActiveMonth="startActiveMonth"
+                    :initRange="selectedDates"
+                />
+            </div>
+        </div>
+
+    </div>
+</div>

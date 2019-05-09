@@ -17,15 +17,24 @@
                 chartTooltipLabelCallback: null
             }
         },
+        props: {
+            selectedDates: Object
+        },
+        watch: {
+            selectedDates() {
+                this.refreshData()
+            }
+        },
         methods: {
             init (statistics) {
                 let bales = []
                 let roundsCount = []
                 let winners = []
                 let losers = []
+                this.chartLabels = []
 
                 statistics.forEach(data => {
-                    this.chartLabels.push(data.game + ' (' + data.gameDate + ')')
+                    this.chartLabels.push(data.game)
                     bales.push(data.bales)
                     roundsCount.push(data.roundsCount)
                     winners.push(data.winner)
@@ -39,9 +48,6 @@
                     }
                 ]
 
-                this.chartTooltipTitleCallback = item => {
-                    return 'Game: ' + this.chartLabels[item[0].index]
-                }
                 this.chartTooltipLabelCallback = item => {
                     return 'Bales: ' + bales[item.index]
                         + '; Rounds count: ' + roundsCount[item.index]
@@ -50,19 +56,25 @@
                 }
 
                 this.isReady = true
+            },
+            refreshData() {
+                let params = {}
+                if (this.selectedDates) {
+                    params.fromDate = this.selectedDates.start
+                    params.toDate = this.selectedDates.end
+                }
+                Api.methods.request(['total_statistics_by_games_url', params], {}, 'GET', response => {
+                    this.$store.commit('setStatistics', {id: 'totalStatisticsByGames', data: response})
+                    this.init(response)
+                })
             }
         },
         mounted() {
-            let statisticsID = 'totalStatisticsByGames'
-            let statistics = this.$store.state.statistics[statisticsID]
-
+            let statistics = this.$store.state.statistics['totalStatisticsByGames']
             if (statistics) {
                 this.init(statistics)
             } else {
-                Api.methods.request('total_statistics_by_games_url', {}, 'GET', response => {
-                    this.$store.commit('setStatistics', {id: statisticsID, data: response})
-                    this.init(response)
-                })
+                this.refreshData()
             }
         }
     }

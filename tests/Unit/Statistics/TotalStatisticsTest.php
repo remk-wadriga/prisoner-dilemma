@@ -4,7 +4,6 @@ namespace App\Tests\Unit\Statistics;
 
 use App\Entity\Game;
 use App\Entity\GameResult;
-use App\Entity\Strategy;
 use App\Entity\User;
 use App\Repository\Service\TotalStatisticsRepository;
 use App\Service\Statistics\TotalStatisticsService;
@@ -15,6 +14,45 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
     protected $statisticsService;
     protected $repository;
     protected $randomUser;
+
+    public function testStatisticsDatesParams()
+    {
+        $testKeysID = 'total_statistics_dates_format';
+
+        // 1. Get random user
+        $user = $this->getRandomUser();
+
+        // 2. Get dates
+        $dates = $this->getStatisticsService()->getFirstAndLastGamesDates($user);
+
+        // 3. Check params data (must be an array and all elements must have all necessary attributes with correct types)
+        $this->checkStatisticsData([$dates], $testKeysID, [
+            'start' => 'string',
+            'end' => 'string',
+        ]);
+
+        // 4. Get "end" date from DB and check is service "and" date is equals to it
+        $dbEndDate = $this->entityManager->createQueryBuilder()
+            ->select('MAX(g.createdAt)')
+            ->from(Game::class, 'g')
+            ->andWhere('g.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+        $this->assertNotEmpty($dbEndDate, sprintf('Test case "%s" failed. Last game date for user #%s not found', $testKeysID, $user->getId()));
+        $this->assertEquals($dbEndDate, $dates['end'], sprintf('Test case "%s" failed. Max config date for user #%s must be equals to "%s" but "%s" given',
+            $testKeysID, $user->getId(), $dbEndDate, $dates['end']));
+
+        // 5. Convert dates from string to DateTime objects
+        $startDate = new \DateTime($dates['start']);
+        $endDate = new \DateTime($dates['end']);
+
+        // 6. Check dates period - it must be equals to TotalStatisticsService.statisticsDatesPeriod value
+        $modifiedStartDate = clone $startDate;
+        $modifiedStartDate->modify($this->getStatisticsService()->statisticsDatesPeriod);
+        $this->assertEquals($endDate, $modifiedStartDate, sprintf('Test case "%s" failed. The difference between "start" and "and" config dates must be equals to "%s" but it\'s not. Dates: "%s" - "%s"',
+            $testKeysID, $this->getStatisticsService()->statisticsDatesPeriod, $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s')));
+    }
 
     public function testStatisticsByDates()
     {

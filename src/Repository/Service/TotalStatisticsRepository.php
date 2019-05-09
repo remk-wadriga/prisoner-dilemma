@@ -2,11 +2,31 @@
 
 namespace App\Repository\Service;
 
+use App\Entity\Game;
 use App\Entity\GameResult;
 use App\Entity\User;
 
 class TotalStatisticsRepository extends AbstractServiceRepository
 {
+    private $filtersMap = [
+        'fromDate' => 'g.createdAt > :from_date',
+        'toDate' => 'g.createdAt < :to_date'
+    ];
+
+    public function getFirstAndLastGamesDates(User $user)
+    {
+        $query = $this->createQueryBuilder('g', Game::class)
+            ->select([
+                'MIN(g.createdAt) AS start',
+                'MAX(g.createdAt) AS end',
+            ])
+            ->andWhere('g.user = :user')
+            ->setParameter('user', $user)
+        ;
+
+        return $query->getQuery()->getSingleResult();
+    }
+
     /**
      * Get dependency of average bales and games count from game date
      *
@@ -26,9 +46,9 @@ class TotalStatisticsRepository extends AbstractServiceRepository
      *
      * @return array
      */
-    public function getStatisticsByDates(User $user)
+    public function getStatisticsByDates(User $user, array $filters)
     {
-        $query = $this->createGameResultsJoinedGameQueryBuilder($user)
+        $query = $this->createGameResultsJoinedGameQueryBuilder($user, $filters)
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
@@ -62,9 +82,9 @@ class TotalStatisticsRepository extends AbstractServiceRepository
      *
      * @return array
      */
-    public function getStatisticsByStrategies(User $user)
+    public function getStatisticsByStrategies(User $user, array $filters)
     {
-        $query = $this->createGameResultsJoinedGameQueryBuilder($user)
+        $query = $this->createGameResultsJoinedGameQueryBuilder($user, $filters)
             ->select([
                 's.name AS strategy',
                 'COUNT(gr.game) AS gamesCount',
@@ -103,7 +123,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
      *
      * @return array
      */
-    public function getStatisticsByGames(User $user)
+    public function getStatisticsByGames(User $user, array $filters)
     {
         $bestResultBalesQueryBuilder = $this->createQueryBuilder('gr1', GameResult::class)
             ->select('MAX(gr1.result)')
@@ -126,7 +146,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
             ->andWhere('gr4.result = worseResultBales')
         ;
 
-        $query = $this->createGameResultsJoinedGameQueryBuilder($user)
+        $query = $this->createGameResultsJoinedGameQueryBuilder($user, $filters)
             ->select([
                 'g.name AS game',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
@@ -163,9 +183,9 @@ class TotalStatisticsRepository extends AbstractServiceRepository
      *
      * @return array
      */
-    public function getStatisticsByRoundsCount(User $user)
+    public function getStatisticsByRoundsCount(User $user, array $filters)
     {
-        $query = $this->createGameResultsJoinedGameQueryBuilder($user)
+        $query = $this->createGameResultsJoinedGameQueryBuilder($user, $filters)
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
@@ -179,12 +199,32 @@ class TotalStatisticsRepository extends AbstractServiceRepository
     }
 
 
-    private function createGameResultsJoinedGameQueryBuilder(User $user)
+    private function createGameResultsJoinedGameQueryBuilder(User $user, array $filters)
     {
-        return $this->createQueryBuilder('gr', GameResult::class)
+        $query = $this->createQueryBuilder('gr', GameResult::class)
             ->innerJoin('gr.game', 'g')
             ->andWhere('g.user = :user')
             ->setParameter('user', $user)
         ;
+
+        foreach ($filters as $name => $value) {
+            if (!isset($this->filtersMap[$name]) || $value === null) {
+                continue;
+            }
+            $filter = $this->filtersMap[$name];
+            if (!preg_match("/^.+:(\w+)$/", $filter, $matches) || count($matches) !== 2) {
+                continue;
+            }
+            $param = $matches[1];
+            if (strpos($param, '_date') !== false) {
+                $value = new \DateTime($value);
+                if ($param === 'to_date') {
+                    $value->modify('1 day');
+                }
+            }
+            $query->andWhere($filter)->setParameter($param,$value);
+        }
+
+        return $query;
     }
 }

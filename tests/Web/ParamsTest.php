@@ -52,6 +52,22 @@ class ParamsTest extends AbstractApiTestCase
         $this->checkIsResponseContains($response, $params, 'Test "Check strategy params" is failed.');
     }
 
+    public function testStatisticsDatesParams()
+    {
+        // 1. Login as default user
+        $this->logInAsUser();
+
+        // 2. Make request
+        $response = $this->request('params_statistics_dates');
+
+        // 3. Check response params
+        $params = [
+            ['start', 'string'],
+            ['end', 'string'],
+        ];
+        $this->checkIsResponseContains($response, $params, 'Test "params_statistics_dates" is failed.');
+    }
+
 
     private function checkIsResponseContains(ApiResponse $response, array $params, string $message = '')
     {

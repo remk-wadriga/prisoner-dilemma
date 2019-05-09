@@ -1,22 +1,32 @@
-<b-tabs
-    id="total_statistics"
-    class="min-width-eighty-presents"
-    :lazy="lazyLoad"
->
-    <b-tab title="By dates">
-        <TotalStatisticsByDates />
-    </b-tab>
+<div id="total_statistics" class="min-width-eighty-presents" v-if="isReady">
+    <b-row>
+        <DateRangePicker
+            @setDatesRange="setDatesRange($event)"
+            :selectedDates="selectedDates"
+        />
+    </b-row>
 
-    <b-tab title="By strategies">
-        <TotalStatisticsByStrategies />
-    </b-tab>
+    <b-row class="margin-top-twenty-px">
+        <b-tabs
+            class="min-width-eighty-presents"
+            :lazy="lazyLoad"
+        >
+            <b-tab title="By dates">
+                <TotalStatisticsByDates :selectedDates="selectedDates" />
+            </b-tab>
 
-    <b-tab title="By games">
-        <TotalStatisticsByGames />
-    </b-tab>
+            <b-tab title="By strategies">
+                <TotalStatisticsByStrategies :selectedDates="selectedDates" />
+            </b-tab>
 
-    <b-tab title="By rounds count">
-        <TotalStatisticsByRoundsCount />
-    </b-tab>
+            <b-tab title="By games">
+                <TotalStatisticsByGames :selectedDates="selectedDates" />
+            </b-tab>
 
-</b-tabs>
+            <b-tab title="By rounds count">
+                <TotalStatisticsByRoundsCount :selectedDates="selectedDates" />
+            </b-tab>
+
+        </b-tabs>
+    </b-row>
+</div>

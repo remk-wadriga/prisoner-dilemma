@@ -22,6 +22,7 @@ const Api = {
             'create_random_strategy_url': '/strategy/random',
             'start_game_url': '/game/start',
             'params_strategy_url': '/params/strategy',
+            'params_statistics_dates_url': '/params/statistics-dates',
             'games_list_url': '/games',
             'params_game_url': '/params/game',
             'save_game_url': '/game',
@@ -44,13 +45,23 @@ const Api = {
                 params = name[1]
                 name = name[0]
             }
+
             let path = Api.data.routes[name]
             if (path === undefined) {
                 throw 'Url with name "' + name + '" is not found!';
             }
             if (params !== null) {
                 Object.keys(params).forEach(key => {
-                    path = path.replace(':' + key, params[key])
+                    if (path.indexOf(':' + key) != -1) {
+                        path = path.replace(':' + key, params[key])
+                    } else {
+                        if (path.indexOf('?') === -1) {
+                            path += '?'
+                        } else if (path.indexOf('&') === -1) {
+                            path += '&'
+                        }
+                        path += key + '=' + params[key]
+                    }
                 })
             }
             return Api.data.baseUrl + path;
@@ -71,20 +82,27 @@ const Api = {
             if (headers['X-AUTH-TOKEN'] === undefined && user.methods.isLogged()) {
                 headers['X-AUTH-TOKEN'] = user.methods.getAccessToken()
             }
-            // Json decode data, if it`s "json" request
-            if (headers['Content-Type'] === 'application/json' && typeof data !== 'string') {
-                data = JSON.stringify(data)
-            }
+
             var requestParams = {
                 method: method,
                 headers: headers
             }
             if (method !== 'GET') {
+                // Json decode data, if it`s "json" request
+                if (headers['Content-Type'] === 'application/json' && typeof data !== 'string') {
+                    data = JSON.stringify(data)
+                }
                 requestParams.body = data
             }
 
             // Remember ths request urls
-            this.requestUrl = method + ' ' + url + '?access_token=' + user.methods.getAccessToken();
+            this.requestUrl = method + ' ' + url
+            if (this.requestUrl.indexOf('?') === -1) {
+                this.requestUrl += '?'
+            } else {
+                this.requestUrl += '&'
+            }
+            this.requestUrl += 'access_token=' + user.methods.getAccessToken();
 
             // Remember last request params
             if (urlName !== 'security_login' && urlName !== 'security_renew_token') {
