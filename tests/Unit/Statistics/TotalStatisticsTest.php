@@ -190,7 +190,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(gr.game) AS gamesCount',
+                'COUNT(DISTINCT(gr.game)) AS gamesCount',
                 'SUM(g.rounds) AS roundsCount',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
@@ -250,7 +250,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
             ->select([
                 's.name AS strategy',
-                'COUNT(gr.game) AS gamesCount',
+                'COUNT(DISTINCT(gr.game)) AS gamesCount',
                 'SUM(g.rounds) AS roundsCount',
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
             ])
@@ -310,7 +310,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(gr.game) AS gamesCount',
+                'COUNT(DISTINCT(gr.game)) AS gamesCount',
                 'g.rounds AS roundsCount',
             ])
             ->groupBy('roundsCount')

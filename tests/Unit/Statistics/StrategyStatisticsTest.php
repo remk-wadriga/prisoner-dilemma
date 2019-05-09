@@ -36,7 +36,7 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
         $statsQuery = $this->entityManager->createQueryBuilder()
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(gr.game) AS gamesCount',
+                'COUNT(DISTINCT(gr.game)) AS gamesCount',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
             ->from(GameResult::class, 'gr')
@@ -91,7 +91,7 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
         $statsQuery = $this->entityManager->createQueryBuilder()
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(gr.game) AS gamesCount',
+                'COUNT(DISTINCT(gr.game)) AS gamesCount',
                 'g.rounds AS roundsCount',
             ])
             ->from(GameResult::class, 'gr')
