@@ -25,7 +25,7 @@ class GameServiceTest extends BaseStrategyTestCase
         // GameService.createDecisionsTreeByStrategiesIds
 
         // 1. Get user
-        $user = $this->getUser();
+        $user = $this->getRandomUser();
 
         // 2. Get user enabled strategies. If no one is found, we have nothing to test yet
         /** @var \App\Repository\StrategyRepository $strategiesRepository */

@@ -8,6 +8,7 @@
 
 namespace App\Tests;
 
+use App\Entity\GameResult;
 use PHPUnit\Framework\IncompleteTestError;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Doctrine\ORM\EntityManager;
@@ -25,6 +26,11 @@ class AbstractUnitTestCase extends KernelTestCase
      * @var User|null
      */
     protected $user;
+
+    /**
+     * @var User
+     */
+    protected $randomUser;
 
     /** @var \Faker\Generator */
     protected $faker;
@@ -60,19 +66,25 @@ class AbstractUnitTestCase extends KernelTestCase
         }
     }
 
-    public function getUser(): User
+    protected function getRandomUser(): User
     {
-        if ($this->user !== null) {
-            return $this->user;
+        if ($this->randomUser !== null) {
+            return $this->randomUser;
         }
-
-        /** @var \App\Repository\UserRepository $userRepository */
         $userRepository = $this->entityManager->getRepository(User::class);
+        $gameResultRepository = $this->entityManager->getRepository(GameResult::class);
 
-        $user = $userRepository->findOneBy(['email' => AbstractApiTestCase::STANDARD_USER]);
-        if (empty($user)) {
-            throw new IncompleteTestError(sprintf('Can`t find user by email "%s"', AbstractApiTestCase::STANDARD_USER));
-        }
-        return $this->user = $user;
+        $strategiesIDsQuery = $gameResultRepository->createQueryBuilder('gr')
+            ->select('u.id')
+            ->innerJoin('gr.strategy', 's')
+            ->innerJoin('s.user', 'u')
+            ->setMaxResults(100)
+        ;
+
+        $ids = array_map(function ($result) { return intval($result['id']); }, $strategiesIDsQuery->getQuery()->getScalarResult());
+        $faker = Factory::create();
+        $id = $faker->randomElement($ids);
+
+        return $this->randomUser = $userRepository->findOneBy(['id' => $id]);
     }
 }

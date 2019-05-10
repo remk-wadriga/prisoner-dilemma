@@ -13,7 +13,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 {
     private $statisticsService;
     private $repository;
-    private $randomUser;
 
     public function testStatisticsDatesParams()
     {
@@ -100,29 +99,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 
         // 3. Check statistics with dates range
         $this->checkStatisticsByRoundsCount('total_statistics_by_rounds_count_with_dates_range');
-    }
-
-
-    private function getRandomUser(): User
-    {
-        if ($this->randomUser !== null) {
-            return $this->randomUser;
-        }
-        $userRepository = $this->entityManager->getRepository(User::class);
-        $gameResultRepository = $this->entityManager->getRepository(GameResult::class);
-
-        $strategiesIDsQuery = $gameResultRepository->createQueryBuilder('gr')
-            ->select('u.id')
-            ->innerJoin('gr.strategy', 's')
-            ->innerJoin('s.user', 'u')
-            ->setMaxResults(100)
-        ;
-
-        $ids = array_map(function ($result) { return intval($result['id']); }, $strategiesIDsQuery->getQuery()->getScalarResult());
-        $faker = Factory::create();
-        $id = $faker->randomElement($ids);
-
-        return $this->randomUser = $userRepository->findOneBy(['id' => $id]);
     }
 
     private function getStatisticsService(): TotalStatisticsService

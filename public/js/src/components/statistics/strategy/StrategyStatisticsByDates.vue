@@ -6,14 +6,10 @@
 
     export default {
         name: "StrategyStatisticsByDates",
-        props: {
-            strategy: Object
-        },
         components: { LineChart },
         data() {
             return {
                 isReady: false,
-                statistics: null,
                 chartLabels: [],
                 chartData: [],
                 chartOptions: null,
@@ -21,14 +17,23 @@
                 chartTooltipLabelCallback: null
             }
         },
+        props: {
+            strategy: Object,
+            selectedDates: Object
+        },
+        watch: {
+            selectedDates() {
+                // Refresh page
+                this.refreshData()
+            }
+        },
         methods: {
             init (statistics) {
-                this.statistics = statistics
-
                 let bales = []
                 let gamesCount = []
+                this.chartLabels = []
 
-                this.statistics.forEach(data => {
+                statistics.forEach(data => {
                     this.chartLabels.push(data.gameDate)
                     bales.push(data.bales)
                     gamesCount.push(data.gamesCount)
@@ -46,19 +51,28 @@
                 }
 
                 this.isReady = true
+            },
+            refreshData() {
+                let params = {id: this.strategy.id}
+                const statisticsID = 'strategyStatisticsByDates_' + this.strategy.id
+                if (this.selectedDates) {
+                    params.fromDate = this.selectedDates.start
+                    params.toDate = this.selectedDates.end
+                }
+                Api.methods.request(['strategy_statistics_by_dates_url', params], {}, 'GET', response => {
+                    this.$store.commit('setStatistics', {id: statisticsID, data: response})
+                    this.init(response)
+                })
             }
         },
         mounted() {
-            let statisticsID = 'strategyStatisticsByDates_' + this.strategy.id
+            const statisticsID = 'strategyStatisticsByDates_' + this.strategy.id
             let statistics = this.$store.state.statistics[statisticsID]
 
             if (statistics) {
                 this.init(statistics)
             } else {
-                Api.methods.request(['strategy_statistics_by_dates_url', {id: this.strategy.id}], {}, 'GET', response => {
-                    this.$store.commit('setStatistics', {id: statisticsID, data: response})
-                    this.init(response)
-                })
+                this.refreshData()
             }
         }
     }

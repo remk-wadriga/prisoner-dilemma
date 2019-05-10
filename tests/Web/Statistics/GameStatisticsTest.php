@@ -31,7 +31,7 @@ class GameStatisticsTest extends AbstractStatisticsApiTestCase
 
         // 4. Get game statistics and check it
         $response = $this->request(['game_statistics_by_strategies', ['id' => $game->getId()]]);
-        $this->checkStatisticsResponse($response, $testKeysID, [
+        $this->checkResponseParams($response, $testKeysID, [
             'strategy' => 'string',
             'bales' => 'integer',
         ]);
@@ -60,7 +60,7 @@ class GameStatisticsTest extends AbstractStatisticsApiTestCase
 
         // 4. Get game statistics and check it
         $response = $this->request(['game_statistics_by_dates', ['id' => $game->getId()]]);
-        $this->checkStatisticsResponse($response, $testKeysID, [
+        $this->checkResponseParams($response, $testKeysID, [
             'bales' => 'integer',
             'roundsCount' => 'integer',
             'gameDate' => 'string',

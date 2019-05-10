@@ -17,6 +17,14 @@ class StrategyStatisticsController extends ControllerAbstract
 {
     private $statisticsService;
 
+    public function getRequestFilters(): array
+    {
+        return [
+            'fromDate',
+            'toDate',
+        ];
+    }
+
     public function __construct(StrategyStatisticsService $strategyStatisticsService)
     {
         $this->statisticsService = $strategyStatisticsService;
@@ -38,5 +46,14 @@ class StrategyStatisticsController extends ControllerAbstract
     public function byRoundsCount(Strategy $strategy)
     {
         return $this->json($this->statisticsService->getStatisticsByRoundsCount($strategy));
+    }
+
+    /**
+     * @Route("/strategy/{id}/statistics-dates", name="strategy_statistics_dates", methods={"GET"})
+     * @IsGranted("MANAGE", subject="strategy")
+     */
+    public function dates(Strategy $strategy)
+    {
+        return $this->json($this->statisticsService->getFirstAndLastGamesDates($strategy));
     }
 }

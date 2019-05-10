@@ -9,10 +9,26 @@
 namespace App\Repository\Service;
 
 use App\Entity\Game;
+use App\Entity\GameResult;
 use App\Entity\Strategy;
 
 class StrategyStatisticsRepository extends AbstractServiceRepository
 {
+    public function getFirstAndLastGamesDates(Strategy $strategy)
+    {
+        $query = $this->createQueryBuilder('gr', GameResult::class)
+            ->select([
+                'MIN(g.createdAt) AS start',
+                'MAX(g.createdAt) AS end',
+            ])
+            ->innerJoin('gr.game', 'g')
+            ->andWhere('gr.strategy = :strategy')
+            ->setParameter('strategy', $strategy)
+        ;
+
+        return $query->getQuery()->getSingleResult();
+    }
+
     /**
      * Get strategy dependency of average bales and games count from game date
      *

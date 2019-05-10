@@ -11,7 +11,7 @@ class StrategyServiceTest extends BaseStrategyTestCase
         // 1. Try to generate random strategy
         $service = $this->getStrategyService();
         $steps = $this->faker->numberBetween(1, 5);
-        $strategy = $service->generateRandomStrategy($this->getUser(), $steps, null, 100);
+        $strategy = $service->generateRandomStrategy($this->getRandomUser(), $steps, null, 100);
         $this->assertNotEmpty($strategy, 'Test "StrategyService.generateRandomStrategy" is filed: function not return the strategy');
 
         // 2. Calculate expected strategy steps count

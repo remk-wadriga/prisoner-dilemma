@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class StrategyStatisticsService extends AbstractStatisticsService
 {
+    public $statisticsDatesPeriod = '3 days';
+
     protected $repository;
 
     public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container, StrategyStatisticsRepository $repository, FormatterService $formatter)
@@ -23,6 +25,20 @@ class StrategyStatisticsService extends AbstractStatisticsService
         parent::__construct($entityManager, $container, $formatter);
 
         $this->repository = $repository;
+    }
+
+    public function getFirstAndLastGamesDates(Strategy $strategy)
+    {
+        $dates = $this->repository->getFirstAndLastGamesDates($strategy);
+        $format = $this->getParam('backend_date_time_format');
+        if (empty($dates['end'])) {
+            return null;
+        }
+
+        return [
+            'start' => (new \DateTime($dates['end']))->modify('-' . $this->statisticsDatesPeriod)->format($format),
+            'end' => (new \DateTime($dates['end']))->format($format),
+        ];
     }
 
     public function getStatisticsByDates(Strategy $strategy)

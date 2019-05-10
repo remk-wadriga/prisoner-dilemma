@@ -1,20 +1,32 @@
-<b-tabs
-    v-if="strategy"
-    id="strategy_statistics"
-    class="min-width-eighty-presents"
-    :lazy="lazyLoad"
->
-
-    <b-tab title="By dates">
-        <StrategyStatisticsByDates
-            v-bind:strategy="strategy"
+<div id="strategy_statistics" class="min-width-eighty-presents" v-if="isReady">
+    <b-row>
+        <DateRangePicker
+            @setDatesRange="setDatesRange($event)"
+            :selectedDates="selectedDates"
         />
-    </b-tab>
+    </b-row>
 
-    <b-tab title="By rounds count">
-        <StrategyStatisticsByRoundsCount
-            v-bind:strategy="strategy"
-        />
-    </b-tab>
+    <b-row class="margin-top-twenty-px">
+        <b-tabs
+            class="min-width-eighty-presents"
+            :lazy="lazyLoad"
+        >
 
-</b-tabs>
+            <b-tab title="By dates">
+                <StrategyStatisticsByDates
+                    :strategy="strategy"
+                    :selectedDates="selectedDates"
+                />
+            </b-tab>
+
+            <b-tab title="By rounds count">
+                <StrategyStatisticsByRoundsCount
+                    :strategy="strategy"
+                    :selectedDates="selectedDates"
+                />
+            </b-tab>
+
+        </b-tabs>
+    </b-row>
+</div>
+

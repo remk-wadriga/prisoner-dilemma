@@ -87,7 +87,7 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
     private function checkStatisticsByDates(string $testKeysID, array $datesPeriod = [])
     {
         $response = $this->request('total_statistics_by_dates', $datesPeriod);
-        $this->checkStatisticsResponse($response, $testKeysID, [
+        $this->checkResponseParams($response, $testKeysID, [
             'bales' => 'double',
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
@@ -98,7 +98,7 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
     private function checkStatisticsByStrategies(string $testKeysID, array $datesPeriod = [])
     {
         $response = $this->request('total_statistics_by_strategies', $datesPeriod);
-        $this->checkStatisticsResponse($response, $testKeysID, [
+        $this->checkResponseParams($response, $testKeysID, [
             'strategy' => 'string',
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
@@ -110,7 +110,7 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
     {
         // 1. Get total statistics and check it
         $response = $this->request('total_statistics_by_games', $datesPeriod);
-        $this->checkStatisticsResponse($response, $testKeysID, [
+        $this->checkResponseParams($response, $testKeysID, [
             'game' => 'string',
             'gameDate' => 'string',
             'totalBales' => 'integer',
@@ -140,7 +140,7 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
     private function checkStatisticsByRoundsCount(string $testKeysID, array $datesPeriod = [])
     {
         $response = $this->request('total_statistics_by_rounds_count', $datesPeriod);
-        $this->checkStatisticsResponse($response, $testKeysID, [
+        $this->checkResponseParams($response, $testKeysID, [
             'bales' => ['double', 'integer'],
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',

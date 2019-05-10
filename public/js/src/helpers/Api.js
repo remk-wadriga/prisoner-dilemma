@@ -32,6 +32,7 @@ const Api = {
             'total_statistics_by_strategies_url': '/total-statistics-by-strategies',
             'total_statistics_by_games_url': '/total-statistics-by-games',
             'total_statistics_by_rounds_count_url': '/total-statistics-by-rounds-count',
+            'strategy_statistics_dates': '/strategy/:id/statistics-dates',
             'strategy_statistics_by_dates_url': '/strategy/:id/statistics-by-dates',
             'strategy_statistics_by_rounds_count_url': '/strategy/:id/statistics-by-rounds-count',
             'game_statistics_by_strategies_url': '/game/:id/statistics-by-strategies',
