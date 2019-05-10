@@ -31,3 +31,8 @@ doctrine:
             datetime_functions:
                 DATE_FORMAT: App\Doctrine\DQL\DateFormatFunction
                 FIRST: App\Doctrine\DQL\FirstResultFunction
+                SUM_QUERY: App\Doctrine\DQL\SumQueryFunction
+        filters:
+            fromDate_filter: App\Doctrine\Filters\FromDateFilter
+            toDate_filter: App\Doctrine\Filters\ToDateFilter
+

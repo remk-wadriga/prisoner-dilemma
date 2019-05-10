@@ -24,6 +24,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 abstract class ControllerAbstract extends JsonController
 {
+    public function getRequestFilters(): array
+    {
+        return [];
+    }
+
     public function formatDateTime(?\DateTimeInterface $date, string $format = null): string
     {
         if ($format === null && $this->container->hasParameter('frontend_date_time_format')) {

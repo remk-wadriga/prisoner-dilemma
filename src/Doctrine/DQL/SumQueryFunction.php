@@ -9,7 +9,7 @@ use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\Parser;
 
-class FirstResultFunction extends FunctionNode
+class SumQueryFunction extends FunctionNode
 {
     /**
      * @var Subselect
@@ -18,7 +18,7 @@ class FirstResultFunction extends FunctionNode
 
     public function getSql(SqlWalker $sqlWalker)
     {
-        return sprintf('(%s LIMIT 1)', $this->subSelect->dispatch($sqlWalker));
+        return sprintf('SUM((%s))', $this->subSelect->dispatch($sqlWalker));
     }
 
     public function parse(Parser $parser)

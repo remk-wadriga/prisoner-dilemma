@@ -13,7 +13,6 @@ use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\Parser;
 
-
 class DateFormatFunction extends FunctionNode
 {
     /**

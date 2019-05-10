@@ -13,8 +13,6 @@ class TotalStatisticsService extends AbstractStatisticsService
 {
     public $statisticsDatesPeriod = '1 day';
 
-    public $filters = [];
-
     protected $repository;
 
     public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container, TotalStatisticsRepository $repository, FormatterService $formatter)
@@ -41,7 +39,7 @@ class TotalStatisticsService extends AbstractStatisticsService
     public function getStatisticsByDates(User $user)
     {
         // Get statistics results
-        $results = $this->repository->getStatisticsByDates($user, $this->filters);
+        $results = $this->repository->getStatisticsByDates($user);
 
         // Format statistics values and return formatted results
         return array_map(function ($result) {
@@ -56,7 +54,7 @@ class TotalStatisticsService extends AbstractStatisticsService
     public function getStatisticsByStrategies(User $user)
     {
         // Get statistics results
-        $results = $this->repository->getStatisticsByStrategies($user, $this->filters);
+        $results = $this->repository->getStatisticsByStrategies($user);
 
         // Format statistics values and return formatted results
         return array_map(function ($result) {
@@ -71,7 +69,7 @@ class TotalStatisticsService extends AbstractStatisticsService
     public function getStatisticsByGames(User $user)
     {
         // Get statistics results
-        $results = $this->repository->getStatisticsByGames($user, $this->filters);
+        $results = $this->repository->getStatisticsByGames($user);
 
         // Format statistics values and return formatted results
         return array_map(function ($result) {
@@ -98,7 +96,7 @@ class TotalStatisticsService extends AbstractStatisticsService
     public function getStatisticsByRoundsCount(User $user)
     {
         // Get statistics results
-        $results = $this->repository->getStatisticsByRoundsCount($user, $this->filters);
+        $results = $this->repository->getStatisticsByRoundsCount($user);
 
         // Format statistics values and return formatted results
         return array_map(function ($result) {

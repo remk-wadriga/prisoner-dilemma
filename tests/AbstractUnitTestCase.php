@@ -46,6 +46,20 @@ class AbstractUnitTestCase extends KernelTestCase
         return str_replace('0/0', '%', $container->getParameter($name));
     }
 
+    protected function enableDoctrineFilters($filters)
+    {
+        foreach ($filters as $param => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $doctrineFilterName = $param . '_filter';
+            if ($this->entityManager->getFilters()->has($doctrineFilterName)) {
+                $filter = $this->entityManager->getFilters()->enable($doctrineFilterName);
+                $filter->setParameter($param, $value);
+            }
+        }
+    }
+
     public function getUser(): User
     {
         if ($this->user !== null) {

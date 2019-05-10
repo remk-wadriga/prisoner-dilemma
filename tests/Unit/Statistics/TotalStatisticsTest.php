@@ -59,8 +59,11 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         // 1. Check statistics without dates range
         $this->checkStatisticsByDates('total_statistics_by_dates');
 
-        // 2. Check statistics with dates range
-        $this->checkStatisticsByDates('total_statistics_by_dates_with_dates_range', $this->getRandomDatesPeriod());
+        // 2. Enable Doctrine dates filters
+        $this->enableDoctrineFilters($this->getRandomDatesPeriod());
+        
+        // 3. Check statistics with dates range
+        $this->checkStatisticsByDates('total_statistics_by_dates_with_dates_range');
     }
 
     public function testStatisticsByStrategies()
@@ -68,17 +71,11 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         // 1. Check statistics without dates range
         $this->checkStatisticsByStrategies('total_statistics_by_strategies');
 
-        // 2. Check statistics with dates range
-        $this->checkStatisticsByStrategies('total_statistics_by_strategies_with_dates_range', $this->getRandomDatesPeriod());
-    }
+        // 2. Enable Doctrine dates filters
+        $this->enableDoctrineFilters($this->getRandomDatesPeriod());
 
-    public function testStatisticsByRoundsCount()
-    {
-        // 1 Check statistics without dates range
-        $this->checkStatisticsByRoundsCount('total_statistics_by_rounds_count');
-
-        // 2. Check statistics with dates range
-        $this->checkStatisticsByRoundsCount('total_statistics_by_rounds_count_with_dates_range', $this->getRandomDatesPeriod());
+        // 3. Check statistics with dates range
+        $this->checkStatisticsByStrategies('total_statistics_by_strategies_with_dates_range');
     }
 
     public function testStatisticsByGames()
@@ -86,8 +83,23 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         // 1. Check statistics without dates range
         $this->checkStatisticsByGames('total_statistics_by_games');
 
-        // 2. Check statistics with dates range
-        $this->checkStatisticsByGames('total_statistics_by_games_with_dates_range', $this->getRandomDatesPeriod());
+        // 2. Enable Doctrine dates filters
+        $this->enableDoctrineFilters($this->getRandomDatesPeriod());
+
+        // 3. Check statistics with dates range
+        $this->checkStatisticsByGames('total_statistics_by_games_with_dates_range');
+    }
+
+    public function testStatisticsByRoundsCount()
+    {
+        // 1 Check statistics without dates range
+        $this->checkStatisticsByRoundsCount('total_statistics_by_rounds_count');
+
+        // 2. Enable Doctrine dates filters
+        $this->enableDoctrineFilters($this->getRandomDatesPeriod());
+
+        // 3. Check statistics with dates range
+        $this->checkStatisticsByRoundsCount('total_statistics_by_rounds_count_with_dates_range');
     }
 
 
@@ -145,29 +157,26 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         return $dates;
     }
 
-    private function createStatsQueryBuilderWithJoinedGameFilteredByDates(User $user, array $datesRange)
+    private function createStatsQueryBuilder(User $user)
     {
-        $statsQuery = $this->entityManager->createQueryBuilder()
-            ->from(GameResult::class, 'gr')
-            ->innerJoin('gr.game', 'g')
+        return $this->entityManager->createQueryBuilder()
+            ->from(Game::class, 'g')
             ->andWhere('g.user = :user')
+            ->setParameter('user', $user)
         ;
+    }
 
-        $parameters = ['user' => $user];
-
-        if (!empty($datesRange)) {
-            $statsQuery->andWhere('g.createdAt > :from_date AND g.createdAt < :to_date');
-            $parameters['from_date'] = new \DateTime($datesRange['fromDate']);
-            $parameters['to_date'] = (new \DateTime($datesRange['toDate']))->modify('1 days');
-        }
-
-        $statsQuery->setParameters($parameters);
-
-        return $statsQuery;
+    private function createGameResultBalesSubQuery($alias = 'gr', $gameAlias = 'g')
+    {
+        return $this->entityManager->createQueryBuilder()
+            ->from(GameResult::class, $alias)
+            ->select(sprintf('SUM(%s.result)', $alias))
+            ->andWhere(sprintf('%s.game = %s.id', $alias, $gameAlias))
+        ;
     }
 
 
-    private function checkStatisticsByDates($testKeysID, array $datesRange = [])
+    private function checkStatisticsByDates($testKeysID)
     {
         $formatter = $this->getFormatterService();
 
@@ -175,7 +184,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $user = $this->getRandomUser();
 
         // 2. Get statistics
-        $this->getStatisticsService()->filters = $datesRange;
         $statistics = $this->getStatisticsService()->getStatisticsByDates($user);
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
@@ -187,10 +195,10 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         ]);
 
         // 4. Get statistics data from DB
-        $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
+        $statsQuery = $this->createStatsQueryBuilder($user)
             ->select([
-                'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(DISTINCT(gr.game)) AS gamesCount',
+                sprintf('SUM_QUERY(%s)/SUM(g.rounds) AS bales', $this->createGameResultBalesSubQuery()->getQuery()->getDQL()),
+                'COUNT(g) AS gamesCount',
                 'SUM(g.rounds) AS roundsCount',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
@@ -218,6 +226,8 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $roundsCount += $stats['roundsCount'];
         }
 
+        //dd([$dbStatistics, ['bales' => $bales, 'gamesCount' => $gamesCount, 'roundsCount' => $roundsCount]]);
+
         // 6. Check is statistics calculated by service equal to statistics from DB
         $this->assertEquals($bales, $dbStatistics['bales'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "bales" must have %s value but %s given',
             $testKeysID, $user->getId(), $bales, $dbStatistics['bales']));
@@ -227,7 +237,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
     }
 
-    private function checkStatisticsByStrategies($testKeysID, array $datesRange = [])
+    private function checkStatisticsByStrategies($testKeysID)
     {
         $formatter = $this->getFormatterService();
 
@@ -235,7 +245,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $user = $this->getRandomUser();
 
         // 2. Get statistics
-        $this->getStatisticsService()->filters = $datesRange;
         $statistics = $this->getStatisticsService()->getStatisticsByStrategies($user);
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
@@ -247,14 +256,18 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         ]);
 
         // 4. Get statistics data from DB
-        $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
+        $statsQuery = $this->entityManager->createQueryBuilder()
             ->select([
                 's.name AS strategy',
-                'COUNT(DISTINCT(gr.game)) AS gamesCount',
+                'SUM(gr.result)/SUM(g.rounds) AS bales',
+                'COUNT(gr.game) AS gamesCount',
                 'SUM(g.rounds) AS roundsCount',
-                'SUM(gr.result) / SUM(g.rounds) AS bales',
             ])
+            ->from(GameResult::class, 'gr')
             ->innerJoin('gr.strategy', 's')
+            ->innerJoin('gr.game', 'g')
+            ->where('g.user = :user')
+            ->setParameter('user', $user)
             ->groupBy('strategy')
         ;
 
@@ -288,7 +301,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
     }
 
-    private function checkStatisticsByRoundsCount($testKeysID, array $datesRange = [])
+    private function checkStatisticsByGames($testKeysID)
     {
         $formatter = $this->getFormatterService();
 
@@ -296,65 +309,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $user = $this->getRandomUser();
 
         // 2. Get statistics
-        $this->getStatisticsService()->filters = $datesRange;
-        $statistics = $this->getStatisticsService()->getStatisticsByRoundsCount($user);
-
-        // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
-        $this->checkStatisticsData($statistics, $testKeysID, [
-            'bales' => 'float',
-            'gamesCount' => 'integer',
-            'roundsCount' => 'integer',
-        ]);
-
-        // 4. Get statistics data from DB
-        $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
-            ->select([
-                'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(DISTINCT(gr.game)) AS gamesCount',
-                'g.rounds AS roundsCount',
-            ])
-            ->groupBy('roundsCount')
-        ;
-
-        $dbStatistics = [
-            'bales' => 0,
-            'gamesCount' => 0,
-            'roundsCount' => 0,
-        ];
-        foreach ($statsQuery->getQuery()->getArrayResult() as $res) {
-            $dbStatistics['bales'] += $formatter->toFloat($res['bales']);
-            $dbStatistics['gamesCount'] += $formatter->toInt($res['gamesCount']);
-            $dbStatistics['roundsCount'] += $formatter->toInt($res['roundsCount']);
-        }
-
-        // 5. Calculate statistics that was returned from function
-        $bales = 0;
-        $gamesCount = 0;
-        $roundsCount = 0;
-        foreach ($statistics as $stats) {
-            $bales += $stats['bales'];
-            $gamesCount += $stats['gamesCount'];
-            $roundsCount += $stats['roundsCount'];
-        }
-
-        // 6. Check is statistics calculated by service equal to statistics from DB
-        $this->assertEquals($bales, $dbStatistics['bales'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "bales" must have %s value but %s given',
-            $testKeysID, $user->getId(), $bales, $dbStatistics['bales']));
-        $this->assertEquals($gamesCount, $dbStatistics['gamesCount'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "gamesCount" must have %s value but %s given',
-            $testKeysID, $user->getId(), $bales, $dbStatistics['gamesCount']));
-        $this->assertEquals($roundsCount, $dbStatistics['roundsCount'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "roundsCount" must have %s value but %s given',
-            $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
-    }
-
-    private function checkStatisticsByGames($testKeysID, array $datesRange = [])
-    {
-        $formatter = $this->getFormatterService();
-
-        // 1. Get random user
-        $user = $this->getRandomUser();
-
-        // 2. Get statistics
-        $this->getStatisticsService()->filters = $datesRange;
         $statistics = $this->getStatisticsService()->getStatisticsByGames($user);
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
@@ -369,18 +323,17 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         ]);
 
         // 4. Get statistics data from DB
-        $statsQuery = $this->createStatsQueryBuilderWithJoinedGameFilteredByDates($user, $datesRange)
+        $statsQuery = $this->createStatsQueryBuilder($user)
             ->select([
                 'g.id AS gameID',
                 'g.name AS game',
-                'DATE_FORMAT(g.createdAt, \'%Y-%m-%d\') AS gameDate',
-                'SUM(gr.result) AS totalBales',
-                'SUM(gr.result) / g.rounds AS bales',
+                sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
+                sprintf('SUM_QUERY(%s)/g.rounds AS bales', $this->createGameResultBalesSubQuery('gr1')->getQuery()->getDQL()),
+                sprintf('SUM_QUERY(%s) AS totalBales', $this->createGameResultBalesSubQuery('gr2')->getQuery()->getDQL()),
                 'g.rounds AS roundsCount',
             ])
             ->groupBy('gameID')
             ->addGroupBy('game')
-            ->addGroupBy('gameDate')
         ;
         $dbStatisticsResults = $statsQuery->getQuery()->getArrayResult();
 
@@ -459,5 +412,62 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $this->assertEquals($dbGameLoser, $stats['loser'], sprintf('Test keys "%s" failed. Statistics returns an incorrect winner. Winner of game #%s must be %s, but %s given',
                 $testKeysID, $game->getId(), json_encode($dbGameLoser), json_encode($stats['loser'])));
         }
+    }
+
+    private function checkStatisticsByRoundsCount($testKeysID)
+    {
+        $formatter = $this->getFormatterService();
+
+        // 1. Get random user
+        $user = $this->getRandomUser();
+
+        // 2. Get statistics
+        $statistics = $this->getStatisticsService()->getStatisticsByRoundsCount($user);
+
+        // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
+        $this->checkStatisticsData($statistics, $testKeysID, [
+            'bales' => 'float',
+            'gamesCount' => 'integer',
+            'roundsCount' => 'integer',
+        ]);
+
+        // 4. Get statistics data from DB
+        $statsQuery = $this->createStatsQueryBuilder($user)
+            ->select([
+                sprintf('SUM_QUERY(%s)/SUM(g.rounds) AS bales', $this->createGameResultBalesSubQuery()->getQuery()->getDQL()),
+                'COUNT(g) AS gamesCount',
+                'g.rounds AS roundsCount',
+            ])
+            ->groupBy('roundsCount')
+        ;
+
+        $dbStatistics = [
+            'bales' => 0,
+            'gamesCount' => 0,
+            'roundsCount' => 0,
+        ];
+        foreach ($statsQuery->getQuery()->getArrayResult() as $res) {
+            $dbStatistics['bales'] += $formatter->toFloat($res['bales']);
+            $dbStatistics['gamesCount'] += $formatter->toInt($res['gamesCount']);
+            $dbStatistics['roundsCount'] += $formatter->toInt($res['roundsCount']);
+        }
+
+        // 5. Calculate statistics that was returned from function
+        $bales = 0;
+        $gamesCount = 0;
+        $roundsCount = 0;
+        foreach ($statistics as $stats) {
+            $bales += $stats['bales'];
+            $gamesCount += $stats['gamesCount'];
+            $roundsCount += $stats['roundsCount'];
+        }
+
+        // 6. Check is statistics calculated by service equal to statistics from DB
+        $this->assertEquals($bales, $dbStatistics['bales'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "bales" must have %s value but %s given',
+            $testKeysID, $user->getId(), $bales, $dbStatistics['bales']));
+        $this->assertEquals($gamesCount, $dbStatistics['gamesCount'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "gamesCount" must have %s value but %s given',
+            $testKeysID, $user->getId(), $bales, $dbStatistics['gamesCount']));
+        $this->assertEquals($roundsCount, $dbStatistics['roundsCount'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "roundsCount" must have %s value but %s given',
+            $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
     }
 }
