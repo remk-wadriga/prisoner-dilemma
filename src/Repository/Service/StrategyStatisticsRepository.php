@@ -8,7 +8,7 @@
 
 namespace App\Repository\Service;
 
-use App\Entity\GameResult;
+use App\Entity\Game;
 use App\Entity\Strategy;
 
 class StrategyStatisticsRepository extends AbstractServiceRepository
@@ -19,10 +19,10 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
      * Request:
         SELECT
             SUM(gr.result) / SUM(g.rounds) AS bales,
-            COUNT(DISTINCT(gr.game_id)) AS gamesCount,
+            COUNT(g.id) AS gamesCount,
             DATE_FORMAT(g.created_at, '%Y-%m-%d') AS gameDate
-        FROM `game_result` gr
-        INNER JOIN game g ON g.id = gr.game_id
+            FROM `game` g
+            INNER JOIN game_result gr ON gr.game_id = g.id
         WHERE gr.strategy_id = 6
         GROUP BY gameDate
         ORDER BY gameDate DESC
@@ -33,10 +33,10 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
      */
     public function getStatisticsByDates(Strategy $strategy)
     {
-        $query = $this->createGameResultsJoinedGameQueryBuilder($strategy)
+        $query = $this->createGameJoinedGameResultsQueryBuilder($strategy)
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(DISTINCT(gr.game)) AS gamesCount',
+                'COUNT(g) AS gamesCount',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
             ->groupBy('gameDate')
@@ -52,10 +52,10 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
      * Request:
         SELECT
             SUM(gr.result) / SUM(g.rounds) AS bales,
-            COUNT(DISTINCT(gr.game_id)) AS gamesCount,
+            COUNT(g.id) AS gamesCount,
             g.rounds AS roundsCount
-        FROM `game_result` gr
-        INNER JOIN game g ON g.id = gr.game_id
+        FROM `game` g
+        INNER JOIN game_result gr ON gr.game_id = g.id
         WHERE gr.strategy_id = :strategy_id
         GROUP BY roundsCount
         ORDER BY roundsCount ASC
@@ -66,10 +66,10 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
      */
     public function getStatisticsByRoundsCount(Strategy $strategy)
     {
-        $query = $this->createGameResultsJoinedGameQueryBuilder($strategy)
+        $query = $this->createGameJoinedGameResultsQueryBuilder($strategy)
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(DISTINCT(gr.game)) AS gamesCount',
+                'COUNT(g) AS gamesCount',
                 'g.rounds AS roundsCount',
             ])
             ->groupBy('roundsCount')
@@ -81,10 +81,10 @@ class StrategyStatisticsRepository extends AbstractServiceRepository
 
 
 
-    private function createGameResultsJoinedGameQueryBuilder(Strategy $strategy)
+    private function createGameJoinedGameResultsQueryBuilder(Strategy $strategy)
     {
-        return $this->createQueryBuilder('gr', GameResult::class)
-            ->innerJoin('gr.game', 'g')
+        return $this->createQueryBuilder('g', Game::class)
+            ->innerJoin('g.gameResults', 'gr')
             ->andWhere('gr.strategy = :strategy')
             ->setParameter('strategy', $strategy)
         ;

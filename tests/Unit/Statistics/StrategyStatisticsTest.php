@@ -2,6 +2,7 @@
 
 namespace App\Tests\Unit\Statistics;
 
+use App\Entity\Game;
 use App\Entity\GameResult;
 use App\Entity\Strategy;
 use App\Repository\Service\StrategyStatisticsRepository;
@@ -36,11 +37,11 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
         $statsQuery = $this->entityManager->createQueryBuilder()
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(DISTINCT(gr.game)) AS gamesCount',
+                'COUNT(g) AS gamesCount',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
             ])
-            ->from(GameResult::class, 'gr')
-            ->innerJoin('gr.game', 'g')
+            ->from(Game::class, 'g')
+            ->innerJoin('g.gameResults', 'gr')
             ->andWhere('gr.strategy = :strategy')
             ->setParameter('strategy', $strategy)
             ->groupBy('gameDate')
@@ -91,11 +92,11 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
         $statsQuery = $this->entityManager->createQueryBuilder()
             ->select([
                 'SUM(gr.result) / SUM(g.rounds) AS bales',
-                'COUNT(DISTINCT(gr.game)) AS gamesCount',
+                'COUNT(g) AS gamesCount',
                 'g.rounds AS roundsCount',
             ])
-            ->from(GameResult::class, 'gr')
-            ->innerJoin('gr.game', 'g')
+            ->from(Game::class, 'g')
+            ->innerJoin('g.gameResults', 'gr')
             ->andWhere('gr.strategy = :strategy')
             ->groupBy('roundsCount')
             ->setParameter('strategy', $strategy)
@@ -134,7 +135,7 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
     protected function getRandomStrategy(): Strategy
     {
         if ($this->randomStrategy !== null) {
-            return $this->_randomStrategy;
+            return $this->randomStrategy;
         }
         $strategyRepository = $this->entityManager->getRepository(Strategy::class);
         $gameResultRepository = $this->entityManager->getRepository(GameResult::class);
