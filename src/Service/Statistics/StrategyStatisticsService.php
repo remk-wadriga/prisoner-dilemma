@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class StrategyStatisticsService extends AbstractStatisticsService
 {
-    public $statisticsDatesPeriod = '3 days';
+    public $statisticsDatesPeriod = '30 days';
 
     protected $repository;
 
