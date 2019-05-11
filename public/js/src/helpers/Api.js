@@ -8,8 +8,6 @@ var lastRequestParams = null;
 const Api = {
     data: {
         baseUrl: Config.api.baseUrl,
-        responseHeaders: null,
-        requestUrl: null,
         routes: {
             'app_homepage': '/',
             'security_login': '/login',
@@ -23,6 +21,7 @@ const Api = {
             'start_game_url': '/game/start',
             'params_strategy_url': '/params/strategy',
             'params_statistics_dates_url': '/params/statistics-dates',
+            'params_game_filters': '/params/game-filters',
             'games_list_url': '/games',
             'params_game_url': '/params/game',
             'save_game_url': '/game',
@@ -55,20 +54,21 @@ const Api = {
                 Object.keys(params).forEach(key => {
                     if (path.indexOf(':' + key) != -1) {
                         path = path.replace(':' + key, params[key])
-                    } else {
+                    } else if (params[key] !== null) {
                         if (path.indexOf('?') === -1) {
                             path += '?'
-                        } else if (path.indexOf('&') === -1) {
-                            path += '&'
                         }
-                        path += key + '=' + params[key]
+                        path += key + '=' + params[key] + '&'
                     }
                 })
+                if (path.indexOf('&') !== -1) {
+                    path = path.substring(0, path.length - 1)
+                }
             }
             return Api.data.baseUrl + path;
         },
         request(urlName, data = {}, method = 'GET', successCallback = null, headers = {}, errorCallback = null) {
-            let url = Api.methods.getUrl(urlName);
+            let url = Api.methods.getUrl(urlName)
             if (successCallback === null) {
                 successCallback = response => {}
             }
@@ -84,7 +84,7 @@ const Api = {
                 headers['X-AUTH-TOKEN'] = user.methods.getAccessToken()
             }
 
-            var requestParams = {
+            let requestParams = {
                 method: method,
                 headers: headers
             }
@@ -96,14 +96,17 @@ const Api = {
                 requestParams.body = data
             }
 
-            // Remember ths request urls
-            this.requestUrl = method + ' ' + url
-            if (this.requestUrl.indexOf('?') === -1) {
-                this.requestUrl += '?'
+            // Remember the request url
+            let requestUrl = method + ' ' + url
+            if (requestUrl.indexOf('?') === -1) {
+                requestUrl += '?'
             } else {
-                this.requestUrl += '&'
+                requestUrl += '&'
             }
-            this.requestUrl += 'access_token=' + user.methods.getAccessToken();
+            requestUrl += 'access_token=' + user.methods.getAccessToken()
+
+            let responseHeaders = null
+
 
             // Remember last request params
             if (urlName !== 'security_login' && urlName !== 'security_renew_token') {
@@ -112,22 +115,22 @@ const Api = {
 
             // Send request
             fetch(url, requestParams)
-            .then(response => { this.responseHeaders = response.headers; return response })
+            .then(response => { responseHeaders = response.headers; return response })
             .then(response => headers['Content-Type'] === 'application/json' ? response.json() : response)
             .then(response => {
                 // Process response
                 if (response.error === undefined) {
-                    Api.methods.requestSuccess(response, successCallback)
+                    Api.methods.requestSuccess(response, successCallback, requestUrl, responseHeaders, method)
                 } else {
-                    Api.methods.requestFailed(response.error, errorCallback)
+                    Api.methods.requestFailed(response.error, errorCallback, requestUrl, responseHeaders, method)
                 }
             })
         },
-        requestSuccess(response, callback) {
+        requestSuccess(response, callback, requestUrl, responseHeaders, method) {
             callback(response)
-            this.processResponse()
+            this.processResponse(response, requestUrl, responseHeaders, method)
         },
-        requestFailed(error, callback) {
+        requestFailed(error, callback, requestUrl, responseHeaders, method) {
             if (error.code !== undefined && error.message !== undefined) {
                 // Call client error-callback function and check what is it returns
                 // if it returns false - do not do anything else
@@ -136,7 +139,7 @@ const Api = {
                 }
 
                 // Process response
-                this.processResponse(error)
+                this.processResponse(error, requestUrl, responseHeaders, method)
 
                 // Error code "1001" means that access token is invalid, so, let`s logout user and go to login page!
                 if (error.code === 1001) {
@@ -185,16 +188,20 @@ const Api = {
                 }
             }
         },
-        processResponse(response) {
+        processResponse(response, requestUrl, responseHeaders, method) {
             if (Config.params.env !== 'DEV') {
-                return;
+                return
+            }
+
+            if (responseHeaders && responseHeaders.get('debug-request-uri')) {
+                requestUrl = method + ' ' + Api.data.baseUrl + responseHeaders.get('debug-request-uri')
             }
 
             store.commit('addDebugMessage', {
-                requestUrl: this.requestUrl,
-                debugToken: this.responseHeaders.get('x-debug-token'),
-                debugPanelUrl: Api.data.baseUrl + '/_wdt/' + this.responseHeaders.get('x-debug-token'),
-                debugUrl: this.responseHeaders.get('x-debug-token-link')
+                requestUrl: requestUrl,
+                debugToken: responseHeaders ? responseHeaders.get('x-debug-token') : null,
+                debugPanelUrl: responseHeaders ? Api.data.baseUrl + '/_wdt/' + responseHeaders.get('x-debug-token') : null,
+                debugUrl: responseHeaders ? responseHeaders.get('x-debug-token-link') : requestUrl
             })
         }
     }

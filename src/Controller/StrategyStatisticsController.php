@@ -8,6 +8,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\Statistics\StrategyStatisticsService;
 use App\Entity\Strategy;
@@ -17,7 +18,7 @@ class StrategyStatisticsController extends ControllerAbstract
 {
     private $statisticsService;
 
-    public function getRequestFilters(): array
+    public function getRequestFilters(Request $request): array
     {
         return [
             'fromDate',

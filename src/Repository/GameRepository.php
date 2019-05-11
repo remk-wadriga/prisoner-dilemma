@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Game;
+use App\Entity\GameResult;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -36,5 +37,24 @@ class GameRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function getUserGamesParams(User $user)
+    {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select([
+                'CONCAT(UNIQUE(g.rounds)) AS roundsCount',
+                'CONCAT(UNIQUE(g.balesForWin)) AS balesForWin',
+                'CONCAT(UNIQUE(g.balesForLoos)) AS balesForLoos',
+                'CONCAT(UNIQUE(g.balesForCooperation)) AS balesForCooperation',
+                'CONCAT(UNIQUE(g.balesForDraw)) AS balesForDraw',
+            ])
+            ->from(GameResult::class, 'gr')
+            ->innerJoin('gr.game', 'g')
+            ->andWhere('g.user = :user')
+            ->setParameter('user', $user)
+        ;
+
+        return $query->getQuery()->getSingleResult();
     }
 }

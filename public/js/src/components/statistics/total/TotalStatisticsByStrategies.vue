@@ -18,10 +18,14 @@
             }
         },
         props: {
-            selectedDates: Object
+            selectedDates: Object,
+            gameParamsFilters: Object
         },
         watch: {
             selectedDates() {
+                this.refreshData()
+            },
+            gameParamsFilters() {
                 this.refreshData()
             }
         },
@@ -56,11 +60,12 @@
                 this.isReady = true
             },
             refreshData() {
-                let params = {}
+                let params = this.gameParamsFilters ? this.gameParamsFilters : {}
                 if (this.selectedDates) {
                     params.fromDate = this.selectedDates.start
                     params.toDate = this.selectedDates.end
                 }
+
                 Api.methods.request(['total_statistics_by_strategies_url', params], {}, 'GET', response => {
                     this.$store.commit('setStatistics', {id: 'totalStatisticsByStrategies', data: response})
                     this.init(response)

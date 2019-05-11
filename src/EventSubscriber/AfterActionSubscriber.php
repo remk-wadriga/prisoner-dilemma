@@ -8,6 +8,7 @@
 
 namespace App\EventSubscriber;
 
+use App\Security\AccessTokenAuthenticator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -18,6 +19,13 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 
 class AfterActionSubscriber implements EventSubscriberInterface
 {
+    private $authenticator;
+
+    public function __construct(AccessTokenAuthenticator $authenticator)
+    {
+        $this->authenticator = $authenticator;
+    }
+
     public static function getSubscribedEvents()
     {
         return [
@@ -28,9 +36,24 @@ class AfterActionSubscriber implements EventSubscriberInterface
 
     public function handleResponse(FilterResponseEvent $event)
     {
+        $requestUrl = $event->getRequest()->getRequestUri();
+        $tokenName = AccessTokenAuthenticator::ACCESS_TOKEN_URI_PARAM_NAME;
+        if (strpos($requestUrl, $tokenName . '=') === false) {
+            if (strpos($requestUrl, '?') === false) {
+                $requestUrl .= '?';
+            } else {
+                $requestUrl .= '&';
+            }
+            $tokenParams = $this->authenticator->getCredentials($event->getRequest());
+            if (isset($tokenParams[$tokenName])) {
+                $requestUrl .= $tokenName . '=' . base64_encode($tokenParams[$tokenName]);
+            }
+        }
+
         $event->getResponse()->headers->add([
-            'access-control-expose-headers' => 'X-Debug-Token,X-Debug-Token-Link,Symfony-Debug-Toolbar-Replace',
+            'access-control-expose-headers' => 'X-Debug-Token,X-Debug-Token-Link,Symfony-Debug-Toolbar-Replace,Debug-Request-Uri',
             'Symfony-Debug-Toolbar-Replace' => 1,
+            'Debug-Request-Uri' => $requestUrl,
         ]);
     }
 

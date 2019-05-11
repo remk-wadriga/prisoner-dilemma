@@ -32,7 +32,14 @@ doctrine:
                 DATE_FORMAT: App\Doctrine\DQL\DateFormatFunction
                 FIRST: App\Doctrine\DQL\FirstResultFunction
                 SUM_QUERY: App\Doctrine\DQL\SumQueryFunction
+                CONCAT: App\Doctrine\DQL\ConcatFunction
+                UNIQUE: App\Doctrine\DQL\UniqueFunction
         filters:
             fromDate_filter: App\Doctrine\Filters\FromDateFilter
             toDate_filter: App\Doctrine\Filters\ToDateFilter
+            game_roundsCount_filter: App\Doctrine\Filters\GameRoundsCountFilter
+            game_balesForWin_filter: App\Doctrine\Filters\GameBalesForWinFilter
+            game_balesForLoos_filter: App\Doctrine\Filters\GameBalesForLoosFilter
+            game_balesForCooperation_filter: App\Doctrine\Filters\GameBalesForCooperationFilter
+            game_balesForDraw_filter: App\Doctrine\Filters\GameBalesForDrawFilter
 

@@ -9,6 +9,8 @@
 namespace App\Tests;
 
 use App\Entity\User;
+use App\Repository\Service\TotalStatisticsRepository;
+use Faker\Factory;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Security\AccessTokenAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,6 +40,7 @@ class AbstractApiTestCase extends WebTestCase
      * @var EntityManagerInterface
      */
     protected $entityManager;
+
 
     /**
      * @var string
@@ -276,5 +279,40 @@ class AbstractApiTestCase extends WebTestCase
             return null;
         }
         return str_replace('0/0', '%', $container->getParameter($name));
+    }
+
+    protected function getRandomDatesPeriod($daysCount = null)
+    {
+        /** @var TotalStatisticsRepository $repository */
+        $repository = new TotalStatisticsRepository($this->entityManager, static::$container);
+        $dates = $repository->getFirstAndLastGamesDates($this->user);
+        $faker = Factory::create();
+
+        $dates['toDate'] = (new \DateTime($dates['end']))
+            ->modify(sprintf('-%s days', $faker->numberBetween(0, 5)))
+            ->format($this->getParam('backend_date_format'));
+
+        if ($daysCount === null) {
+            $daysCount = $faker->numberBetween(1, 10);
+        }
+
+        $dates['fromDate'] = (new \DateTime($dates['toDate']))
+            ->modify(sprintf('-%s days', $daysCount))
+            ->format($this->getParam('backend_date_format'));
+
+        unset($dates['start'], $dates['end']);
+        return $dates;
+    }
+
+    protected function createRandomGameParamsFilters()
+    {
+        $faker = Factory::create();
+        return [
+            'game_roundsCount' => $faker->numberBetween(10, 100),
+            'game_balesForWin' => $faker->numberBetween(20, 50),
+            'game_balesForLoos' => $faker->numberBetween(-20, 0),
+            'game_balesForCooperation' => $faker->numberBetween(-10, 10),
+            'game_balesForDraw' => $faker->numberBetween(-10, 10),
+        ];
     }
 }

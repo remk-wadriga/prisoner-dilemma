@@ -37,7 +37,10 @@ export default new Vuex.Store({
             selectedId: null,
             checked: []
         },
-        statistics: {}
+        statistics: {},
+        params: {
+            gameParams: null
+        },
     },
     mutations: {
         setPageTitle(state, title) {
@@ -74,7 +77,7 @@ export default new Vuex.Store({
                 index++;
                 msg.id = 'debugger_message_' + index;
             }
-            if (state.debugger.messages.length >= 3) {
+            if (state.debugger.messages.length >= 5) {
                 state.debugger.messages.splice(0, 1)
             }
             state.debugger.messages.push(msg)
@@ -101,6 +104,9 @@ export default new Vuex.Store({
             } else {
                 state.statistics[stats.id] = stats.data
             }
+        },
+        setGameParams(state, params) {
+            state.params.gameParams = params
         }
     }
 })

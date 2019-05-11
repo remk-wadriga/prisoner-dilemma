@@ -1,9 +1,22 @@
 <div id="total_statistics" class="min-width-eighty-presents" v-if="isReady">
     <b-row>
-        <DateRangePicker
-            @setDatesRange="setDatesRange($event)"
-            :selectedDates="selectedDates"
-        />
+
+        <b-col lg="4">
+            <h4>Dates from-to:</h4>
+            <DateRangePicker
+                @setDatesRange="setDatesRange($event)"
+                :selectedDates="selectedDates"
+            />
+        </b-col>
+
+        <b-col lg="6" v-if="selectedDates">
+            <h4>By game params:</h4>
+            <GameParamsFilter
+                @setGameParamsFilters="setGameParamsFilters($event)"
+                :selectedDates="selectedDates"
+            />
+        </b-col>
+
     </b-row>
 
     <b-row class="margin-top-twenty-px">
@@ -11,20 +24,32 @@
             class="min-width-eighty-presents"
             :lazy="lazyLoad"
         >
-            <b-tab title="By dates">
-                <TotalStatisticsByDates :selectedDates="selectedDates" />
-            </b-tab>
-
             <b-tab title="By strategies">
-                <TotalStatisticsByStrategies :selectedDates="selectedDates" />
+                <TotalStatisticsByStrategies
+                    :selectedDates="selectedDates"
+                    :gameParamsFilters="gameParamsFilters"
+                />
             </b-tab>
 
             <b-tab title="By games">
-                <TotalStatisticsByGames :selectedDates="selectedDates" />
+                <TotalStatisticsByGames
+                    :selectedDates="selectedDates"
+                    :gameParamsFilters="gameParamsFilters"
+                />
             </b-tab>
 
             <b-tab title="By rounds count">
-                <TotalStatisticsByRoundsCount :selectedDates="selectedDates" />
+                <TotalStatisticsByRoundsCount
+                    :selectedDates="selectedDates"
+                    :gameParamsFilters="gameParamsFilters"
+                />
+            </b-tab>
+
+            <b-tab title="By dates">
+                <TotalStatisticsByDates
+                    :selectedDates="selectedDates"
+                    :gameParamsFilters="gameParamsFilters"
+                />
             </b-tab>
 
         </b-tabs>

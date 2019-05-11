@@ -3,8 +3,6 @@
 namespace App\Tests\Web\Statistics;
 
 use App\Tests\AbstractApiTestCase;
-use Symfony\Component\HttpFoundation\Response;
-use App\Tests\ApiResponse;
 
 class AbstractStatisticsApiTestCase extends AbstractApiTestCase
 {

@@ -42,6 +42,18 @@ class GameService extends AbstractService
         $this->gameResultsService = $gameResultsService;
     }
 
+    public function gamesFilters(User $user)
+    {
+        $params = $this->entityManager->getRepository(Game::class)->getUserGamesParams($user);
+        return array_map(function ($paramsString) {
+            if (empty($paramsString)) {
+                return [];
+            }
+            $params = explode(',', $paramsString);
+            return array_map(function ($param) { return intval($param); }, $params);
+        }, $params);
+    }
+
     public function getParams(Game $game = null): array
     {
         $params = [

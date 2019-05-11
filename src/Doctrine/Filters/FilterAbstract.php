@@ -31,7 +31,6 @@ class FilterAbstract extends SQLFilter
         if (is_string($value)) {
             $value = str_replace('\'', '', $value);
         }
-
         if (strpos($param, '_date') !== false) {
             $value = new \DateTime($value);
             if ($param === 'to_date') {
@@ -42,11 +41,11 @@ class FilterAbstract extends SQLFilter
         }
 
         $filter = sprintf($this->filterPattern, $targetTableAlias);
+
         if (is_string($value)) {
             $value = sprintf('\'%s\'', $value);
         }
         $filter = str_replace('.' . $field, '.' . $targetEntity->getFieldMapping($field)['columnName'], $filter);
-
         return str_replace(':' . $param, $value, $filter);
     }
 }

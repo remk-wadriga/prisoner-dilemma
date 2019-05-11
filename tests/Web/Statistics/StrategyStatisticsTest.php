@@ -11,7 +11,7 @@ class StrategyStatisticsTest extends AbstractStatisticsApiTestCase
 {
     private $randomStrategy;
 
-    public function AAtestStatisticsByDates()
+    public function testStatisticsByDates()
     {
         $testKeysID = 'strategy_statics_by_dates';
 
@@ -32,16 +32,29 @@ class StrategyStatisticsTest extends AbstractStatisticsApiTestCase
                     $testKeysID, Response::HTTP_FORBIDDEN, $response->getStatus(), $response->getContent()));
         }
 
-        // 4. Get strategy statistics and check it
+        // 4. Get strategy statistics and check it + remember not filtered stats data to compare it with filtered one
         $response = $this->request(['strategy_statistics_by_dates', ['id' => $strategy->getId()]]);
         $this->checkResponseParams($response, $testKeysID, [
-            'bales' => 'double',
+            'bales' => ['double', 'integer'],
             'gamesCount' => 'integer',
             'gameDate' => 'string',
         ]);
+        $oldStatistics = $response->getData();
+
+        // 5. Make request filtered by random dates period and compare it with not filtered statistics - they must be different
+        $filters = $this->getRandomDatesPeriod(1);
+        $response = $this->request(['strategy_statistics_by_dates', array_merge(['id' => $strategy->getId()], $filters)]);
+        $this->checkResponseParams($response, $testKeysID, [
+            'bales' => ['double', 'integer'],
+            'gamesCount' => 'integer',
+            'gameDate' => 'string',
+        ]);
+        $statistics = $response->getData();
+        $this->assertNotEquals($statistics, $oldStatistics, sprintf('Test %s failed. Filtered by dates range and not filtered statistics for strategy #%s are equals. Filters data: %s',
+            $testKeysID, $strategy->getId(), json_encode($filters)));
     }
 
-    public function AAtestStatisticsByRoundsCount()
+    public function testStatisticsByRoundsCount()
     {
         $testKeysID = 'strategy_statics_by_rounds_count';
 
@@ -62,13 +75,26 @@ class StrategyStatisticsTest extends AbstractStatisticsApiTestCase
                     $testKeysID, Response::HTTP_FORBIDDEN, $response->getStatus(), $response->getContent()));
         }
 
-        // 4. Get strategy statistics and check it
+        // 4. Get strategy statistics and check it + remember not filtered stats data to compare it with filtered one
         $response = $this->request(['strategy_statistics_by_rounds_count', ['id' => $strategy->getId()]]);
         $this->checkResponseParams($response, $testKeysID, [
             'bales' => ['double', 'integer'],
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
         ]);
+        $oldStatistics = $response->getData();
+
+        // 5. Make request filtered by random dates period and compare it with not filtered statistics - they must be different
+        $filters = $this->getRandomDatesPeriod(1);
+        $response = $this->request(['strategy_statistics_by_rounds_count', array_merge(['id' => $strategy->getId()], $filters)]);
+        $this->checkResponseParams($response, $testKeysID, [
+            'bales' => ['double', 'integer'],
+            'gamesCount' => 'integer',
+            'roundsCount' => 'integer',
+        ]);
+        $statistics = $response->getData();
+        $this->assertNotEquals($statistics, $oldStatistics, sprintf('Test %s failed. Filtered by dates range and not filtered statistics for strategy #%s are equals. Filters data: %s',
+            $testKeysID, $strategy->getId(), json_encode($filters)));
     }
 
     public function testStatisticsDatesParams()

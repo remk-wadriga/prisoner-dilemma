@@ -90,8 +90,8 @@ class TotalStatisticsRepository extends AbstractServiceRepository
                 'COUNT(gr.game) AS gamesCount',
                 'SUM(g.rounds) AS roundsCount',
             ])
-            ->innerJoin('gr.strategy', 's')
             ->innerJoin('gr.game', 'g')
+            ->innerJoin('gr.strategy', 's')
             ->where('g.user = :user')
             ->setParameter('user', $user)
             ->groupBy('strategy')

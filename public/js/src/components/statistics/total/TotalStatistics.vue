@@ -8,26 +8,40 @@
     import TotalStatisticsByGames from '@/components/statistics/total/TotalStatisticsByGames'
     import TotalStatisticsByRoundsCount from '@/components/statistics/total/TotalStatisticsByRoundsCount'
     import DateRangePicker from '@/components/DateRangePicker'
+    import GameParamsFilter from '@/components/statistics/GameParamsFilter'
 
     export default {
         name: "TotalStatistics",
-        components: { TotalStatisticsByDates, TotalStatisticsByStrategies, TotalStatisticsByGames, TotalStatisticsByRoundsCount, DateRangePicker },
+        components: {
+            TotalStatisticsByDates,
+            TotalStatisticsByStrategies,
+            TotalStatisticsByGames,
+            TotalStatisticsByRoundsCount,
+            DateRangePicker,
+            GameParamsFilter
+        },
         data() {
             return {
                 lazyLoad: true,
                 isReady: false,
-                selectedDates: {start: null, end: null}
-            }
-        },
-        watch: {
-            selectedDates() {
-                // Clear all statistics cash
-                this.$store.commit('setStatistics', null)
+                selectedDates: {start: null, end: null},
+                gameParamsFilters: null
             }
         },
         methods: {
             setDatesRange(range) {
+                this.$store.commit('setStatistics', null)
                 this.selectedDates = range
+            },
+            setGameParamsFilters(filters)
+            {
+                this.$store.commit('setStatistics', null)
+                this.gameParamsFilters = {}
+                Object.keys(filters).forEach(key => {
+                    if (filters[key] !== null) {
+                        this.gameParamsFilters['game_' + key] = filters[key]
+                    }
+                })
             }
         },
         mounted() {
@@ -38,6 +52,7 @@
             ])
             this.$store.commit('setPageTopButtons', [])
 
+            // Get dates range
             let statisticsDates = this.$store.state.statistics['statisticsDates']
             if (statisticsDates !== undefined) {
                 this.selectedDates = statisticsDates
@@ -52,7 +67,6 @@
                         this.$store.commit('setStatistics', {id: 'statisticsDates', data: selectedDates})
                         this.selectedDates = selectedDates
                     }
-
                     this.isReady = true
                 })
             }

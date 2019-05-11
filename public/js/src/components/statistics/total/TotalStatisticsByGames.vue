@@ -18,10 +18,14 @@
             }
         },
         props: {
-            selectedDates: Object
+            selectedDates: Object,
+            gameParamsFilters: Object
         },
         watch: {
             selectedDates() {
+                this.refreshData()
+            },
+            gameParamsFilters() {
                 this.refreshData()
             }
         },
@@ -58,7 +62,7 @@
                 this.isReady = true
             },
             refreshData() {
-                let params = {}
+                let params = this.gameParamsFilters ? this.gameParamsFilters : {}
                 if (this.selectedDates) {
                     params.fromDate = this.selectedDates.start
                     params.toDate = this.selectedDates.end

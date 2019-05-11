@@ -57,11 +57,18 @@
             }
 
             let getPramsCallback = () => {
-                Api.methods.request('params_game_url', {}, 'GET', response => {
-                    this.params = response
+                this.params = this.$store.state.params.gameParams
+                if (this.params === null) {
+                    Api.methods.request('params_game_url', {}, 'GET', response => {
+                        this.$store.commit('setGameParams', response)
+                        this.params = response
+                        initStrategiesCheckList()
+                        this.isReady = true
+                    })
+                } else {
                     initStrategiesCheckList()
                     this.isReady = true
-                })
+                }
             }
 
             if (this.gameParams !== null) {

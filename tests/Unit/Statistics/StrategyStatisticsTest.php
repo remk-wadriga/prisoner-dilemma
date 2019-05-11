@@ -119,20 +119,6 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
         return $this->repository = new StrategyStatisticsRepository($this->entityManager, self::$kernel->getContainer());
     }
 
-    private function getRandomDatesPeriod()
-    {
-        $dates = $this->getStatisticsService()->getFirstAndLastGamesDates($this->getRandomStrategy());
-        $faker = Factory::create();
-        $dates['toDate'] = (new \DateTime($dates['end']))
-            ->modify(sprintf('-%s days', $faker->numberBetween(0, 5)))
-            ->format($this->getParam('backend_date_format'));
-        $dates['fromDate'] = (new \DateTime($dates['toDate']))
-            ->modify(sprintf('-%s days', $faker->numberBetween(1, 10)))
-            ->format($this->getParam('backend_date_format'));
-        unset($dates['start'], $dates['end']);
-        return $dates;
-    }
-
 
     private function checkStatisticsByDates($testKeysID)
     {

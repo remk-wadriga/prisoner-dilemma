@@ -2,24 +2,25 @@
 
 namespace App\Tests\Web\Statistics;
 
-use App\Repository\Service\TotalStatisticsRepository;
-use Faker\Factory;
-
 class TotalStatisticsTest extends AbstractStatisticsApiTestCase
 {
-    private $repository;
-
-
     public function testStatisticsByDates()
     {
         // 1. Login as user
         $this->logInAsUser();
 
-        // 2. Get total statistics without dates range and check it
-        $this->checkStatisticsByDates('total_statics_by_dates');
+        // 2. Get total statistics without dates range, check it and remember request params to compare them with filtered param response
+        $oldData = $this->checkStatisticsByDates('total_statics_by_dates');
 
         // 3. Get total statistics with dates range and check it
         $this->checkStatisticsByDates('total_statics_by_dates_with_dates', $this->getRandomDatesPeriod());
+
+        // 4. Get total statistics filtered by games params and compare them with not filtered response
+        $testKeysID = 'total_statics_by_dates_with_game_params';
+        $filters = $this->createRandomGameParamsFilters();
+        $data = $this->checkStatisticsByDates($testKeysID, $filters);
+        $this->assertNotEquals($data, $oldData, sprintf('Test %s failed. There is no difference between responses with filters and without them. User: #%s, filterParams: %s',
+            $testKeysID, $this->user->getId(), json_encode($filters)));
     }
 
     public function testStatisticsByStrategies()
@@ -27,11 +28,18 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
         // 1. Login as user
         $this->logInAsUser();
 
-        // 2. Get total statistics without dates range and check it
-        $this->checkStatisticsByStrategies('total_statics_by_strategies');
+        // 2. Get total statistics without dates range, check it and remember request params to compare them with filtered param response
+        $oldData = $this->checkStatisticsByStrategies('total_statics_by_strategies');
 
         // 3. Get total statistics with dates range and check it
         $this->checkStatisticsByStrategies('total_statics_by_strategies_with_dates', $this->getRandomDatesPeriod());
+
+        // 4. Get total statistics filtered by games params and compare them with not filtered response
+        $testKeysID = 'total_statics_by_strategies_with_game_params';
+        $filters = $this->createRandomGameParamsFilters();
+        $data = $this->checkStatisticsByStrategies($testKeysID, $filters);
+        $this->assertNotEquals($data, $oldData, sprintf('Test %s failed. There is no difference between responses with filters and without them. User: #%s, filterParams: %s',
+            $testKeysID, $this->user->getId(), json_encode($filters)));
     }
 
     public function testStatisticsByGames()
@@ -39,11 +47,18 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
         // 1. Login as user
         $this->logInAsUser();
 
-        // 2. Get total statistics without dates range and check it
-        $this->checkStatisticsByGames('total_statics_by_games');
+        // 2. Get total statistics without dates range, check it and remember request params to compare them with filtered param response
+        $oldData = $this->checkStatisticsByGames('total_statics_by_games');
 
         // 3. Get total statistics with dates range and check it
         $this->checkStatisticsByGames('total_statics_by_games_with_dates', $this->getRandomDatesPeriod());
+
+        // 4. Get total statistics filtered by games params and compare them with not filtered response
+        $testKeysID = 'total_statics_by_games_with_game_params';
+        $filters = $this->createRandomGameParamsFilters();
+        $data = $this->checkStatisticsByGames($testKeysID, $filters);
+        $this->assertNotEquals($data, $oldData, sprintf('Test %s failed. There is no difference between responses with filters and without them. User: #%s, filterParams: %s',
+            $testKeysID, $this->user->getId(), json_encode($filters)));
     }
 
     public function testStatisticsByRoundsCount()
@@ -51,65 +66,49 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
         // 1. Login as user
         $this->logInAsUser();
 
-        // 2. Get total statistics without dates range and check it
-        $this->checkStatisticsByRoundsCount('total_statics_by_rounds_count');
+        // 2. Get total statistics without dates range, check it and remember request params to compare them with filtered param response
+        $oldData = $this->checkStatisticsByRoundsCount('total_statics_by_rounds_count');
 
         // 3. Get total statistics with dates range and check it
         $this->checkStatisticsByRoundsCount('total_statics_by_rounds_count_with_dates', $this->getRandomDatesPeriod());
+
+        // 4. Get total statistics filtered by games params and compare them with not filtered response
+        $testKeysID = 'total_statics_by_rounds_count_with_game_params';
+        $filters = $this->createRandomGameParamsFilters();
+        $data = $this->checkStatisticsByRoundsCount($testKeysID, $filters);
+        $this->assertNotEquals($data, $oldData, sprintf('Test %s failed. There is no difference between responses with filters and without them. User: #%s, filterParams: %s',
+            $testKeysID, $this->user->getId(), json_encode($filters)));
     }
 
 
-    private function getRepository(): TotalStatisticsRepository
+    private function checkStatisticsByDates(string $testKeysID, array $requestParams = [])
     {
-        if ($this->repository !== null) {
-            return $this->repository;
-        }
-
-        return $this->repository = new TotalStatisticsRepository($this->entityManager, self::$kernel->getContainer());
-    }
-
-    private function getRandomDatesPeriod()
-    {
-        $dates = $this->getRepository()->getFirstAndLastGamesDates($this->user);
-
-        $faker = Factory::create();
-        $dates['toDate'] = (new \DateTime($dates['end']))
-            ->modify(sprintf('-%s days', $faker->numberBetween(0, 5)))
-            ->format($this->getParam('backend_date_format'));
-        $dates['fromDate'] = (new \DateTime($dates['toDate']))
-            ->modify(sprintf('-%s days', $faker->numberBetween(1, 10)))
-            ->format($this->getParam('backend_date_format'));
-        unset($dates['start'], $dates['end']);
-        return $dates;
-    }
-
-
-    private function checkStatisticsByDates(string $testKeysID, array $datesPeriod = [])
-    {
-        $response = $this->request('total_statistics_by_dates', $datesPeriod);
+        $response = $this->request(['total_statistics_by_dates', $requestParams]);
         $this->checkResponseParams($response, $testKeysID, [
             'bales' => 'double',
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
             'gameDate' => 'string',
         ]);
+        return $response->getData();
     }
 
-    private function checkStatisticsByStrategies(string $testKeysID, array $datesPeriod = [])
+    private function checkStatisticsByStrategies(string $testKeysID, array $requestParams = [])
     {
-        $response = $this->request('total_statistics_by_strategies', $datesPeriod);
+        $response = $this->request(['total_statistics_by_strategies', $requestParams]);
         $this->checkResponseParams($response, $testKeysID, [
             'strategy' => 'string',
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
             'bales' => ['double', 'integer'],
         ]);
+        return $response->getData();
     }
 
-    private function checkStatisticsByGames(string $testKeysID, array $datesPeriod = [])
+    private function checkStatisticsByGames(string $testKeysID, array $requestParams = [])
     {
         // 1. Get total statistics and check it
-        $response = $this->request('total_statistics_by_games', $datesPeriod);
+        $response = $this->request(['total_statistics_by_games', $requestParams]);
         $this->checkResponseParams($response, $testKeysID, [
             'game' => 'string',
             'gameDate' => 'string',
@@ -135,15 +134,18 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
         }
         $this->checkStatisticsData($winners, $testKeysID, ['strategy' => 'string', 'bales' => 'double']);
         $this->checkStatisticsData($losers, $testKeysID, ['strategy' => 'string', 'bales' => 'double']);
+
+        return $response->getData();
     }
 
-    private function checkStatisticsByRoundsCount(string $testKeysID, array $datesPeriod = [])
+    private function checkStatisticsByRoundsCount(string $testKeysID, array $requestParams = [])
     {
-        $response = $this->request('total_statistics_by_rounds_count', $datesPeriod);
+        $response = $this->request(['total_statistics_by_rounds_count', $requestParams]);
         $this->checkResponseParams($response, $testKeysID, [
             'bales' => ['double', 'integer'],
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
         ]);
+        return $response->getData();
     }
 }

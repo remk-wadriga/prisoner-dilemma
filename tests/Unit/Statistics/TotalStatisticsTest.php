@@ -6,17 +6,21 @@ use App\Entity\Game;
 use App\Entity\GameResult;
 use App\Entity\User;
 use App\Repository\Service\TotalStatisticsRepository;
+use App\Service\GameResultsService;
+use App\Service\GameService;
 use App\Service\Statistics\TotalStatisticsService;
+use App\Service\StrategyDecisionsService;
 use Faker\Factory;
 
 class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 {
     private $statisticsService;
+    private $gameService;
     private $repository;
 
-    public function testStatisticsDatesParams()
+    public function testStatisticsDatesFilters()
     {
-        $testKeysID = 'total_statistics_dates_format';
+        $testKeysID = 'total_statistics_dates_filters';
 
         // 1. Get random user
         $user = $this->getRandomUser();
@@ -51,6 +55,46 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $modifiedStartDate->modify($this->getStatisticsService()->statisticsDatesPeriod);
         $this->assertEquals($endDate, $modifiedStartDate, sprintf('Test case "%s" failed. The difference between "start" and "and" config dates must be equals to "%s" but it\'s not. Dates: "%s" - "%s"',
             $testKeysID, $this->getStatisticsService()->statisticsDatesPeriod, $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s')));
+    }
+
+    public function testStatisticsGameFiltersParams()
+    {
+        $testKeysID = 'total_statistics_games_params_filters';
+
+        // 1. Get random user
+        $user = $this->getRandomUser();
+
+        // 2. Get game filters
+        $oldFilters = $this->getGameService()->gamesFilters($user);
+
+        // 3. Check params data (must be an array and all elements must have all necessary attributes with correct types)
+        $this->checkGameParamsFilters($oldFilters, $testKeysID);
+
+        // 4. Get user's games filters from DB
+        $filters = $this->getUserGamesFilters();
+
+        // 5. Compare the service's filters and filters form DB - they must be equals
+        $this->assertEquals($filters, $oldFilters, sprintf('Tst %s failed. Game service returned the incorrect games filters values for user #%s',
+            $testKeysID, $user->getId()));
+
+        // 6. Create random filters array
+        $randomFilters = [];
+        $faker = Factory::create();
+        foreach ($oldFilters as $filter => $values) {
+            $randomFilters[$filter] = $faker->randomElement($values);
+        }
+
+        // 7. Enable doctrine filters
+        $this->enableDoctrineFilters($randomFilters, 'game_');
+
+        // 8. Get filters with enabled doctrine filters and check them
+        $testKeysID = 'total_statistics_games_params_filters_filtered_by_random_game_params';
+        $filters = $this->getGameService()->gamesFilters($user);
+        $this->checkGameParamsFilters($filters, $testKeysID);
+
+        // 9. Compare new "filtered filters" values with old "not filtered filters" values - them mustn't be equals
+        $this->assertNotEquals($filters, $oldFilters, sprintf('Test %s failed. There is no difference between "filtered" and "not filtered" game params filters values. User: #%s, filterParams: %s',
+            $testKeysID, $user->getId(), json_encode($randomFilters)));
     }
 
     public function testStatisticsByDates()
@@ -101,6 +145,19 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $this->checkStatisticsByRoundsCount('total_statistics_by_rounds_count_with_dates_range');
     }
 
+
+    protected function createRandomGameParamsFilters()
+    {
+        $faker = Factory::create();
+        $filters = $this->getGameService()->gamesFilters($this->getRandomUser());
+        $randomFilters = [];
+        foreach ($filters as $filter => $values) {
+            $randomFilters[$filter] = $faker->randomElement($values);
+        }
+        return $randomFilters;
+    }
+
+
     private function getStatisticsService(): TotalStatisticsService
     {
         if ($this->statisticsService !== null) {
@@ -110,6 +167,16 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         return $this->statisticsService = new TotalStatisticsService($this->entityManager, self::$kernel->getContainer(), $this->getRepository(), $this->getFormatterService());
     }
 
+    private function getGameService(): GameService
+    {
+        if ($this->gameService !== null) {
+            return $this->gameService;
+        }
+        $decisionService = new StrategyDecisionsService($this->entityManager, static::$container);
+        $gameResultsService = new GameResultsService($this->entityManager, static::$container);
+        return $this->gameService = new GameService($this->entityManager, $decisionService, $gameResultsService, static::$container);
+    }
+
     private function getRepository(): TotalStatisticsRepository
     {
         if ($this->repository !== null) {
@@ -117,20 +184,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         }
 
         return $this->repository = new TotalStatisticsRepository($this->entityManager, self::$kernel->getContainer());
-    }
-
-    private function getRandomDatesPeriod()
-    {
-        $dates = $this->getStatisticsService()->getFirstAndLastGamesDates($this->getRandomUser());
-        $faker = Factory::create();
-        $dates['toDate'] = (new \DateTime($dates['end']))
-            ->modify(sprintf('-%s days', $faker->numberBetween(0, 5)))
-            ->format($this->getParam('backend_date_format'));
-        $dates['fromDate'] = (new \DateTime($dates['toDate']))
-            ->modify(sprintf('-%s days', $faker->numberBetween(1, 10)))
-            ->format($this->getParam('backend_date_format'));
-        unset($dates['start'], $dates['end']);
-        return $dates;
     }
 
     private function createStatsQueryBuilder(User $user)
@@ -149,6 +202,47 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             ->select(sprintf('SUM(%s.result)', $alias))
             ->andWhere(sprintf('%s.game = %s.id', $alias, $gameAlias))
         ;
+    }
+
+    private function getUserGamesFilters()
+    {
+        $games = $this->getRandomUser()->getGames();
+        $filters = [
+            'roundsCount' => [],
+            'balesForWin' => [],
+            'balesForLoos' => [],
+            'balesForCooperation' => [],
+            'balesForDraw' => [],
+        ];
+        foreach ($games as $game) {
+            if (!in_array($game->getRounds(), $filters['roundsCount'])) {
+                $filters['roundsCount'][] = $game->getRounds();
+            }
+            if (!in_array($game->getBalesForWin(), $filters['balesForWin'])) {
+                $filters['balesForWin'][] = $game->getBalesForWin();
+            }
+            if (!in_array($game->getBalesForLoos(), $filters['balesForLoos'])) {
+                $filters['balesForLoos'][] = $game->getBalesForLoos();
+            }
+            if (!in_array($game->getBalesForCooperation(), $filters['balesForCooperation'])) {
+                $filters['balesForCooperation'][] = $game->getBalesForCooperation();
+            }
+            if (!in_array($game->getBalesForDraw(), $filters['balesForDraw'])) {
+                $filters['balesForDraw'][] = $game->getBalesForDraw();
+            }
+        }
+        return $filters;
+    }
+
+    private function checkGameParamsFilters($filters, $testKeysID)
+    {
+        $this->checkStatisticsData([$filters], $testKeysID, [
+            'roundsCount' => 'array',
+            'balesForWin' => 'array',
+            'balesForLoos' => 'array',
+            'balesForCooperation' => 'array',
+            'balesForDraw' => 'array',
+        ]);
     }
 
 
@@ -202,8 +296,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $roundsCount += $stats['roundsCount'];
         }
 
-        //dd([$dbStatistics, ['bales' => $bales, 'gamesCount' => $gamesCount, 'roundsCount' => $roundsCount]]);
-
         // 6. Check is statistics calculated by service equal to statistics from DB
         $this->assertEquals($bales, $dbStatistics['bales'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "bales" must have %s value but %s given',
             $testKeysID, $user->getId(), $bales, $dbStatistics['bales']));
@@ -211,6 +303,28 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $user->getId(), $bales, $dbStatistics['gamesCount']));
         $this->assertEquals($roundsCount, $dbStatistics['roundsCount'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "roundsCount" must have %s value but %s given',
             $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
+
+        // 7. Create random game params filters and enable doctrine filters for them
+        $randomFilters = $this->createRandomGameParamsFilters();
+        $this->enableDoctrineFilters($randomFilters, 'game_');
+
+        // 8. Get filtered statistics and check it
+        $filteredStatistics = $this->getStatisticsService()->getStatisticsByDates($user);
+        $this->checkStatisticsData($filteredStatistics, $testKeysID, [
+            'bales' => 'float',
+            'gamesCount' => 'integer',
+            'roundsCount' => 'integer',
+            'gameDate' => 'string',
+        ]);
+
+        // 9. Compare filtered and not filtered statistics - they must be not equals
+        if (empty($statistics) && empty($filteredStatistics)) {
+            // "Not filtered" statistics is empty? That's mean that this is filtered by dates statistics, so we shouldn't compare them
+            // if the filtered by game params statistics is empty too
+            return;
+        }
+        $this->assertNotEquals($statistics, $filteredStatistics, sprintf('Test %s failed. Filtered and not filtered (by game params) statistics for user #%s data are equals',
+            $testKeysID, $user->getId()));
     }
 
     private function checkStatisticsByStrategies($testKeysID)
@@ -246,7 +360,6 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             ->setParameter('user', $user)
             ->groupBy('strategy')
         ;
-
         $dbStatistics = [
             'bales' => 0,
             'gamesCount' => 0,
@@ -275,6 +388,28 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $user->getId(), $bales, $dbStatistics['gamesCount']));
         $this->assertEquals($roundsCount, $dbStatistics['roundsCount'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "roundsCount" must have %s value but %s given',
             $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
+
+        // 7. Create random game params filters and enable doctrine filters for them
+        $randomFilters = $this->createRandomGameParamsFilters();
+        $this->enableDoctrineFilters($randomFilters, 'game_');
+
+        // 8. Get filtered statistics and check it
+        $filteredStatistics = $this->getStatisticsService()->getStatisticsByStrategies($user);
+        $this->checkStatisticsData($filteredStatistics, $testKeysID, [
+            'strategy' => 'string',
+            'bales' => 'float',
+            'gamesCount' => 'integer',
+            'roundsCount' => 'integer',
+        ]);
+
+        // 9. Compare filtered and not filtered statistics - they must be not equals
+        if (empty($statistics) && empty($filteredStatistics)) {
+            // "Not filtered" statistics is empty? That's mean that this is filtered by dates statistics, so we shouldn't compare them
+            // if the filtered by game params statistics is empty too
+            return;
+        }
+        $this->assertNotEquals($statistics, $filteredStatistics, sprintf('Test %s failed. Filtered and not filtered (by game params) statistics for user #%s data are equals',
+            $testKeysID, $user->getId()));
     }
 
     private function checkStatisticsByGames($testKeysID)
@@ -359,7 +494,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $this->checkStatisticsData($winners, $testKeysID, ['strategy' => 'string', 'bales' => 'double']);
         $this->checkStatisticsData($losers, $testKeysID, ['strategy' => 'string', 'bales' => 'double']);
 
-        // 6. Check is loser and winner have correct values
+        // 8. Check is loser and winner have correct values
         $gameRepository = $this->entityManager->getRepository(Game::class);
         $gameResultsRepository = $this->entityManager->getRepository(GameResult::class);
         foreach ($dbStatisticsResults as $dbStats) {
@@ -388,6 +523,31 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $this->assertEquals($dbGameLoser, $stats['loser'], sprintf('Test keys "%s" failed. Statistics returns an incorrect winner. Winner of game #%s must be %s, but %s given',
                 $testKeysID, $game->getId(), json_encode($dbGameLoser), json_encode($stats['loser'])));
         }
+
+        // 9. Create random game params filters and enable doctrine filters for them
+        $randomFilters = $this->createRandomGameParamsFilters();
+        $this->enableDoctrineFilters($randomFilters, 'game_');
+
+        // 10. Get filtered statistics and check it
+        $filteredStatistics = $this->getStatisticsService()->getStatisticsByGames($user);
+        $this->checkStatisticsData($filteredStatistics, $testKeysID, [
+            'game' => 'string',
+            'gameDate' => 'string',
+            'totalBales' => 'integer',
+            'bales' => 'double',
+            'roundsCount' => 'integer',
+            'winner' => 'array',
+            'loser' => 'array',
+        ]);
+
+        // 11. Compare filtered and not filtered statistics - they must be not equals
+        if (empty($statistics) && empty($filteredStatistics)) {
+            // "Not filtered" statistics is empty? That's mean that this is filtered by dates statistics, so we shouldn't compare them
+            // if the filtered by game params statistics is empty too
+            return;
+        }
+        $this->assertNotEquals($statistics, $filteredStatistics, sprintf('Test %s failed. Filtered and not filtered (by game params) statistics for user #%s data are equals',
+            $testKeysID, $user->getId()));
     }
 
     private function checkStatisticsByRoundsCount($testKeysID)
@@ -445,5 +605,26 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $user->getId(), $bales, $dbStatistics['gamesCount']));
         $this->assertEquals($roundsCount, $dbStatistics['roundsCount'], sprintf('Test keys "%s" failed. Statistics for #%s user statistics "roundsCount" must have %s value but %s given',
             $testKeysID, $user->getId(), $bales, $dbStatistics['roundsCount']));
+
+        // 7. Create random game params filters and enable doctrine filters for them
+        $randomFilters = $this->createRandomGameParamsFilters();
+        $this->enableDoctrineFilters($randomFilters, 'game_');
+
+        // 8. Get filtered statistics and check it
+        $filteredStatistics = $this->getStatisticsService()->getStatisticsByRoundsCount($user);
+        $this->checkStatisticsData($filteredStatistics, $testKeysID, [
+            'bales' => 'float',
+            'gamesCount' => 'integer',
+            'roundsCount' => 'integer',
+        ]);
+
+        // 9. Compare filtered and not filtered statistics - they must be not equals
+        if (empty($statistics) && empty($filteredStatistics)) {
+            // "Not filtered" statistics is empty? That's mean that this is filtered by dates statistics, so we shouldn't compare them
+            // if the filtered by game params statistics is empty too
+            return;
+        }
+        $this->assertNotEquals($statistics, $filteredStatistics, sprintf('Test %s failed. Filtered and not filtered (by game params) statistics for user #%s data are equals',
+            $testKeysID, $user->getId()));
     }
 }

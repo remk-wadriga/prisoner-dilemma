@@ -8,6 +8,7 @@
 
 namespace App\EventSubscriber;
 
+use PDO;
 use function json_last_error;
 use function json_last_error_msg;
 use App\Controller\ControllerAbstract;
@@ -41,8 +42,14 @@ class BeforeActionSubscriber implements EventSubscriberInterface
         if (is_array($controller) && isset($controller[0])) {
             $controller = $controller[0];
         }
-        if ($controller instanceof ControllerAbstract && !empty($controller->getRequestFilters())) {
-            foreach ($controller->getRequestFilters() as $param) {
+        if ($controller instanceof ControllerAbstract) {
+            foreach ($controller->getRequestFilters($request) as $key => $param) {
+                if (is_string($key)) {
+                    $type = $param;
+                    $param = $key;
+                } else {
+                    $type = PDO::PARAM_STR;
+                }
                 $value = $request->get($param);
                 if ($value === null) {
                     continue;
@@ -50,7 +57,7 @@ class BeforeActionSubscriber implements EventSubscriberInterface
                 $doctrineFilterName = $param . '_filter';
                 if ($this->entityManager->getFilters()->has($doctrineFilterName)) {
                     $filter = $this->entityManager->getFilters()->enable($doctrineFilterName);
-                    $filter->setParameter($param, $value);
+                    $filter->setParameter($param, $value, $type);
                 }
             }
         }

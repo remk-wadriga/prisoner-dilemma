@@ -24,7 +24,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 abstract class ControllerAbstract extends JsonController
 {
-    public function getRequestFilters(): array
+    public function getRequestFilters(Request $request): array
     {
         return [];
     }

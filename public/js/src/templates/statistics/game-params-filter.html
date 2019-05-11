@@ -1,0 +1,73 @@
+<div id="game_params_filter" v-if="isReady">
+
+    <b-form-group
+            label="By rounds count"
+            label-for="game_param_filter_rounds_count"
+            :horizontal="true"
+    >
+        <b-form-select
+            v-model="selectedParams.roundsCount"
+            @change="setRoundsCount"
+            id="game_param_filter_rounds_count"
+            :options="params.roundsCount"
+            size="md"
+        />
+    </b-form-group>
+
+    <b-form-group
+        label="By bales for win"
+        label-for="game_param_filter_bales_for_win"
+        :horizontal="true"
+    >
+        <b-form-select
+            v-model="selectedParams.balesForWin"
+            @change="setBalesForWin"
+            id="game_param_filter_bales_for_win"
+            :options="params.balesForWin"
+            size="md"
+        />
+    </b-form-group>
+
+    <b-form-group
+        label="By bale fro loos"
+        label-for="game_param_filter_bales_for_loos"
+        :horizontal="true"
+    >
+        <b-form-select
+            v-model="selectedParams.balesForLoos"
+            @change="setBalesForLoos"
+            id="game_param_filter_bales_for_loos"
+            :options="params.balesForLoos"
+            size="md"
+        />
+    </b-form-group>
+
+    <b-form-group
+        label="By bales for cooperation"
+        label-for="game_param_filter_bales_for_cooperation"
+        :horizontal="true"
+    >
+        <b-form-select
+            v-model="selectedParams.balesForCooperation"
+            @change="setBalesForCooperation"
+            id="game_param_filter_bales_for_cooperation"
+            :options="params.balesForCooperation"
+            size="md"
+        />
+    </b-form-group>
+
+    <b-form-group
+        label="By bales for draw"
+        label-for="game_param_filter_bales_for_draw"
+        :horizontal="true"
+    >
+        <b-form-select
+            v-model="selectedParams.balesForDraw"
+            @change="setBalesForDraw"
+            id="game_param_filter_bales_for_draw"
+            :options="params.balesForDraw"
+            size="md"
+        />
+    </b-form-group>
+
+</div>
