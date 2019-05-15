@@ -4,6 +4,7 @@ namespace App\Tests\Unit\Statistics;
 
 use App\Service\FormatterService;
 use App\Tests\AbstractUnitTestCase;
+use Doctrine\ORM\QueryBuilder;
 
 class AbstractStatisticsUnitTestCase extends AbstractUnitTestCase
 {
@@ -33,6 +34,32 @@ class AbstractStatisticsUnitTestCase extends AbstractUnitTestCase
                     $testKeysID, $attr, $jsonData));
                 $this->assertInternalType($type, $stats[$attr], sprintf('Test case "%s" failed. Each statistics data.%s item must be a %s, but "%s" given. Data: %s',
                     $testKeysID, $attr, $type, gettype($stats[$attr]), $jsonData));
+            }
+        }
+    }
+
+    protected function addFiltersToQuery(QueryBuilder $queryBuilder, array $filters, string $alias = 'g')
+    {
+        foreach ($filters as $param => $value) {
+            if (strpos($param, 'Date') !== false) {
+                $value = new \DateTime($value);
+                if ($param == 'toDate') {
+                    $value->modify('1 day');
+                    $queryBuilder
+                        ->andWhere($alias . '.createdAt < :to_date')
+                        ->setParameter('to_date', $value->format($this->getParam('backend_date_format')));
+                } else {
+                    $queryBuilder
+                        ->andWhere($alias . '.createdAt > :from_date')
+                        ->setParameter('from_date', $value->format($this->getParam('backend_date_format')));
+                }
+            } else {
+                if ($param == 'roundsCount') {
+                    $param = 'rounds';
+                }
+                $queryBuilder
+                    ->andWhere(sprintf('%s.%s = :%s', $alias, $param, $param))
+                    ->setParameter($param, $value);
             }
         }
     }

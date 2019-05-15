@@ -6,16 +6,20 @@ use App\Entity\Game;
 use App\Entity\GameResult;
 use App\Entity\Strategy;
 use App\Repository\Service\StrategyStatisticsRepository;
+use App\Service\GameResultsService;
+use App\Service\GameService;
 use App\Service\Statistics\StrategyStatisticsService;
+use App\Service\StrategyDecisionsService;
 use Faker\Factory;
 
 class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
 {
-    protected $statisticsService;
-    protected $repository;
-    protected $randomStrategy;
+    private $statisticsService;
+    private $gameService;
+    private $repository;
+    private $randomStrategy;
 
-    public function AAtestStatisticsDatesParams()
+    public function testStatisticsDatesParams()
     {
         $testKeysID = 'strategy_statistics_dates_format';
 
@@ -55,6 +59,7 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
             $testKeysID, $this->getStatisticsService()->statisticsDatesPeriod, $startDate->format('Y-m-d H:i:s'), $endDate->format('Y-m-d H:i:s')));
     }
 
+
     public function testStatisticsByDates()
     {
         // 1. Check statistics without dates range
@@ -67,6 +72,93 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
         $this->checkStatisticsByDates('strategy_statistics_by_dates_with_dates_range');
     }
 
+    public function testStatisticsByDatesFilteredByDates()
+    {
+        // 1. Find random strategy with games statistics
+        $strategy = $this->getRandomStrategy();
+        $formatter = $this->getFormatterService();
+        $randomDatesPeriod = $this->getRandomDatesPeriod();
+
+        // 2. Get filtered by dates statistics from DB
+        $statisticsFromDBQuery = $this->entityManager->createQueryBuilder()
+            ->select([
+                'SUM(gr.result)/SUM(g.rounds) AS bales',
+                'COUNT(g) AS gamesCount',
+                sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
+            ])
+            ->from(Game::class, 'g')
+            ->innerJoin('g.gameResults', 'gr')
+            ->andWhere('gr.strategy = :strategy')
+            ->setParameter('strategy', $strategy)
+            ->groupBy('gameDate')
+        ;
+        $this->addFiltersToQuery($statisticsFromDBQuery, $randomDatesPeriod);
+        $statisticsFromDB = [];
+        foreach ($statisticsFromDBQuery->getQuery()->getArrayResult() as $stats) {
+            $statisticsFromDB[] = array_merge($stats, [
+                'bales' => $formatter->toFloat($stats['bales']),
+                'gamesCount' => $formatter->toInt($stats['gamesCount']),
+            ]);
+        }
+
+        // 3. Enable Doctrine dates filters
+        $this->enableDoctrineFilters($randomDatesPeriod);
+
+        // 4. Get filtered statistics from Service
+        $statisticsFromService = $this->getStatisticsService()->getStatisticsByDates($strategy);
+
+        // 5. Compare statistics from DB and statistics from service - they must be equals
+        $this->assertEquals($statisticsFromDB, $statisticsFromService, sprintf('Test %s failed. Filtered statistics from DB and from service are not much. Filters: %s',
+            'strategy_statistics_by_dates_filtered_by_dates', json_encode($randomDatesPeriod)));
+    }
+
+    public function testStatisticsByDatesFilteredByGameParams()
+    {
+        // 1. Find random strategy and get random game params filter
+        $strategy = $this->getRandomStrategy();
+        $formatter = $this->getFormatterService();
+        $gameParamsFilters = $this->createRandomGameParamsFilters();
+        $faker = Factory::create();
+        $filtersKeys = array_keys($gameParamsFilters);
+        $randomKey1 = $faker->randomElement($filtersKeys);
+        $randomKey2 = $faker->randomElement($filtersKeys);
+        $randomKey3 = $faker->randomElement($filtersKeys);
+        unset($gameParamsFilters[$randomKey1], $gameParamsFilters[$randomKey2], $gameParamsFilters[$randomKey3]);
+
+        // 2. Get filtered by dates statistics from DB
+        $statisticsFromDBQuery = $this->entityManager->createQueryBuilder()
+            ->select([
+                'SUM(gr.result)/SUM(g.rounds) AS bales',
+                'COUNT(g) AS gamesCount',
+                sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
+            ])
+            ->from(Game::class, 'g')
+            ->innerJoin('g.gameResults', 'gr')
+            ->andWhere('gr.strategy = :strategy')
+            ->setParameter('strategy', $strategy)
+            ->groupBy('gameDate')
+        ;
+        $this->addFiltersToQuery($statisticsFromDBQuery, $gameParamsFilters);
+        $statisticsFromDB = [];
+        foreach ($statisticsFromDBQuery->getQuery()->getArrayResult() as $stats) {
+            $statisticsFromDB[] = array_merge($stats, [
+                'bales' => $formatter->toFloat($stats['bales']),
+                'gamesCount' => $formatter->toInt($stats['gamesCount']),
+            ]);
+        }
+
+        // 3. Enable Doctrine dates filters
+        $this->enableDoctrineFilters($gameParamsFilters, 'game_');
+
+        // 4. Get filtered statistics from Service
+        $statisticsFromService = $this->getStatisticsService()->getStatisticsByDates($strategy);
+
+        // 5. Compare statistics from DB and statistics from service - they must be equals
+        $this->assertEquals($statisticsFromDB, $statisticsFromService, sprintf('Test %s failed. Filtered statistics from DB and from service are not much. Filters: %s',
+            'strategy_statistics_by_dates_filtered_by_game_params', json_encode($gameParamsFilters)));
+    }
+
+
     public function testStatisticsByRoundsCount()
     {
         // 1. Check statistics without dates range
@@ -77,6 +169,104 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
 
         // 3. Check statistics with dates range
         $this->checkStatisticsByRoundsCount('strategy_statistics_by_rounds_count_with_dates_range');
+    }
+
+    public function testStatisticsByRoundsCountFilteredByDates()
+    {
+        // 1. Find random strategy with games statistics
+        $strategy = $this->getRandomStrategy();
+        $formatter = $this->getFormatterService();
+        $randomDatesPeriod = $this->getRandomDatesPeriod();
+
+        // 2. Get filtered by dates statistics from DB
+        $statisticsFromDBQuery = $this->entityManager->createQueryBuilder()
+            ->select([
+                'SUM(gr.result)/SUM(g.rounds) AS bales',
+                'COUNT(g) AS gamesCount',
+                'g.rounds AS roundsCount',
+            ])
+            ->from(Game::class, 'g')
+            ->innerJoin('g.gameResults', 'gr')
+            ->andWhere('gr.strategy = :strategy')
+            ->groupBy('roundsCount')
+            ->setParameter('strategy', $strategy)
+        ;
+        $this->addFiltersToQuery($statisticsFromDBQuery, $randomDatesPeriod);
+        $statisticsFromDB = [];
+        foreach ($statisticsFromDBQuery->getQuery()->getArrayResult() as $stats) {
+            $statisticsFromDB[] = array_merge($stats, [
+                'bales' => $formatter->toFloat($stats['bales']),
+                'gamesCount' => $formatter->toInt($stats['gamesCount']),
+            ]);
+        }
+
+        // 3. Enable Doctrine dates filters
+        $this->enableDoctrineFilters($randomDatesPeriod);
+
+        // 4. Get filtered statistics from Service
+        $statisticsFromService = $this->getStatisticsService()->getStatisticsByRoundsCount($strategy);
+
+        // 5. Compare statistics from DB and statistics from service - they must be equals
+        $this->assertEquals($statisticsFromDB, $statisticsFromService, sprintf('Test %s failed. Filtered statistics from DB and from service are not much. Filters: %s',
+            'strategy_statistics_by_rounds_count_filtered_by_dates', json_encode($randomDatesPeriod)));
+    }
+
+    public function testStatisticsByRoundsCountFilteredByGameParams()
+    {
+        // 1. Find random strategy and get random game params filter
+        $strategy = $this->getRandomStrategy();
+        $formatter = $this->getFormatterService();
+        $gameParamsFilters = $this->createRandomGameParamsFilters();
+        $faker = Factory::create();
+        $filtersKeys = array_keys($gameParamsFilters);
+        $randomKey1 = $faker->randomElement($filtersKeys);
+        $randomKey2 = $faker->randomElement($filtersKeys);
+        $randomKey3 = $faker->randomElement($filtersKeys);
+        unset($gameParamsFilters[$randomKey1], $gameParamsFilters[$randomKey2], $gameParamsFilters[$randomKey3]);
+
+        // 2. Get filtered by dates statistics from DB
+        $statisticsFromDBQuery = $this->entityManager->createQueryBuilder()
+            ->select([
+                'SUM(gr.result)/SUM(g.rounds) AS bales',
+                'COUNT(g) AS gamesCount',
+                'g.rounds AS roundsCount',
+            ])
+            ->from(Game::class, 'g')
+            ->innerJoin('g.gameResults', 'gr')
+            ->andWhere('gr.strategy = :strategy')
+            ->groupBy('roundsCount')
+            ->setParameter('strategy', $strategy)
+        ;
+        $this->addFiltersToQuery($statisticsFromDBQuery, $gameParamsFilters);
+        $statisticsFromDB = [];
+        foreach ($statisticsFromDBQuery->getQuery()->getArrayResult() as $stats) {
+            $statisticsFromDB[] = array_merge($stats, [
+                'bales' => $formatter->toFloat($stats['bales']),
+                'gamesCount' => $formatter->toInt($stats['gamesCount']),
+            ]);
+        }
+
+        // 3. Enable Doctrine dates filters
+        $this->enableDoctrineFilters($gameParamsFilters, 'game_');
+
+        // 4. Get filtered statistics from Service
+        $statisticsFromService = $this->getStatisticsService()->getStatisticsByRoundsCount($strategy);
+
+        // 5. Compare statistics from DB and statistics from service - they must be equals
+        $this->assertEquals($statisticsFromDB, $statisticsFromService, sprintf('Test %s failed. Filtered statistics from DB and from service are not much. Filters: %s',
+            'strategy_statistics_by_rounds_count_filtered_by_game_params', json_encode($gameParamsFilters)));
+    }
+
+
+    protected function createRandomGameParamsFilters()
+    {
+        $faker = Factory::create();
+        $filters = $this->getGameService()->gamesFilters($this->getRandomUser());
+        $randomFilters = [];
+        foreach ($filters as $filter => $values) {
+            $randomFilters[$filter] = $faker->randomElement($values);
+        }
+        return $randomFilters;
     }
 
 
@@ -110,6 +300,16 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
         return $this->statisticsService = new StrategyStatisticsService($this->entityManager, self::$kernel->getContainer(), $this->getRepository(), $this->getFormatterService());
     }
 
+    private function getGameService(): GameService
+    {
+        if ($this->gameService !== null) {
+            return $this->gameService;
+        }
+        $decisionService = new StrategyDecisionsService($this->entityManager, static::$container);
+        $gameResultsService = new GameResultsService($this->entityManager, static::$container);
+        return $this->gameService = new GameService($this->entityManager, $decisionService, $gameResultsService, static::$container);
+    }
+
     private function getRepository(): StrategyStatisticsRepository
     {
         if ($this->repository !== null) {
@@ -122,10 +322,9 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
 
     private function checkStatisticsByDates($testKeysID)
     {
-        $formatter = $this->getFormatterService();
-
         // 1. Find random strategy with games statistics
         $strategy = $this->getRandomStrategy();
+        $formatter = $this->getFormatterService();
 
         // 2. Get strategy statistics
         $statistics = $this->getStatisticsService()->getStatisticsByDates($strategy);
@@ -176,10 +375,9 @@ class StrategyStatisticsTest extends AbstractStatisticsUnitTestCase
 
     private function checkStatisticsByRoundsCount($testKeysID)
     {
-        $formatter = $this->getFormatterService();
-
         // 1. Find random strategy with games statistics
         $strategy = $this->getRandomStrategy();
+        $formatter = $this->getFormatterService();
 
         // 2. Get strategy statistics
         $statistics = $this->getStatisticsService()->getStatisticsByRoundsCount($strategy);

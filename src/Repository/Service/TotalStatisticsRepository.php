@@ -165,8 +165,6 @@ class TotalStatisticsRepository extends AbstractServiceRepository
             ->orderBy('gameDate', 'ASC')
         ;
 
-        //dd($query->getQuery()->getSQL());
-
         return $query->getQuery()->getArrayResult();
     }
 
