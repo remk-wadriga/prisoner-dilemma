@@ -64,6 +64,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
      *
      * Request:
         SELECT
+            s.id,
             s.name AS strategy,
             SUM(gr.result)/SUM(g.rounds) AS bales,
             COUNT(gr.game_id) AS gamesCount,
@@ -75,7 +76,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
         AND g.created_at > :from_date
         AND g.created_at < :to_date
         GROUP BY strategy
-        ORDER BY bales DESC
+        ORDER BY bales DESC s.id ASC
      *
      * @param User $user
      *
@@ -85,6 +86,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
     {
         $query = $this->createQueryBuilder('gr', GameResult::class)
             ->select([
+                's.id',
                 's.name AS strategy',
                 'SUM(gr.result)/SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
@@ -96,6 +98,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
             ->setParameter('user', $user)
             ->groupBy('strategy')
             ->orderBy('bales', 'DESC')
+            ->addOrderBy('s.id', 'ASC')
         ;
 
         return $query->getQuery()->getArrayResult();
@@ -106,6 +109,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
      *
      * Request:
         SELECT
+            g.id,
             g.name AS game,
             DATE_FORMAT(g.created_at, '%Y-%m-%d') AS gameDate,
             SUM((SELECT SUM(gr1.result) FROM game_result gr1 WHERE gr1.game_id = g.id))/g.rounds AS bales,
@@ -120,7 +124,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
         AND g.created_at > :from_date
         AND g.created_at < :to_date
         GROUP BY game
-        ORDER BY gameDate ASC
+        ORDER BY gameDate ASC g.id ASC
      *
      * @param User $user
      *
@@ -151,6 +155,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
 
         $query = $this->createGameQueryBuilder($user)
             ->select([
+                'g.id',
                 'g.name AS game',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
                 sprintf('SUM_QUERY(%s)/g.rounds AS bales', $this->createGameResultBalesSubQuery('gr1')->getQuery()->getDQL()),
@@ -163,6 +168,7 @@ class TotalStatisticsRepository extends AbstractServiceRepository
             ])
             ->groupBy('game')
             ->orderBy('gameDate', 'ASC')
+            ->addOrderBy('g.id', 'ASC')
         ;
 
         return $query->getQuery()->getArrayResult();

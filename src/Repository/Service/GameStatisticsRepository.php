@@ -14,6 +14,7 @@ class GameStatisticsRepository extends AbstractServiceRepository
      *
      * Request:
         SELECT
+            s.id,
             s.name AS strategy,
             gr.result AS bales
         FROM game_result gr
@@ -29,6 +30,7 @@ class GameStatisticsRepository extends AbstractServiceRepository
     {
         $query = $this->createGameResultsJoinedGameAndStrategyQueryBuilder($game)
             ->select([
+                's.id',
                 's.name AS strategy',
                 'gr.result AS bales'
             ])

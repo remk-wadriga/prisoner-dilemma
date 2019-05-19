@@ -26,6 +26,7 @@ class GameStatisticsTest extends AbstractStatisticsUnitTestCase
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
         $this->checkStatisticsData($statistics, $testKeysID, [
+            'id' => 'integer',
             'strategy' => 'string',
             'bales' => 'integer',
         ]);

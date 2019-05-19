@@ -243,6 +243,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $statisticsFromDBQuery = $this->entityManager->createQueryBuilder()
             ->from(GameResult::class, 'gr')
             ->select([
+                's.id',
                 's.name AS strategy',
                 'SUM(gr.result)/SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
@@ -254,6 +255,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             ->setParameter('user', $this->getRandomUser())
             ->groupBy('strategy')
             ->orderBy('bales', 'DESC')
+            ->addOrderBy('s.id', 'ASC')
         ;
         $this->addFiltersToQuery($statisticsFromDBQuery, $randomDatesPeriod);
         $statisticsFromDB = [];
@@ -292,6 +294,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         $statisticsFromDBQuery = $this->entityManager->createQueryBuilder()
             ->from(GameResult::class, 'gr')
             ->select([
+                's.id',
                 's.name AS strategy',
                 'SUM(gr.result)/SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
@@ -303,6 +306,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             ->setParameter('user', $this->getRandomUser())
             ->groupBy('strategy')
             ->orderBy('bales', 'DESC')
+            ->addOrderBy('s.id', 'ASC')
         ;
         $this->addFiltersToQuery($statisticsFromDBQuery, $gameParamsFilters);
         $statisticsFromDB = [];
@@ -372,6 +376,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 
         $statisticsFromDBQuery = $this->createStatsQueryBuilder()
             ->select([
+                'g.id',
                 'g.name AS game',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
                 sprintf('SUM_QUERY(%s)/g.rounds AS bales', $this->createGameResultBalesSubQuery('gr1')->getQuery()->getDQL()),
@@ -384,6 +389,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             ])
             ->groupBy('game')
             ->orderBy('gameDate', 'ASC')
+            ->addOrderBy('g.id', 'ASC')
         ;
 
         $this->addFiltersToQuery($statisticsFromDBQuery, $randomDatesPeriod);
@@ -460,6 +466,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 
         $statisticsFromDBQuery = $this->createStatsQueryBuilder()
             ->select([
+                'g.id',
                 'g.name AS game',
                 sprintf('DATE_FORMAT(g.createdAt, \'%s\') AS gameDate', $this->getParam('database_date_format')),
                 sprintf('SUM_QUERY(%s)/g.rounds AS bales', $this->createGameResultBalesSubQuery('gr1')->getQuery()->getDQL()),
@@ -472,6 +479,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
             ])
             ->groupBy('game')
             ->orderBy('gameDate', 'ASC')
+            ->addOrderBy('g.id', 'ASC')
         ;
 
         $this->addFiltersToQuery($statisticsFromDBQuery, $gameParamsFilters);
@@ -798,6 +806,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
         $this->checkStatisticsData($statistics, $testKeysID, [
+            'id' => 'integer',
             'strategy' => 'string',
             'bales' => 'float',
             'gamesCount' => 'integer',
@@ -807,6 +816,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
         // 4. Get statistics data from DB
         $statsQuery = $this->entityManager->createQueryBuilder()
             ->select([
+                's.id',
                 's.name AS strategy',
                 'SUM(gr.result)/SUM(g.rounds) AS bales',
                 'COUNT(gr.game) AS gamesCount',
@@ -883,6 +893,7 @@ class TotalStatisticsTest extends AbstractStatisticsUnitTestCase
 
         // 3. Check statistics data (must be an array and all elements must have all necessary attributes with correct types)
         $this->checkStatisticsData($statistics, $testKeysID, [
+            'id' => 'integer',
             'game' => 'string',
             'gameDate' => 'string',
             'totalBales' => 'integer',

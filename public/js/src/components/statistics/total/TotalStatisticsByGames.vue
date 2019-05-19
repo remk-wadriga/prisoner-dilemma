@@ -14,7 +14,8 @@
                 chartData: [],
                 chartOptions: null,
                 chartTooltipTitleCallback: null,
-                chartTooltipLabelCallback: null
+                chartTooltipLabelCallback: null,
+                chartOnClick: null
             }
         },
         props: {
@@ -31,6 +32,7 @@
         },
         methods: {
             init (statistics) {
+                let ids = []
                 let bales = []
                 let roundsCount = []
                 let winners = []
@@ -38,6 +40,7 @@
                 this.chartLabels = []
 
                 statistics.forEach(data => {
+                    ids.push(data.id)
                     this.chartLabels.push(data.game)
                     bales.push(data.bales)
                     roundsCount.push(data.roundsCount)
@@ -57,6 +60,13 @@
                         + '; Rounds count: ' + roundsCount[item.index]
                         + '; Winner: ' + winners[item.index].strategy + ' (' + winners[item.index].bales + ')'
                         + '; Loser: ' + losers[item.index].strategy + ' (' + losers[item.index].bales + ')'
+                }
+
+                this.chartOnClick = (point, event) => {
+                    const item = event[0]
+                    if (item !== undefined && ids[item._index] !== undefined) {
+                        this.$router.push({name: 'game_view', params: {id: ids[item._index]}})
+                    }
                 }
 
                 this.isReady = true

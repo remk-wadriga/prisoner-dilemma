@@ -97,6 +97,7 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
     {
         $response = $this->request(['total_statistics_by_strategies', $requestParams]);
         $this->checkResponseParams($response, $testKeysID, [
+            'id' => 'integer',
             'strategy' => 'string',
             'gamesCount' => 'integer',
             'roundsCount' => 'integer',
@@ -110,6 +111,7 @@ class TotalStatisticsTest extends AbstractStatisticsApiTestCase
         // 1. Get total statistics and check it
         $response = $this->request(['total_statistics_by_games', $requestParams]);
         $this->checkResponseParams($response, $testKeysID, [
+            'id' => 'integer',
             'game' => 'string',
             'gameDate' => 'string',
             'totalBales' => 'integer',

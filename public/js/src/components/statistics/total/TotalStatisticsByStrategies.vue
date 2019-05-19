@@ -14,7 +14,8 @@
                 chartData: [],
                 chartOptions: null,
                 chartTooltipTitleCallback: null,
-                chartTooltipLabelCallback: null
+                chartTooltipLabelCallback: null,
+                chartOnClick: null
             }
         },
         props: {
@@ -31,12 +32,14 @@
         },
         methods: {
             init (statistics) {
+                let ids = []
                 let bales = []
                 let gamesCount = []
                 let roundsCount = []
                 this.chartLabels = []
 
                 statistics.forEach(data => {
+                    ids.push(data.id)
                     this.chartLabels.push(data.strategy)
                     bales.push(data.bales)
                     gamesCount.push(data.gamesCount)
@@ -55,6 +58,13 @@
                 }
                 this.chartTooltipLabelCallback = item => {
                     return 'Bales: ' + bales[item.index] + '; Games count: ' + gamesCount[item.index] + '; Rounds count: ' + roundsCount[item.index]
+                }
+
+                this.chartOnClick = (point, event) => {
+                    const item = event[0]
+                    if (item !== undefined && ids[item._index] !== undefined) {
+                        this.$router.push({name: 'strategy_update', params: {id: ids[item._index]}})
+                    }
                 }
 
                 this.isReady = true

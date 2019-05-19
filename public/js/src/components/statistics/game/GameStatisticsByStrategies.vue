@@ -17,14 +17,17 @@
                 chartData: [],
                 chartOptions: null,
                 chartTooltipTitleCallback: null,
-                chartTooltipLabelCallback: null
+                chartTooltipLabelCallback: null,
+                chartOnClick: null
             }
         },
         methods: {
             init (statistics) {
+                let ids = []
                 let bales = []
 
                 statistics.forEach(data => {
+                    ids.push(data.id)
                     this.chartLabels.push(data.strategy)
                     bales.push(data.bales)
                 })
@@ -35,6 +38,13 @@
                         data: bales
                     }
                 ]
+
+                this.chartOnClick = (point, event) => {
+                    const item = event[0]
+                    if (item !== undefined && ids[item._index] !== undefined) {
+                        this.$router.push({name: 'strategy_update', params: {id: ids[item._index]}})
+                    }
+                }
 
                 this.isReady = true
             }

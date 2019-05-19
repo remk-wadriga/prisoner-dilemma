@@ -8,7 +8,8 @@
             data: Array,
             options: Object,
             tooltipTitleCallback: Function,
-            tooltipLabelCallback: Function
+            tooltipLabelCallback: Function,
+            onClick: Function
         },
         data () {
             return {
@@ -30,6 +31,10 @@
                     responsive: true,
                     maintainAspectRatio: false
                 }
+                if (this.onClick) {
+                    options.onClick = this.onClick
+                }
+
                 if (this.options) {
                     options = this.options
                 }

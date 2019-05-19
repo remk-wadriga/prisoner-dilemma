@@ -8,7 +8,8 @@
             data: Array,
             options: Object,
             tooltipTitleCallback: Function,
-            tooltipLabelCallback: Function
+            tooltipLabelCallback: Function,
+            onClick: Function
         },
         data () {
             return {
