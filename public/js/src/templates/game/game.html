@@ -2,9 +2,9 @@
 
     <b-tab title="Params" v-if="showParams" :active="gameResults === null">
         <GameParams
-            v-bind:game="game"
-            v-bind:gameParams="gameParams"
-            v-bind:results="gameResults"
+            :game="game"
+            :gameParams="gameParams"
+            :results="gameResults"
             @setGameResults="setGameResults($event)"
             @setGameResultsChanged="setGameResultsChanged($event)"
         />
@@ -12,9 +12,9 @@
 
     <b-tab title="Results" v-if="gameResults" :active="gameResults !== null">
         <GameResults
-            v-bind:game="game"
-            v-bind:results="gameResults"
-            v-bind:gameResultsChanged="gameResultsChanged"
+            :game="game"
+            :results="gameResults"
+            :gameResultsChanged="gameResultsChanged"
             @saveGame="saveGame($event)"
         />
     </b-tab>

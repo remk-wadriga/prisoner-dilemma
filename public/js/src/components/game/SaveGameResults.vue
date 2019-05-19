@@ -22,7 +22,8 @@
             winner: Object,
             looser: Object,
             onCloseCallback: Function,
-            gameResultsChanged: Boolean
+            gameResultsChanged: Boolean,
+            gameParams: Object
         },
         methods: {
             save () {
@@ -37,13 +38,27 @@
                 const dateString = moment().format(Config.params.dateTimeFormat)
 
                 if (attributes.name !== undefined) {
-                    this.params.name = 'Game #' + dateString + ' (' + this.totalResults.length + ' strategies, ' + this.sum + ' balles)'
+                    this.params.name = '#' + dateString +
+                        ' (' + this.totalResults.length +
+                        ' strategies, ' +
+                        this.sum + ' balles) ' +
+                        this.gameParams.rounds + '|' +
+                        this.gameParams.balesForWin + '|' +
+                        this.gameParams.balesForLoos + '|' +
+                        this.gameParams.balesForCooperation + '|' +
+                        this.gameParams.balesForDraw
                 }
                 if (attributes.description !== undefined) {
                     this.params.description = '* Date: ' + dateString + '\n'
                         + '* Sum: ' + this.sum + '\n'
                         + '* Winner: ' + this.winner.name + ' (' + this.winner.result + ')\n'
                         + '* Looser: ' + this.looser.name + ' (' + this.looser.result + ')\n'
+                        + '* Params:\n'
+                        + '    * rounds: ' + this.gameParams.rounds + '\n'
+                        + '    * balesForWin: ' + this.gameParams.balesForWin + '\n'
+                        + '    * balesForLoos: ' + this.gameParams.balesForLoos + '\n'
+                        + '    * balesForCooperation: ' + this.gameParams.balesForCooperation + '\n'
+                        + '    * balesForDraw: ' + this.gameParams.balesForDraw + '\n'
                         + '* Strategies:\n'
 
                     this.totalResults.forEach(res => {
