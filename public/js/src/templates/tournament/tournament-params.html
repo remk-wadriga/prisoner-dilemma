@@ -1,0 +1,33 @@
+<b-row id="tournament_params_page" class="min-width-eighty-presents" v-if="isReady">
+    <b-col md="4" class="my-2">
+        <h3>Tournament params:</h3>
+
+        {{ params }}
+
+        <b-form id="start_tournament_form" @submit="startTournament">
+
+            <b-button type="submit" variant="primary">Start</b-button>
+        </b-form>
+    </b-col>
+
+    <b-col md="4" class="my-2">
+        <div class="d-block text-center">
+            <h3>Selected strategies:</h3>
+            <b-form-group label="">
+                <b-form-checkbox-group buttons v-model="checkedStrategiesIds" stacked :options="checkedStrategiesIdsOptions">
+                </b-form-checkbox-group>
+            </b-form-group>
+        </div>
+    </b-col>
+
+    <b-col md="4" class="my-2" v-if="tournament !== null">
+        <div class="d-block text-left">
+            <h3>Description:</h3>
+            <b-textarea
+                    v-model="tournament.description"
+                    :rows="20"
+                    disabled>
+            </b-textarea>
+        </div>
+    </b-col>
+</b-row>

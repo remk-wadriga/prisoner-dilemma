@@ -10,6 +10,7 @@ namespace App\Controller;
 
 use App\Entity\Game;
 use App\Service\Statistics\TotalStatisticsService;
+use App\Service\TournamentService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\GameService;
@@ -63,5 +64,13 @@ class ParamsController extends ControllerAbstract
     public function gameFilters(GameService $gameService)
     {
         return $this->json($gameService->gamesFilters($this->getUser()));
+    }
+
+    /**
+     * @Route("/params/tournament", name="params_tournament", methods={"GET"})
+     */
+    public function tournament(TournamentService $tournamentService)
+    {
+        return $this->json($tournamentService->getParams());
     }
 }

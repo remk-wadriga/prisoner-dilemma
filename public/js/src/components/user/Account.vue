@@ -42,6 +42,12 @@
             this.$store.commit('setBreadcrumbs', [
                 {title: 'Profile', url: 'user_account'},
             ])
+            this.$store.commit('setPageTopButtons', [
+                {title: 'Create new strategy', type: 'primary', click: {url: {name: 'strategy_create'}}},
+                {title: 'Start new game', type: 'success', click: {url: {name: 'game_start'}}},
+                {title: 'Start new tournament', click: {url: {name: 'tournament_start'}}}
+            ])
+
             let userInfo = user.methods.getInfo()
             if (userInfo === null) {
                 this.$store.commit('addLogMessage', {type: 'danger', text: 'Can`t get user info. Try lo login again'})

@@ -14,19 +14,10 @@
                 gameResultsChanged: false,
                 gameResults: null,
                 gameParams: null,
-                showParams: false,
-                tmp_results: null
+                showParams: false
             }
         },
         methods: {
-            rebuild () {
-                if (this.gameResults !== null) {
-                    this.tmp_results = this.gameResults
-                    this.gameResults = null
-                } else {
-                    this.gameResults = this.tmp_results
-                }
-            },
             setGameResults (data) {
                 this.gameResults = data
             },
@@ -34,7 +25,7 @@
                 this.gameResultsChanged = true;
             },
             saveGame (data) {
-                let cllback = response => {
+                let callback = response => {
                     this.$router.push({name: 'game_view', params: {id: response.info.id}})
 
                     this.game = response.info
@@ -50,9 +41,9 @@
                     ])
                 }
                 if (this.game === null || this.gameResultsChanged) {
-                    Api.methods.request('save_game_url', {game_form: data}, 'POST', cllback)
+                    Api.methods.request('save_game_url', {game_form: data}, 'POST', callback)
                 } else {
-                    Api.methods.request(['game_url', {id: this.game.id}], {game_form: data}, 'PUT', cllback)
+                    Api.methods.request(['game_url', {id: this.game.id}], {game_form: data}, 'PUT', callback)
                 }
             }
         },

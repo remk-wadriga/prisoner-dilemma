@@ -12,6 +12,7 @@ import GamesList from '@/components/game/List'
 import TotalStatistics from '@/components/statistics/total/TotalStatistics'
 import StrategyStatistics from '@/components/statistics/strategy/StrategyStatistics'
 import GameStatistics from '@/components/statistics/game/GameStatistics'
+import Tournament from '@/components/tournament/Tournament'
 
 Vue.use(Router)
 
@@ -81,6 +82,11 @@ export default new Router({
             path: '/game-statistics/:id',
             name: 'game_statistics',
             component: GameStatistics
+        },
+        {
+            path: '/tournament',
+            name: 'tournament_start',
+            component: Tournament
         }
     ]
 })
