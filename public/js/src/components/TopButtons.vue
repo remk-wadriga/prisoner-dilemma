@@ -1,4 +1,4 @@
-<template<template src="@/templates/top-buttons.html" />
+<template src="@/templates/top-buttons.html" />
 
 <script>
     import DeleteStrategy from '@/components/strategy/Delete'
